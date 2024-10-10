@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chat App
 
-## Getting Started
+**Tier:** 3-Advanced
 
-First, run the development server:
+Real-time chat interface where multiple users can interact with each other by sending messages.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+As a MVP(Minimum Viable Product) you can focus on building the Chat interface. Real-time functionality can be added later (the bonus features).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## User Stories
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+-   [ ] User is prompted to enter a username when he visits the chat app. The username will be stored in the application
+-   [ ] User can see an `input field` where he can type a new message
+-   [ ] By pressing the `enter` key or by clicking on the `send` button the text will be displayed in the `chat box` alongside his username (e.g. `John Doe: Hello World!`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Bonus features
 
-## Learn More
+-   [ ] The messages will be visible to all the Users that are in the chat app (using WebSockets)
+-   [ ] When a new User joins the chat, a message is displayed to all the existing Users
+-   [ ] Messages are saved in a database
+-   [ ] User can send images, videos and links which will be displayed properly
+-   [ ] User can select and send an emoji
+-   [ ] Users can chat in private
+-   [ ] Users can join `channels` on specific topics
 
-To learn more about Next.js, take a look at the following resources:
+## Useful links and resources
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+-   [Socket.io](https://socket.io)
+-   [How to build a React.js chat app in 10 minutes - article](https://medium.freecodecamp.org/how-to-build-a-react-js-chat-app-in-10-minutes-c9233794642b)
+-   [Build a chat application like Slack - React / JavaScript Tutorial - Youtube](https://www.youtube.com/watch?v=a-JKj7m2LIo)
+-   [Socket.io Chat App Using Websockets - Youtube Tutorial](https://www.youtube.com/watch?v=tHbCkikFfDE)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Example projects
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   [Chatty2](https://web-chatty.herokuapp.com/)
+-   [Simple TCP Socket based Chat application](https://github.com/dularish/Simple-TCP-Socket-based-Chat-App)
