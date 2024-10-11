@@ -1,11 +1,10 @@
 "use client"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-
-import { useSearchParams } from "next/navigation";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export default function Dashboard() {
-	const searchParams = useSearchParams();
+	const [username, setUsername] = useState(localStorage.getItem("username"));
 
 	useEffect(() => {
 		const socket = io("http://localhost:4000", {
@@ -16,7 +15,7 @@ export default function Dashboard() {
 		});
 
 		socket.on("connect", () => {
-			socket.emit("joinRoom", "room1", searchParams.get("username"));
+			socket.emit("joinRoom", "room1", username);
 
 			socket.on("message", (msg) => {
 				console.log(`Message from server room: ${msg}`)
@@ -26,7 +25,6 @@ export default function Dashboard() {
 
 		});
 
-
 		return () => {
 			socket.disconnect();
 		}
@@ -35,8 +33,7 @@ export default function Dashboard() {
 
 	return (
 		<>
-			{searchParams.get("username")}
-
+			{username}
 		</>
 	);
 }

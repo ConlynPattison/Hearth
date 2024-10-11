@@ -1,9 +1,14 @@
 "use client"
+import useLocalStorage from "@/hooks/useLocalStorage";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
 	const [username, setUsername] = useState("");
+
+	useEffect(() => {
+		localStorage.removeItem("username");
+	})
 
 	return (
 		<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -17,11 +22,9 @@ export default function Home() {
 					></input>
 				</label>
 				<Link
+					onClick={() => localStorage.setItem("username", username)}
 					href={{
 						pathname: "/dashboard",
-						query: {
-							username
-						}
 					}}
 				>
 					Enter Room
