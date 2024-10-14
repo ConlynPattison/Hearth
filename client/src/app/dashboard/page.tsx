@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
+type Message = {
+	username: string,
+	
+}
+
 export default function Dashboard() {
 	const [username, setUsername] = useState(localStorage.getItem("username"));
 
@@ -34,6 +39,7 @@ export default function Dashboard() {
 	return (
 		<>
 			{username}
+			<h1>Messages: </h1>
 		</>
 	);
 }
