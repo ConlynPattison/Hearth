@@ -48,14 +48,12 @@ export default function Dashboard() {
 
 		window.addEventListener("beforeunload", (e) => {
 			e.preventDefault();
-			socket.emit("leaveRoom", "room1", username);
 			socket.off("message");
 			socket.off("gateway");
 			socket.disconnect();
 		})
 
 		return () => {
-			socket.emit("leaveRoom", "room1", username);
 			socket.off("message");
 			socket.off("gateway");
 			socket.disconnect();
