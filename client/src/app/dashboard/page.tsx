@@ -94,7 +94,7 @@ export default function Dashboard() {
 		<>
 			<h1 className="text-4xl font-bold text-emerald-400 text-center">{username}</h1>
 			<form onSubmit={sendMessage}>
-				<label>Message: <br /><textarea className="bg-zinc-700 rounded border-2 border-zinc-400"
+				<label>Message: <br /><textarea className="bg-zinc-500 rounded border-2 border-zinc-400"
 					ref={messageBox}
 					onKeyDown={handleKeyDown}
 				></textarea></label>
@@ -119,7 +119,7 @@ export default function Dashboard() {
 								:
 								<>
 									<p className="underline">{message.senderUsername}:</p>
-									<p className="whitespace-pre bg-zinc-700 w-[50%] text-wrap">{message.content}</p>
+									<p className="whitespace-pre bg-zinc-500 w-[50%] text-wrap">{message.content}</p>
 								</>
 						}
 

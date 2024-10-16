@@ -14,7 +14,7 @@ export default function Home() {
 			<main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
 				<label htmlFor="username">
 					Username: <input
-						className="bg-zinc-700 rounded border-2 border-zinc-400"
+						className="bg-zinc-500 rounded border-2 border-zinc-400"
 						type="text"
 						name="username"
 						value={username}
