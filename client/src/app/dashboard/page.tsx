@@ -1,6 +1,7 @@
 "use client"
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSocket } from "../context/SocketContext";
+import { useRouter } from "next/navigation";
 
 type Message = {
 	isJoinLeave: boolean,
@@ -12,6 +13,8 @@ export default function Dashboard() {
 	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const messageBox = useRef<HTMLTextAreaElement>(null);
+
+	const router = useRouter();
 
 	const socket = useSocket()!;
 
@@ -83,6 +86,10 @@ export default function Dashboard() {
 		}
 	};
 
+	const handleLeave = () => {
+		router.replace("/");
+	}
+
 	return (
 		<>
 			<h1 className="text-4xl font-bold text-emerald-400 text-center">{username}</h1>
@@ -100,7 +107,7 @@ export default function Dashboard() {
 			<button
 				className="bg-red-900 rounded p-1 -translate-y-2.5 mt-2"
 				type="button"
-				onClick={() => console.log("leaving")}
+				onClick={() => handleLeave}
 			>Leave</button>
 			<h1>Messages: </h1>
 			{messages.map((message, index) => {
