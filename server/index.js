@@ -56,7 +56,7 @@ io.on("connection", (socket) => {
 
 	socket.on("disconnecting", () => {
 		const username = socket.data.username || "Unknown User";
-		const roomsToLeave = socket.rooms?.filter((room) => room !== socket.id)
+		const roomsToLeave = Array.from(socket.rooms)?.filter((room) => room !== socket.id)
 		roomsToLeave.forEach((room) => {
 			leaveRoom(socket, room, username);
 		});
