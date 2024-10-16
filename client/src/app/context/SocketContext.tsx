@@ -13,7 +13,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const socketInstance = io(socketURL);
+		const socketInstance = io(socketURL, {
+			transports: ["websocket", "polling"]
+		});
 		setSocket(socketInstance);
 
 		return () => { socketInstance.disconnect(); }
@@ -25,6 +27,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 		);
 	}
 
+	console.log(socketURL)
 	return (
 		<SocketContext.Provider value={socket}>
 			{children}
