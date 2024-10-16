@@ -1,14 +1,23 @@
 import { Server } from "socket.io";
 import express from "express";
 import { createServer } from "http";
+import { configDotenv } from "dotenv";
 
+configDotenv();
 const port = process.env.PORT || 4000;
 const app = express();
 const httpServer = createServer(app);
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+	? process.env.ALLOWED_ORIGINS.split(",")
+	: [];
+
+console.log(allowedOrigins)
+
 const io = new Server(httpServer, {
 	cors: {
-		origin: "http://localhost:3000",
+		origin: allowedOrigins,
 		allowedHeaders: ["my-custom-header"],
+		methods: ["GET", "POST"],
 		credentials: true
 	}
 });

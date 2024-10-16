@@ -6,8 +6,8 @@ const SocketContext = createContext<Socket | null>(null);
 
 export const useSocket = () => useContext(SocketContext);
 
-const socketURL = process.env.NODE_ENV === "development" ?
-	"http://localhost:4000" : process.env.socketURL;
+const socketURL = process.env.NEXT_PUBLIC_SOCKET_URL;
+
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
@@ -17,9 +17,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 		setSocket(socketInstance);
 
 		return () => { socketInstance.disconnect(); }
-	}, []);
+	}, [socketURL]);
 
-	if (!socket) {
+	if (!socketURL || !socket) {
 		return (
 			<div>...loading</div>
 		);
