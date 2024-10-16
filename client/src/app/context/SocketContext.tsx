@@ -18,7 +18,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 		});
 		setSocket(socketInstance);
 
-	}, [socketURL]);
+	}, []);
 
 	if (!socketURL || !socket) {
 		return (

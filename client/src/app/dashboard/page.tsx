@@ -14,8 +14,6 @@ export default function Dashboard() {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const messageBox = useRef<HTMLTextAreaElement>(null);
 
-	const router = useRouter();
-
 	const socket = useSocket()!;
 
 	useEffect(() => {
