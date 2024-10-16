@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import { useSocket } from "../context/SocketContext";
 
 type Message = {
@@ -10,7 +10,7 @@ type Message = {
 export default function Dashboard() {
 	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
-	const [messageBoxContent, setMessageBoxContent] = useState("");
+	const messageBox = useRef<HTMLTextAreaElement>(null);
 
 	const socket = useSocket()!;
 
@@ -41,16 +41,16 @@ export default function Dashboard() {
 	}, [username, socket]);
 
 	const sendMessage = () => {
-		if (!username || !messageBoxContent.trim()) return;
+		if (!username || !messageBox.current?.value.trim()) return;
 
-		socket?.emit("messageToRoom", "room1", messageBoxContent, username);
-		setMessageBoxContent("");
+		socket?.emit("messageToRoom", "room1", messageBox.current.value, username);
+		messageBox.current.value = "";
 	}
 
 	return (
 		<>
 			{username}
-			<label>Message: <textarea value={messageBoxContent} onChange={(e) => setMessageBoxContent(e.target.value)}></textarea></label>
+			<label>Message: <textarea ref={messageBox}></textarea></label>
 			<button type="button" onClick={sendMessage}>Send</button>
 			<h1>Messages: </h1>
 			{messages.map((message, index) => {
