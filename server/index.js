@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import express from "express";
 import { createServer } from "http";
 
+const port = process.env.PORT || 4000;
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
@@ -11,8 +12,6 @@ const io = new Server(httpServer, {
 		credentials: true
 	}
 });
-
-const port = process.env.port || 4000
 
 io.on("connection", (socket) => {
 	console.log("A user connected");
