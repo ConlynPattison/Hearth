@@ -87,7 +87,7 @@ export default function Dashboard() {
 	};
 
 	const handleLeave = () => {
-		router.replace("/");
+		router.back();
 	}
 
 	return (
@@ -107,7 +107,7 @@ export default function Dashboard() {
 			<button
 				className="bg-red-900 rounded p-1 -translate-y-2.5 mt-2"
 				type="button"
-				onClick={() => handleLeave}
+				onClick={handleLeave}
 			>Leave</button>
 			<h1>Messages: </h1>
 			{messages.map((message, index) => {
