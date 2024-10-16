@@ -20,6 +20,15 @@ const io = new Server(httpServer, {
 	}
 });
 
+const leaveRoom = (socket, room, username) => {
+	setTimeout(() => io.to(room).emit(
+		"gateway",
+		`${username} has left the room.`
+	), 500);
+	socket.leave(room);
+	console.log(`User ${username} left room: ${room}`);
+}
+
 io.on("connection", (socket) => {
 	console.log("A user connected");
 
@@ -36,12 +45,7 @@ io.on("connection", (socket) => {
 
 	// Leave a room
 	socket.on("leaveRoom", (room, username) => {
-		io.to(room).emit(
-			"gateway",
-			`${username} has left the room.`
-		);
-		socket.leave(room);
-		console.log(`User ${username} left room: ${room}`);
+		leaveRoom(socket, room, username);
 	});
 
 	// Send message to a specific room
@@ -53,11 +57,7 @@ io.on("connection", (socket) => {
 	socket.on("disconnecting", () => {
 		const username = socket.data.username || "Unknown User";
 		socket.rooms.forEach((room) => {
-			io.to(room).emit(
-				"gateway",
-				`${username} has left the room.`
-			);
-			socket.leave(room);
+			leaveRoom(socket, room, username);
 		});
 	})
 
