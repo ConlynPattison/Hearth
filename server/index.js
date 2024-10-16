@@ -50,16 +50,16 @@ io.on("connection", (socket) => {
 		console.log(`Message sent to room ${room}: ${message}`);
 	});
 
-	// socket.on("disconnecting", () => {
-	// 	const username = socket.data.username || "Unknown User";
-	// 	socket.rooms.forEach((room) => {
-	// 		io.to(room).emit(
-	// 			"gateway",
-	// 			`${username} has left the room.`
-	// 		);
-	// 		socket.leave(room);
-	// 	});
-	// })
+	socket.on("disconnecting", () => {
+		const username = socket.data.username || "Unknown User";
+		socket.rooms.forEach((room) => {
+			io.to(room).emit(
+				"gateway",
+				`${username} has left the room.`
+			);
+			socket.leave(room);
+		});
+	})
 
 	socket.on("disconnect", () => {
 		console.log(`User ${socket.data.username || "unknown user"} disconnected`);
