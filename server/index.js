@@ -11,8 +11,6 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 	? process.env.ALLOWED_ORIGINS.split(",")
 	: [];
 
-console.log(allowedOrigins)
-
 const io = new Server(httpServer, {
 	cors: {
 		origin: allowedOrigins,
@@ -27,14 +25,23 @@ io.on("connection", (socket) => {
 
 	// Join a room
 	socket.on("joinRoom", (room, username = "undefined user") => {
+		socket.data.username = username
 		socket.join(room);
+		io.to(room).emit(
+			"gateway",
+			`${username} has joined the room.`
+		);
 		console.log(`User ${username} joined room: ${room}`);
 	});
 
 	// Leave a room
-	socket.on("leaveRoom", (room) => {
+	socket.on("leaveRoom", (room, username) => {
+		io.to(room).emit(
+			"gateway",
+			`${username} has left the room.`
+		);
 		socket.leave(room);
-		console.log(`User left room: ${room}`);
+		console.log(`User ${username} left room: ${room}`);
 	});
 
 	// Send message to a specific room
@@ -43,11 +50,22 @@ io.on("connection", (socket) => {
 		console.log(`Message sent to room ${room}: ${message}`);
 	});
 
+	// socket.on("disconnecting", () => {
+	// 	const username = socket.data.username || "Unknown User";
+	// 	socket.rooms.forEach((room) => {
+	// 		io.to(room).emit(
+	// 			"gateway",
+	// 			`${username} has left the room.`
+	// 		);
+	// 		socket.leave(room);
+	// 	});
+	// })
+
 	socket.on("disconnect", () => {
-		console.log("User disconnected");
+		console.log(`User ${socket.data.username || "unknown user"} disconnected`);
 	});
 });
 
 httpServer.listen(port);
 
-console.log(`Server running, listening on port: ${port}`)
+console.log(`Server running, listening on port: ${port}`);

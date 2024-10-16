@@ -1,8 +1,10 @@
 "use client"
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSocket } from "../context/SocketContext";
+import { useRouter } from "next/navigation";
 
 type Message = {
+	isJoinLeave: boolean,
 	senderUsername: string,
 	content: string
 }
@@ -11,6 +13,8 @@ export default function Dashboard() {
 	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const messageBox = useRef<HTMLTextAreaElement>(null);
+
+	const router = useRouter();
 
 	const socket = useSocket()!;
 
@@ -28,14 +32,35 @@ export default function Dashboard() {
 		socket.on("message", (msg, sender) => {
 			setMessages((messagesCurr) => {
 				return [...messagesCurr, {
+					isJoinLeave: false,
 					content: msg,
 					senderUsername: sender
 				}];
 			});
 		});
 
-		return () => {
+		socket.on("gateway", (msg, user) => {
+			setMessages((messagesCurr) => {
+				return [...messagesCurr, {
+					isJoinLeave: true,
+					content: msg,
+					senderUsername: user
+				}];
+			});
+		});
+
+		window.addEventListener("beforeunload", (e) => {
+			e.preventDefault();
+			socket.emit("leaveRoom", "room1", username);
 			socket.off("message");
+			socket.off("gateway");
+			socket.disconnect();
+		})
+
+		return () => {
+			socket.emit("leaveRoom", "room1", username);
+			socket.off("message");
+			socket.off("gateway");
 			socket.disconnect();
 		};
 
@@ -74,17 +99,28 @@ export default function Dashboard() {
 					type="submit"
 				>Send</button>
 			</form>
+			<button
+				className="bg-red-900 rounded p-1 -translate-y-2.5 mt-2"
+				type="button"
+				onClick={() => console.log("leaving")}
+			>Leave</button>
 			<h1>Messages: </h1>
 			{messages.map((message, index) => {
 				return (
 					<div key={index}>
-						<p className="underline">{message.senderUsername}:</p>
-						<p className="whitespace-pre bg-zinc-700 w-[50%] text-wrap">{message.content}</p>
+						{
+							message.isJoinLeave
+								? <p>{message.content}</p>
+								:
+								<>
+									<p className="underline">{message.senderUsername}:</p>
+									<p className="whitespace-pre bg-zinc-700 w-[50%] text-wrap">{message.content}</p>
+								</>
+						}
+
 					</div >
-				)
+				);
 			})}
 		</>
 	);
 }
-
-// <h1 className="text-4xl font-bold text-emerald-500">{username}</h1>

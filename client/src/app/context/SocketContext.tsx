@@ -18,7 +18,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 		});
 		setSocket(socketInstance);
 
-		return () => { socketInstance.disconnect(); }
 	}, [socketURL]);
 
 	if (!socketURL || !socket) {
