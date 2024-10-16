@@ -46,17 +46,20 @@ export default function Dashboard() {
 			});
 		});
 
-		window.addEventListener("beforeunload", (e) => {
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
 			e.preventDefault();
 			socket.off("message");
 			socket.off("gateway");
 			socket.disconnect();
-		})
+		}
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
 
 		return () => {
 			socket.off("message");
 			socket.off("gateway");
 			socket.disconnect();
+			window.removeEventListener("beforeunload", handleBeforeUnload)
 		};
 
 	}, [username, socket]);
