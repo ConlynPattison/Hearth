@@ -30,8 +30,8 @@ io.on("connection", (socket) => {
 	});
 
 	// Send message to a specific room
-	socket.on("messageToRoom", (room, message) => {
-		io.to(room).emit("message", message);
+	socket.on("messageToRoom", (room, message, user) => {
+		io.to(room).emit("message", message, user);
 		console.log(`Message sent to room ${room}: ${message}`);
 	});
 
