@@ -6,11 +6,14 @@ const SocketContext = createContext<Socket | null>(null);
 
 export const useSocket = () => useContext(SocketContext);
 
+const socketURL = process.env.NODE_ENV === "development" ?
+	"http://localhost:4000" : process.env.socketURL;
+
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const socketInstance = io("http://localhost:4000");
+		const socketInstance = io(socketURL);
 		setSocket(socketInstance);
 
 		return () => { socketInstance.disconnect(); }
