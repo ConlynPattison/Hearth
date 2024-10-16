@@ -27,7 +27,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 		);
 	}
 
-	console.log(socketURL)
 	return (
 		<SocketContext.Provider value={socket}>
 			{children}

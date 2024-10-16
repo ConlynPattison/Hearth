@@ -76,7 +76,6 @@ export default function Dashboard() {
 			</form>
 			<h1>Messages: </h1>
 			{messages.map((message, index) => {
-				console.log(message)
 				return (
 					<div key={index}>
 						<p className="underline">{message.senderUsername}:</p>
