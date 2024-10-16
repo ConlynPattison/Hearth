@@ -1,32 +1,31 @@
 "use client"
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
+import { useSocket } from "../context/SocketContext";
 
 type Message = {
 	senderUsername: string,
 	content: string
 }
 
-const socket = io("http://localhost:4000", {
-	withCredentials: true,
-	extraHeaders: {
-		"my-custom-header": "abcd"
-	}
-});
-
-
 export default function Dashboard() {
-	const [username, setUsername] = useState(localStorage.getItem("username"));
+	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [messageBoxContent, setMessageBoxContent] = useState("");
 
+	const socket = useSocket()!;
+
 	useEffect(() => {
+		setUsername(localStorage.getItem("username") || "");
+	}, [])
+
+	useEffect(() => {
+		if (!socket || !username) return;
+
 		socket.on("connect", () => {
 			socket.emit("joinRoom", "room1", username);
 		});
 
 		socket.on("message", (msg, sender) => {
-			console.log("got message from server: " + msg)
 			setMessages((messagesCurr) => {
 				return [...messagesCurr, {
 					content: msg,
@@ -34,17 +33,17 @@ export default function Dashboard() {
 				}];
 			});
 		});
+		return () => {
+			socket.off("message");
+			socket.disconnect();
+		};
 
-		return () => { socket.disconnect() };
-	}, [username]);
+	}, [username, socket]);
 
 	const sendMessage = () => {
-		if (!username || messageBoxContent.length === 0) {
-			return;
-		}
-		console.log(messageBoxContent)
-		socket.emit("messageToRoom", "room1", messageBoxContent, username);
-		console.log(messages);
+		if (!username || !messageBoxContent.trim()) return;
+
+		socket?.emit("messageToRoom", "room1", messageBoxContent, username);
 		setMessageBoxContent("");
 	}
 
@@ -54,9 +53,9 @@ export default function Dashboard() {
 			<label>Message: <textarea value={messageBoxContent} onChange={(e) => setMessageBoxContent(e.target.value)}></textarea></label>
 			<button type="button" onClick={sendMessage}>Send</button>
 			<h1>Messages: </h1>
-			{messages.map((message) => {
+			{messages.map((message, index) => {
 				return (
-					<div>
+					<div key={index}>
 						<p>{message.senderUsername}: </p>
 						<p>{message.content}</p>
 					</div>
