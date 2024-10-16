@@ -1,7 +1,6 @@
 "use client"
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSocket } from "../context/SocketContext";
-import { useRouter } from "next/navigation";
 
 type Message = {
 	isJoinLeave: boolean,
