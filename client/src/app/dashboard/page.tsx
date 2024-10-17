@@ -100,12 +100,12 @@ export default function Dashboard() {
 				></textarea></label>
 				<br />
 				<button
-					className="bg-emerald-700 rounded p-1 -translate-y-2.5 mt-2"
+					className="bg-emerald-700 rounded p-1 mb-1"
 					type="submit"
 				>Send</button>
 			</form>
 			<button
-				className="bg-red-900 rounded p-1 -translate-y-2.5 mt-2"
+				className="bg-red-900 rounded p-1"
 				type="button"
 				onClick={handleLeave}
 			>Leave</button>
