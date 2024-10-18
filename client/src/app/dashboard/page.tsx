@@ -2,6 +2,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSocket } from "../context/SocketContext";
 import { useRouter } from "next/navigation";
+import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 
 type Message = {
 	isJoinLeave: boolean,
@@ -94,6 +95,7 @@ export default function Dashboard() {
 	return (
 		<>
 			<h1 className="text-4xl font-bold text-emerald-400 text-center">{username}</h1>
+			{/* Messaage-sending form */}
 			<form onSubmit={sendMessage}>
 				<label>Message: <br /><textarea className="bg-zinc-500 rounded border-2 border-zinc-400"
 					ref={messageBox}
@@ -113,6 +115,13 @@ export default function Dashboard() {
 				onClick={handleLeave}
 				disabled={!isConnected}
 			>Leave</button>
+			{/* Connection status */}
+			<div className="flex">
+				{isConnected
+					? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
+					: <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
+			</div>
+			{/* Sent messages */}
 			<h1>Messages: </h1>
 			{messages.map((message, index) => {
 				return (
