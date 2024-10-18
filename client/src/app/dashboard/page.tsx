@@ -21,9 +21,18 @@ export default function Dashboard() {
 	useEffect(() => {
 		if (!socket || !username) return;
 
-		socket.on("connect", () => {
+		const fetchRoomMessages = async () => {
+			const room = "room1";
+			const response = await fetch(`/api/messages/${room}`);
+
+			const messages: Message[] = await response.json();
+			return messages;
+		}
+
+		socket.on("connect", async () => {
 			socket.emit("joinRoom", "room1", username);
-			setIsConnected(socket.connected)
+			setIsConnected(socket.connected);
+			setMessages(await fetchRoomMessages());
 		});
 
 		socket.on("message", (msg, sender) => {
