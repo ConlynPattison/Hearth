@@ -31,7 +31,8 @@ const messagesClient = new MongoClient(uri, {
 		version: ServerApiVersion.v1,
 		strict: true,
 		deprecationErrors: true,
-	}
+	},
+	tls: true
 });
 
 async function run() {
