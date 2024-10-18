@@ -59,13 +59,7 @@ const saveMessageToDB = async (client, message) => {
 	const messageDB = client.db("Cluster0");
 	const messageCollection = messageDB.collection("messages");
 
-	await messageCollection.insertOne({
-		type: message.type,
-		user: message.user,
-		content: message.content,
-		room: message.room,
-		time: Date.now()
-	}).then((result) => {
+	await messageCollection.insertOne({ ...message }).then((result) => {
 		console.log(`Inserted new message with ID {${result.insertedId}}`);
 	}).catch((reason) => {
 		console.error(reason);
@@ -113,12 +107,13 @@ io.on("connection", (socket) => {
 		io.to(room).emit("message", message, user);
 		console.log(`Message sent to room ${room}: ${message}`);
 
-		/** @type {Message} */
+		/** @type {import("@chat-app/types").Message} */
 		const messageToSave = {
 			type: "text",
 			content: message,
 			room: room,
 			user: user,
+			time: Date.now()
 		}
 
 		if (process.env.NODE_ENV == "development")
