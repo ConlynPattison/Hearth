@@ -18,7 +18,7 @@ export const SocketProvider = ({ children }: Readonly<{ children: ReactNode }>) 
 
 	if (!socketURL || !socket) {
 		return (
-			<div>...connecting</div>
+			<div>...loading</div>
 		);
 	}
 
