@@ -43,6 +43,8 @@ export async function GET(
 		messages.push(message);
 	}
 
+	messagesClient.close();
+
 	return Response.json(messages);
 
 	/**
