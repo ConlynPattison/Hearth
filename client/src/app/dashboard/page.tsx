@@ -97,11 +97,11 @@ export default function Dashboard() {
 			<h1 className="text-4xl font-bold text-emerald-400 text-center">{username}</h1>
 			{/* Messaage-sending form */}
 			<form onSubmit={sendMessage}>
-				<label>Message: <br /><textarea className="bg-zinc-500 rounded border-2 border-zinc-400"
+				<label><br /><textarea className="bg-zinc-500 rounded border-2 border-zinc-400 p-1"
 					ref={messageBox}
 					onKeyDown={handleKeyDown}
 					disabled={!isConnected}
-					placeholder={isConnected ? "" : "Connecting to room..."}
+					placeholder={isConnected ? "Message the room" : "Connecting to room..."}
 				></textarea></label>
 				<br />
 				<button
@@ -122,7 +122,7 @@ export default function Dashboard() {
 					: <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
 			</div>
 			{/* Sent messages */}
-			<h1>Messages: </h1>
+			<h1 className="text-2xl font-bold mt-2">Messages: </h1>
 			{messages.map((message, index) => {
 				return (
 					<div key={index}>

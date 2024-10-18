@@ -24,7 +24,7 @@ As a MVP(Minimum Viable Product) you can focus on building the Chat interface. R
 
 ## Additions
 
--   [ ] Users are shown a status for their connection to the `channel` server
+-   [x] Users are shown a status for their connection to the `channel` server
 -   [ ] Arguments in the socket server are validated - [JOI](https://www.npmjs.com/package/joi)
 
 ## Useful links and resources
