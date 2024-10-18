@@ -147,8 +147,8 @@ export default function Dashboard() {
 									? <p>{message.content}</p>
 									:
 									<>
-										<p className="underline">{message.user}:</p>
-										<p className="whitespace-pre bg-zinc-500 w-[50%] text-wrap">{message.content}</p>
+										<p>{message.user}:</p>
+										<p className="whitespace-pre bg-zinc-500 w-[50%] text-wrap rounded-md px-1 rounded-tl-none mb-1">{message.content}</p>
 									</>
 							}
 
