@@ -9,7 +9,9 @@ export default function Dashboard() {
 	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isConnected, setIsConnected] = useState(false);
+
 	const messageBox = useRef<HTMLTextAreaElement>(null);
+	const scrollBox = useRef<HTMLDivElement>(null)
 
 	const router = useRouter();
 	const socket = useSocket();
@@ -17,6 +19,11 @@ export default function Dashboard() {
 	useEffect(() => {
 		setUsername(localStorage.getItem("username") || "");
 	}, []);
+
+	useEffect(() => {
+		if (!scrollBox.current) return;
+		scrollBox.current.scrollTop = scrollBox.current.scrollHeight
+	}, [messages]);
 
 	useEffect(() => {
 		if (!socket || !username) return;
@@ -130,8 +137,9 @@ export default function Dashboard() {
 			</div>
 			{/* Sent messages */}
 			<h1 className="text-2xl font-bold mt-2">Messages: </h1>
-			<div className="overflow-auto h-[400px] flex flex-col-reverse">
-				{[...messages].reverse().map((message, index) => {
+			<div className="h-[400px] overflow-y-auto"
+				ref={scrollBox}>
+				{messages.map((message, index) => {
 					return (
 						<div key={index}>
 							{
@@ -147,7 +155,7 @@ export default function Dashboard() {
 						</div >
 					);
 				})}
-			</div>
+			</div >
 		</>
 	);
 }
