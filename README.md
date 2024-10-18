@@ -22,7 +22,7 @@ As a MVP(Minimum Viable Product) you can focus on building the Chat interface. R
 -   [ ] Users can chat in private
 -   [ ] Users can join `channels` on specific topics
 
-## Additions
+## Personal additional features
 
 -   [x] Users are shown a status for their connection to the `channel` server
 -   [ ] Arguments in the socket server are validated - [JOI](https://www.npmjs.com/package/joi)

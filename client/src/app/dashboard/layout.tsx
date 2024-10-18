@@ -1,4 +1,4 @@
-import { SocketProvider } from "../context/SocketContext";
+import { SocketProvider } from "../../context/SocketContext";
 
 export default function DashboardLayout({
 	children,

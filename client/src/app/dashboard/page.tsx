@@ -1,6 +1,6 @@
 "use client"
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { useSocket } from "../context/SocketContext";
+import { useSocket } from "../../context/SocketContext";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 import { Message } from "@chat-app/types";
