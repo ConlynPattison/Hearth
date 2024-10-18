@@ -3,7 +3,6 @@ import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { Message } from "@chat-app/types"
 
 configDotenv();
 const port = process.env.PORT || 4000;
@@ -52,7 +51,7 @@ run().catch(console.dir);
 /**
  * 
  * @param {MongoClient} client 
- * @param {Message} message 
+ * @param {import("@chat-app/types").Message} message 
  * @param {string} username 
  */
 const saveMessageToDB = async (client, message) => {
