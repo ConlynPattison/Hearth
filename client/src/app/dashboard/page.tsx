@@ -32,7 +32,8 @@ export default function Dashboard() {
 		socket.on("connect", async () => {
 			socket.emit("joinRoom", "room1", username);
 			setIsConnected(socket.connected);
-			setMessages(await fetchRoomMessages());
+			const fetchedMessages = await fetchRoomMessages();
+			setMessages((messagesInit) => [...fetchedMessages, ...messagesInit]);
 		});
 
 		socket.on("message", (msg, sender) => {
@@ -129,22 +130,24 @@ export default function Dashboard() {
 			</div>
 			{/* Sent messages */}
 			<h1 className="text-2xl font-bold mt-2">Messages: </h1>
-			{messages.map((message, index) => {
-				return (
-					<div key={index}>
-						{
-							message.type === "joinLeave"
-								? <p>{message.content}</p>
-								:
-								<>
-									<p className="underline">{message.user}:</p>
-									<p className="whitespace-pre bg-zinc-500 w-[50%] text-wrap">{message.content}</p>
-								</>
-						}
+			<div className="overflow-auto h-[400px] flex flex-col-reverse">
+				{[...messages].reverse().map((message, index) => {
+					return (
+						<div key={index}>
+							{
+								message.type === "joinLeave"
+									? <p>{message.content}</p>
+									:
+									<>
+										<p className="underline">{message.user}:</p>
+										<p className="whitespace-pre bg-zinc-500 w-[50%] text-wrap">{message.content}</p>
+									</>
+							}
 
-					</div >
-				);
-			})}
+						</div >
+					);
+				})}
+			</div>
 		</>
 	);
 }
