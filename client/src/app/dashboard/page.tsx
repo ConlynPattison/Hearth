@@ -139,7 +139,7 @@ export default function Dashboard() {
 			</div>
 			{/* Sent messages */}
 			<h1 className="text-2xl font-bold mt-2">Messages: </h1>
-			<div className="h-[400px] overflow-y-auto"
+			<div className="h-[400px] w-[50%] overflow-y-auto"
 				ref={scrollBox}>
 				{messages.map((message, index) => {
 					return (
