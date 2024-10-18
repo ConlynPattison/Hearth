@@ -64,11 +64,14 @@ const saveMessageToDB = async (client, message) => {
 		user: message.user,
 		content: message.content,
 		room: message.room,
+		time: Date.now()
 	}).then((result) => {
 		console.log(`Inserted new message with ID {${result.insertedId}}`);
 	}).catch((reason) => {
 		console.error(reason);
 	});
+
+	await client.close();
 }
 
 /**
