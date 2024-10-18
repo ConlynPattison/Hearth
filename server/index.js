@@ -1,7 +1,9 @@
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
+import { MongoClient, ServerApiVersion } from "mongodb";
+import { Message } from "@chat-app/types"
 
 configDotenv();
 const port = process.env.PORT || 4000;
@@ -20,6 +22,62 @@ const io = new Server(httpServer, {
 	}
 });
 
+const dbUsername = process.env.MONGO_CLUSTER_ADMIN_USERNAME || "";
+const dbPassword = process.env.MONGO_CLUSTER_ADMIN_PASSWORD || "";
+const dbPath = process.env.MONGO_CLUSTER_PATH || "";
+const uri = `mongodb+srv://${dbUsername}:${dbPassword}@${dbPath}`;
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const messagesClient = new MongoClient(uri, {
+	serverApi: {
+		version: ServerApiVersion.v1,
+		strict: true,
+		deprecationErrors: true,
+	}
+});
+
+async function run() {
+	try {
+		// Connect the client to the server	(optional starting in v4.7)
+		await messagesClient.connect();
+		// Send a ping to confirm a successful connection
+		await messagesClient.db("admin").command({ ping: 1 });
+		console.log("Pinged your deployment. You successfully connected to MongoDB!");
+	} finally {
+		// Ensures that the client will close when you finish/error
+		await messagesClient.close();
+	}
+}
+run().catch(console.dir);
+
+/**
+ * 
+ * @param {MongoClient} client 
+ * @param {Message} message 
+ * @param {string} username 
+ */
+const saveMessageToDB = async (client, message) => {
+	await client.connect();
+	const messageDB = client.db("Cluster0");
+	const messageCollection = messageDB.collection("messages");
+
+	await messageCollection.insertOne({
+		type: message.type,
+		user: message.user,
+		content: message.content,
+		room: message.room,
+	}).then((result) => {
+		console.log(`Inserted new message with ID {${result.insertedId}}`);
+	}).catch((reason) => {
+		console.error(reason);
+	});
+}
+
+/**
+ * 
+ * @param {Socket} socket 
+ * @param {string} room 
+ * @param {string} username 
+ */
 const leaveRoom = (socket, room, username) => {
 	setTimeout(() => io.to(room).emit(
 		"gateway",
@@ -52,6 +110,17 @@ io.on("connection", (socket) => {
 	socket.on("messageToRoom", (room, message, user) => {
 		io.to(room).emit("message", message, user);
 		console.log(`Message sent to room ${room}: ${message}`);
+
+		/** @type {Message} */
+		const messageToSave = {
+			type: "text",
+			content: message,
+			room: room,
+			user: user,
+		}
+
+		if (process.env.NODE_ENV == "development")
+			saveMessageToDB(messagesClient, messageToSave);
 	});
 
 	socket.on("ping", () => {

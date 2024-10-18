@@ -3,12 +3,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSocket } from "../context/SocketContext";
 import { useRouter } from "next/navigation";
 import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
-
-type Message = {
-	isJoinLeave: boolean,
-	senderUsername: string,
-	content: string
-}
+import { Message } from "@chat-app/types";
 
 export default function Dashboard() {
 	const [username, setUsername] = useState("");
@@ -34,9 +29,10 @@ export default function Dashboard() {
 		socket.on("message", (msg, sender) => {
 			setMessages((messagesCurr) => {
 				return [...messagesCurr, {
-					isJoinLeave: false,
+					type: "text", // TODO: this will change
 					content: msg,
-					senderUsername: sender
+					user: sender,
+					room: "room1" // TODO: this will change
 				}];
 			});
 		});
@@ -44,9 +40,10 @@ export default function Dashboard() {
 		socket.on("gateway", (msg, user) => {
 			setMessages((messagesCurr) => {
 				return [...messagesCurr, {
-					isJoinLeave: true,
+					type: "joinLeave", // TODO: this will change
 					content: msg,
-					senderUsername: user
+					user: user,
+					room: "room1" // TODO: this will change
 				}];
 			});
 		});
@@ -127,11 +124,11 @@ export default function Dashboard() {
 				return (
 					<div key={index}>
 						{
-							message.isJoinLeave
+							message.type === "joinLeave"
 								? <p>{message.content}</p>
 								:
 								<>
-									<p className="underline">{message.senderUsername}:</p>
+									<p className="underline">{message.user}:</p>
 									<p className="whitespace-pre bg-zinc-500 w-[50%] text-wrap">{message.content}</p>
 								</>
 						}
