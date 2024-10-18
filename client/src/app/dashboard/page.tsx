@@ -65,19 +65,21 @@ export default function Dashboard() {
 			});
 		});
 
-		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-			e.preventDefault();
+		const dismountSocket = () => {
 			socket.off("message");
 			socket.off("gateway");
 			socket.disconnect();
 		}
 
+		const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+			e.preventDefault();
+			dismountSocket();
+		}
+
 		window.addEventListener("beforeunload", handleBeforeUnload);
 
 		return () => {
-			socket.off("message");
-			socket.off("gateway");
-			socket.disconnect();
+			dismountSocket();
 			window.removeEventListener("beforeunload", handleBeforeUnload);
 		};
 
@@ -141,14 +143,24 @@ export default function Dashboard() {
 				ref={scrollBox}>
 				{messages.map((message, index) => {
 					return (
-						<div key={index}>
+						<div key={index}
+							className="w-[100%]">
 							{
 								message.type === "joinLeave"
 									? <p>{message.content}</p>
 									:
 									<>
-										<p>{message.user}:</p>
-										<p className="whitespace-pre bg-zinc-500 w-[50%] text-wrap rounded-md px-1 rounded-tl-none mb-1">{message.content}</p>
+										<p className={message.user === username ? "text-right" : ""}>{message.user}:</p>
+										{
+											message.user === username ?
+												<div className="flex flex-row-reverse">
+													<p className="whitespace-pre bg-zinc-500 w-fit max-w-[75%] flex-wrap text-wrap rounded-md px-1 rounded-tr-none mb-1 mr-1">{message.content}</p>
+												</div>
+												:
+												<div>
+													<p className="whitespace-pre bg-zinc-500 w-fit max-w-[75%] flex-wrap text-wrap rounded-md px-1 rounded-tl-none mb-1">{message.content}</p>
+												</div>
+										}
 									</>
 							}
 
