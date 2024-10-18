@@ -107,13 +107,13 @@ export default function Dashboard() {
 				<button
 					className="bg-emerald-700 rounded p-1 mb-1"
 					type="submit"
+					disabled={!isConnected}
 				>Send</button>
 			</form>
 			<button
 				className="bg-red-900 rounded p-1"
 				type="button"
 				onClick={handleLeave}
-				disabled={!isConnected}
 			>Leave</button>
 			{/* Connection status */}
 			<div className="flex">
