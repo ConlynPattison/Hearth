@@ -30,7 +30,12 @@ export default function Home() {
 				>
 					Enter Room
 				</Link> */}
-				<a href="/dashboard">Dashboard</a>
+				<a
+					className="bg-slate-400 rounded px-1"
+					type="button"
+					href="/dashboard">
+					Login
+				</a>
 			</main>
 			<footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
 			</footer>
