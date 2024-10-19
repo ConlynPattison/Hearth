@@ -1,11 +1,12 @@
 "use client"
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useSocket } from "../../context/SocketContext";
-import { useRouter } from "next/navigation";
 import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 import { Message } from "@chat-app/types";
+import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
+import { Socket } from "socket.io-client";
 
-export default function Dashboard() {
+const Dashboard = () => {
 	const [username, setUsername] = useState("");
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isConnected, setIsConnected] = useState(false);
@@ -13,12 +14,13 @@ export default function Dashboard() {
 	const messageBox = useRef<HTMLTextAreaElement>(null);
 	const scrollBox = useRef<HTMLDivElement>(null)
 
-	const router = useRouter();
+	const { user, isLoading, error } = useUser();
 	const socket = useSocket();
 
 	useEffect(() => {
-		setUsername(localStorage.getItem("username") || "");
-	}, []);
+		if (user)
+			setUsername(user.name || "Unknown User");
+	}, [user]);
 
 	useEffect(() => {
 		if (!scrollBox.current) return;
@@ -26,7 +28,7 @@ export default function Dashboard() {
 	}, [messages]);
 
 	useEffect(() => {
-		if (!socket || !username) return;
+		if (!socket || !username || isLoading) return;
 
 		const fetchRoomMessages = async () => {
 			const room = "room1";
@@ -36,11 +38,19 @@ export default function Dashboard() {
 			return messages;
 		}
 
-		socket.on("connect", async () => {
+		const handleConnect = async (socket: Socket) => {
 			socket.emit("joinRoom", "room1", username);
 			setIsConnected(socket.connected);
 			const fetchedMessages = await fetchRoomMessages();
 			setMessages((messagesInit) => [...fetchedMessages, ...messagesInit]);
+		}
+
+		if (socket.connected) {
+			handleConnect(socket);
+		}
+
+		socket.on("connect", async () => {
+			await handleConnect(socket);
 		});
 
 		socket.on("message", (msg, sender) => {
@@ -83,7 +93,7 @@ export default function Dashboard() {
 			window.removeEventListener("beforeunload", handleBeforeUnload);
 		};
 
-	}, [username, socket]);
+	}, [username, socket, isLoading]);
 
 	const sendMessage = (e: FormEvent) => {
 		e.preventDefault();
@@ -104,10 +114,6 @@ export default function Dashboard() {
 		}
 	};
 
-	const handleLeave = () => {
-		router.back();
-	}
-
 	return (
 		<>
 			<h1 className="text-4xl font-bold text-emerald-400 text-center">{username}</h1>
@@ -126,11 +132,11 @@ export default function Dashboard() {
 					disabled={!isConnected}
 				>Send</button>
 			</form>
-			<button
+			<a
 				className="bg-red-900 rounded p-1"
 				type="button"
-				onClick={handleLeave}
-			>Leave</button>
+				href="/api/auth/logout"
+			>Logout</a>
 			{/* Connection status */}
 			<div className="flex">
 				{isConnected
@@ -171,3 +177,10 @@ export default function Dashboard() {
 		</>
 	);
 }
+
+export default withPageAuthRequired(
+	Dashboard,
+	{
+		returnTo: "/dashboard"
+	}
+)

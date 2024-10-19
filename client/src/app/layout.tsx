@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { UserProvider } from "@auth0/nextjs-auth0/client";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -25,11 +26,11 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased m-2`}
-			>
-				{children}
-			</body>
+			<UserProvider>
+				<body className={`${geistSans.variable} ${geistMono.variable} antialiased m-2`}>
+					{children}
+				</body>
+			</UserProvider>
 		</html>
 	);
 }
