@@ -14,7 +14,7 @@ const Dashboard = () => {
 	const messageBox = useRef<HTMLTextAreaElement>(null);
 	const scrollBox = useRef<HTMLDivElement>(null)
 
-	const { user, isLoading, error } = useUser();
+	const { user, isLoading } = useUser();
 	const socket = useSocket();
 
 	useEffect(() => {
