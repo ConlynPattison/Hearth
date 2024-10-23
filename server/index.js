@@ -117,8 +117,8 @@ io.on("connection", (socket) => {
 			time: Date.now()
 		}
 
-		if (process.env.NODE_ENV == "development")
-			saveMessageToDB(messagesClient, messageToSave);
+		// if (process.env.NODE_ENV == "development")
+		saveMessageToDB(messagesClient, messageToSave);
 	});
 
 	socket.on("ping", () => {

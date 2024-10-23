@@ -1,0 +1,51 @@
+// schema.prisma
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL_PG")
+}
+
+model User {
+    auth0Id     String       @id
+    username    String       @db.VarChar(16)
+    displayName String       @db.VarChar(32)
+    avatarUrl   String?      @db.VarChar(64)
+    createdAt   DateTime     @default(now())
+    isDeleted   Boolean      @default(false)
+    UserOfRoom  UserOfRoom[]
+}
+
+model Room {
+    id         Int          @id @default(autoincrement())
+    name       String       @db.VarChar(32)
+    isPrivate  Boolean
+    UserOfRoom UserOfRoom[]
+}
+
+model UserOfRoom {
+    roles   UserOfRoomRole[]
+    status  UserOfRoomStatus
+    user    User             @relation(fields: [auth0Id], references: [auth0Id])
+    auth0Id String
+    room    Room             @relation(fields: [roomId], references: [id])
+    roomId  Int
+
+    @@id([auth0Id, roomId])
+}
+
+enum UserOfRoomRole {
+    ADMIN
+    MEMBER
+    OWNER
+}
+
+enum UserOfRoomStatus {
+    INVITED
+    JOINED
+    REMOVED
+    BANNED
+}
