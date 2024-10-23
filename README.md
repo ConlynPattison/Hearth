@@ -16,7 +16,7 @@ As a MVP(Minimum Viable Product) you can focus on building the Chat interface. R
 
 -   [x] The messages will be visible to all the Users that are in the chat app (using WebSockets)
 -   [x] When a new User joins the chat, a message is displayed to all the existing Users
--   [ ] Messages are saved in a database
+-   [x] Messages are saved in a database
 -   [ ] User can send images, videos and links which will be displayed properly
 -   [ ] User can select and send an emoji
 -   [ ] Users can chat in private
