@@ -1,3 +1,5 @@
+import ChatRoomContainer from "../components/MessagesContainer";
+
 const Temp = () => {
     return (
         <>
@@ -14,7 +16,8 @@ const Temp = () => {
                     </div>
 
                     {/* Right middle messages */}
-                    <div className="bg-slate-500 w-[100%] h-[100%]">
+                    <div className="bg-slate-500 w-[100%] h-[100%] p-2">
+                        <ChatRoomContainer room={"room1"} />
                     </div>
 
                     {/* Right edge profile info */}
