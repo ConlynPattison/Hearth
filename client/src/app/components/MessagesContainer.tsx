@@ -58,7 +58,7 @@ const ChatRoomContainer = ({
                     type: "text", // TODO: this will change
                     content: msg,
                     user: sender,
-                    room // TODO: this will change
+                    room
                 }];
             });
         });
@@ -69,7 +69,7 @@ const ChatRoomContainer = ({
                     type: "joinLeave", // TODO: this will change
                     content: msg,
                     user: user,
-                    room // TODO: this will change
+                    room
                 }];
             });
         });
@@ -92,7 +92,7 @@ const ChatRoomContainer = ({
             window.removeEventListener("beforeunload", handleBeforeUnload);
         };
 
-    }, [username, socket, isLoading]);
+    }, [username, socket, isLoading, room]);
 
 
     return (
