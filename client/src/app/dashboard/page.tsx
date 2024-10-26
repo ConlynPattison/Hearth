@@ -1,6 +1,6 @@
 "use client"
 import { withPageAuthRequired } from "@auth0/nextjs-auth0/client";
-import ChatRoomContainer from "../components/MessagesContainer";
+import ChatRoomContainer from "../components/dashboard/MessagesContainer";
 
 const Dashboard = () => {
 	return (

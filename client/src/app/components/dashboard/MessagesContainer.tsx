@@ -5,8 +5,8 @@ import { Message } from "@chat-app/types";
 import { useState, useEffect } from "react";
 import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 import { Socket } from "socket.io-client";
-import MessageInput from "./dashboard/MessageInput";
-import SentMessages from "./dashboard/SentMessages";
+import MessageInput from "./MessageInput";
+import SentMessages from "./SentMessages";
 
 interface ChatRoomContainerProps {
     room: string, // TODO: currently a name, will be an ID,

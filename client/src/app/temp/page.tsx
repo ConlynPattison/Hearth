@@ -1,4 +1,4 @@
-import ChatRoomContainer from "../components/MessagesContainer";
+import ChatRoomContainer from "../components/dashboard/MessagesContainer";
 
 const Temp = () => {
     return (
