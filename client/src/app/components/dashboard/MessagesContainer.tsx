@@ -33,7 +33,7 @@ const ChatRoomContainer = ({
         const fetchRoomMessages = async () => {
             const response = await fetch(`/api/messages/${room}`);
 
-            const messages: Message[] = await response.json().catch(e => []);
+            const messages: Message[] = await response.json().catch(() => []);
             return messages;
         }
 
