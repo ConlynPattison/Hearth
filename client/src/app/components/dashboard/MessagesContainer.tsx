@@ -33,7 +33,7 @@ const ChatRoomContainer = ({
         const fetchRoomMessages = async () => {
             const response = await fetch(`/api/messages/${room}`);
 
-            const messages: Message[] = await response.json();
+            const messages: Message[] = await response.json().catch(e => []);
             return messages;
         }
 
@@ -97,7 +97,6 @@ const ChatRoomContainer = ({
 
     return (
         <>
-            <h1 className="text-4xl font-bold text-emerald-400 text-center">{username}</h1>
             {/* Connection status */}
             <div className="flex">
                 {isConnected
