@@ -1,12 +1,22 @@
 "use client"
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
-import ChatRoomContainer from "../components/dashboard/MessagesContainer";
+import ChatRoomContainer from "../../components/dashboard/MessagesContainer";
 import { FaAngleDown, FaComments, FaUser } from "react-icons/fa6";
+import InboxesContainer from "../../components/dashboard/InboxesContainer";
+import { useState } from "react";
+import { Room } from "@prisma/client";
 
 const Dashboard = () => {
 	const {
 		user,
 	} = useUser();
+
+	const defaultRoom = {
+		id: 829427992384792,
+		name: "room1",
+		isPrivate: false
+	}
+	const [room, setRoom] = useState<Room>(defaultRoom);
 
 	const username = user?.name;
 
@@ -32,11 +42,12 @@ const Dashboard = () => {
 
 				{/* Left middle inbox & rooms */}
 				<div className="bg-blue-700 sm:w-[400px] sm:h-[100%]">
+					<InboxesContainer setRoom={setRoom} selectedRoom={room} />
 				</div>
 
 				{/* Right middle messages */}
 				<div className="bg-slate-400 w-[100%] h-[100%] p-2">
-					<ChatRoomContainer room={"room1"} />
+					{room && <ChatRoomContainer key={room.id} room={room} />}
 				</div>
 
 				{/* Right edge profile info */}

@@ -7,9 +7,10 @@ import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 import { Socket } from "socket.io-client";
 import MessageInput from "./MessageInput";
 import SentMessages from "./SentMessages";
+import { Room } from "@prisma/client";
 
 interface ChatRoomContainerProps {
-    room: string, // TODO: currently a name, will be an ID,
+    room: Room, // TODO: currently a name, will be an ID,
 }
 
 const ChatRoomContainer = ({
@@ -27,56 +28,67 @@ const ChatRoomContainer = ({
             setUsername(user.name || "Unknown User");
     }, [user]);
 
+
     useEffect(() => {
-        if (!socket || !username || isLoading) return;
+        if (!socket || !username || isLoading || !room) return;
 
         const fetchRoomMessages = async () => {
-            const response = await fetch(`/api/messages/${room}`);
-
+            const response = await fetch(`/api/messages/${room.name}`);
             const messages: Message[] = await response.json().catch(() => []);
             return messages;
         }
 
-        const handleConnect = async (socket: Socket) => {
-            socket.emit("joinRoom", room, username);
+        const connectSocket = async (socket: Socket) => {
+            const events = [
+                "joinRoom",
+                "connect",
+                "message",
+                "gateway"
+            ];
+            events.forEach((event) => socket.removeAllListeners(event));
+
+            socket.on("connect", async () => {
+                setIsConnected(socket.connected)
+            });
+
+            socket.on("message", (msg, sender) => {
+                setMessages((messagesCurr) => {
+                    return [...messagesCurr, {
+                        type: "text", // TODO: this will change
+                        content: msg,
+                        user: sender,
+                        room: room.name
+                    }];
+                });
+            });
+
+            socket.on("gateway", (msg, user) => {
+                setMessages((messagesCurr) => {
+                    return [...messagesCurr, {
+                        type: "joinLeave", // TODO: this will change
+                        content: msg,
+                        user: user,
+                        room: room.name
+                    }];
+                });
+            });
+
+            socket.connect();
+            socket.emit("joinRoom", room.name, username);
             setIsConnected(socket.connected);
+
             const fetchedMessages = await fetchRoomMessages();
             setMessages((messagesInit) => [...fetchedMessages, ...messagesInit]);
         }
 
-        if (socket.connected) {
-            handleConnect(socket);
+        if (socket.disconnected || !socket.hasListeners("connect")) {
+            connectSocket(socket);
+        } else {
+            setIsConnected(socket.connected);
         }
 
-        socket.on("connect", async () => {
-            await handleConnect(socket);
-        });
-
-        socket.on("message", (msg, sender) => {
-            setMessages((messagesCurr) => {
-                return [...messagesCurr, {
-                    type: "text", // TODO: this will change
-                    content: msg,
-                    user: sender,
-                    room
-                }];
-            });
-        });
-
-        socket.on("gateway", (msg, user) => {
-            setMessages((messagesCurr) => {
-                return [...messagesCurr, {
-                    type: "joinLeave", // TODO: this will change
-                    content: msg,
-                    user: user,
-                    room
-                }];
-            });
-        });
-
         const dismountSocket = () => {
-            socket.off("message");
-            socket.off("gateway");
+            socket.offAny();
             socket.disconnect();
         }
 
@@ -84,7 +96,6 @@ const ChatRoomContainer = ({
             e.preventDefault();
             dismountSocket();
         }
-
         window.addEventListener("beforeunload", handleBeforeUnload);
 
         return () => {
@@ -106,12 +117,13 @@ const ChatRoomContainer = ({
             {/* Sent messages */}
             <h1 className="text-2xl font-bold mt-2">Messages: </h1>
             <SentMessages messages={messages} username={username} />
-            <MessageInput socket={socket} username={username} isConnected={isConnected} />
+            <MessageInput socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
             <a
                 className="bg-red-900 rounded p-1"
                 type="button"
                 href="/api/auth/logout"
             >Logout</a>
+            {room.name}
         </>
     );
 }

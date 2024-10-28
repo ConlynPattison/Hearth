@@ -1,4 +1,5 @@
 "use client"
+import { Room } from "@prisma/client";
 import { FormEvent, useRef } from "react";
 import { Socket } from "socket.io-client";
 
@@ -6,12 +7,14 @@ interface MessageInputProps {
     socket: Socket | null,
     username: string,
     isConnected: boolean,
+    roomSendingTo: Room
 }
 
 const MessageInput = ({
     socket,
     username,
     isConnected,
+    roomSendingTo
 }: MessageInputProps) => {
     const messageBox = useRef<HTMLTextAreaElement>(null);
 
@@ -30,7 +33,7 @@ const MessageInput = ({
 
         if (!username || !messageBox.current?.value.trim()) return;
 
-        socket?.emit("messageToRoom", "room1", messageBox.current.value, username);
+        socket?.emit("messageToRoom", roomSendingTo.name, messageBox.current.value, username);
         messageBox.current.value = "";
     }
 
