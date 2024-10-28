@@ -2,7 +2,7 @@
 import { useSocket } from "@/context/SocketContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { Message } from "@chat-app/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 import { Socket } from "socket.io-client";
 import MessageInputForm from "./MessageInputForm";
@@ -19,15 +19,20 @@ const ChatRoomContainer = ({
     const [username, setUsername] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [isConnected, setIsConnected] = useState(false);
+    const scrollBox = useRef<HTMLDivElement>(null)
 
     const { user, isLoading } = useUser();
     const socket = useSocket();
 
     useEffect(() => {
+        if (!scrollBox.current) return;
+        scrollBox.current.scrollTop = scrollBox.current.scrollHeight
+    }, [messages]);
+
+    useEffect(() => {
         if (user)
             setUsername(user.name || "Unknown User");
     }, [user]);
-
 
     useEffect(() => {
         if (!socket || !username || isLoading || !room) return;
@@ -107,18 +112,25 @@ const ChatRoomContainer = ({
 
 
     return (
-        <>
-            {/* Connection status */}
-            <div className="flex">
-                {isConnected
-                    ? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
-                    : <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
+        <div className="px-1">
+            <div className="flex flex-col h-screen">
+                {/* Connection status */}
+                <div className="flex">
+                    {isConnected
+                        ? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
+                        : <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
+                </div>
+                {/* Sent messages */}
+                <h1 className="text-2xl font-bold mt-2">Messages: </h1>
+                <div className="flex-grow overflow-auto"
+                    ref={scrollBox}>
+                    <SentMessages messages={messages} username={username} />
+                </div>
+                <div className="mt-auto">
+                    <MessageInputForm socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
+                </div>
             </div>
-            {/* Sent messages */}
-            <h1 className="text-2xl font-bold mt-2">Messages: </h1>
-            <SentMessages messages={messages} username={username} />
-            <MessageInputForm socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
-        </>
+        </div>
     );
 }
 

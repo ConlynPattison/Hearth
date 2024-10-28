@@ -3,21 +3,14 @@ import { Message } from "@chat-app/types";
 import { useEffect, useRef } from "react";
 
 const SentMessages = ({ messages, username }: { messages: Message[], username: string }) => {
-    const scrollBox = useRef<HTMLDivElement>(null)
-    const sharedClasses = "whitespace-pre w-fit max-w-[75%] flex-wrap text-wrap rounded-xl px-3 py-2"
-
-    useEffect(() => {
-        if (!scrollBox.current) return;
-        scrollBox.current.scrollTop = scrollBox.current.scrollHeight
-    }, [messages]);
+    const sharedClasses = "whitespace-pre w-fit max-w-[75%] flex-wrap text-wrap rounded-xl px-3 py-2 mb-2"
 
     return (
-        <div className="h-[400px] overflow-y-auto"
-            ref={scrollBox}>
+        <div>
             {messages.map((message, index) => {
                 return (
                     <div key={index}
-                        className="w-[100%] my-2">
+                        className="w-[100%]">
                         {
                             message.type === "joinLeave"
                                 ? <p>{message.content}</p>
@@ -31,7 +24,7 @@ const SentMessages = ({ messages, username }: { messages: Message[], username: s
                                             </div>
                                             :
                                             <div>
-                                                <p className={`${sharedClasses} bg-gradient-to-tl from-red-600 to-yellow-500 rounded-tl-none mb-1`}>{message.content}</p>
+                                                <p className={`${sharedClasses} bg-gradient-to-tl from-red-600 to-yellow-500 rounded-tl-none`}>{message.content}</p>
                                             </div>
                                     }
                                 </>

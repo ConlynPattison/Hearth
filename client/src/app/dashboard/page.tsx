@@ -1,6 +1,6 @@
 "use client"
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
-import ChatRoomContainer from "../../components/dashboard/MessagesContainer";
+import ChatRoomContainer from "../../components/dashboard/ChatRoomContainer";
 import { FaAngleDown, FaArrowRightFromBracket, FaComments, FaUser } from "react-icons/fa6";
 import InboxesContainer from "../../components/dashboard/InboxesContainer";
 import { useState } from "react";
@@ -57,7 +57,7 @@ const Dashboard = () => {
 				</div>
 
 				{/* Right middle messages */}
-				<div className="bg-slate-800 w-[100%] h-[100%] p-2">
+				<div className="bg-slate-800 w-[100%] h-[100%]">
 					{room && <ChatRoomContainer key={room.id} room={room} />}
 				</div>
 
