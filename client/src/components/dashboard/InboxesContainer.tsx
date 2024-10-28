@@ -37,9 +37,11 @@ interface InboxProps {
 
 const Inbox = ({ room, setRoom, isSelectedRoom }: InboxProps) => {
 
-    const bg = isSelectedRoom ? "bg-blue-500" : "bg-red-500";
+    const bg = isSelectedRoom ?
+        "bg-gradient-to-tl from-purple-700 to-red-500"
+        : "bg-slate-900";
     return (
-        <button className={`${bg} p-1 text-center rounded-md w-[100%]`}
+        <button className={`${bg} py-3 text-center rounded-md mt-3 mx-3`}
             onClick={() => setRoom(room)}
             type="button"
         >
