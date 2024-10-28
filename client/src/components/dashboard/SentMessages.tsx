@@ -1,6 +1,5 @@
 "use client"
 import { Message } from "@chat-app/types";
-import { useEffect, useRef } from "react";
 
 const SentMessages = ({ messages, username }: { messages: Message[], username: string }) => {
     const sharedClasses = "whitespace-pre w-fit max-w-[75%] flex-wrap text-wrap rounded-xl px-3 py-2 mb-2"
