@@ -121,11 +121,6 @@ io.on("connection", (socket) => {
 		saveMessageToDB(messagesClient, messageToSave);
 	});
 
-	socket.on("ping", () => {
-		io.to(socket.id).emit("ping");
-		console.log(`Ping received from and sent to socket {${socket.id}}`);
-	});
-
 	socket.on("disconnecting", () => {
 		const username = socket.data.username || "Unknown User";
 		const roomsToLeave = Array.from(socket.rooms)?.filter((room) => room !== socket.id)
