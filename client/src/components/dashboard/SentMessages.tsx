@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 const SentMessages = ({ messages, username }: { messages: Message[], username: string }) => {
     const scrollBox = useRef<HTMLDivElement>(null)
+    const sharedClasses = "whitespace-pre w-fit max-w-[75%] flex-wrap text-wrap rounded-xl px-3 py-2"
 
     useEffect(() => {
         if (!scrollBox.current) return;
@@ -16,7 +17,7 @@ const SentMessages = ({ messages, username }: { messages: Message[], username: s
             {messages.map((message, index) => {
                 return (
                     <div key={index}
-                        className="w-[100%]">
+                        className="w-[100%] my-2">
                         {
                             message.type === "joinLeave"
                                 ? <p>{message.content}</p>
@@ -26,11 +27,11 @@ const SentMessages = ({ messages, username }: { messages: Message[], username: s
                                     {
                                         message.user === username ?
                                             <div className="flex flex-row-reverse">
-                                                <p className="whitespace-pre bg-zinc-500 w-fit max-w-[75%] flex-wrap text-wrap rounded-md px-1 rounded-tr-none mb-1 mr-1">{message.content}</p>
+                                                <p className={`${sharedClasses} bg-gradient-to-tl from-purple-700 to-red-500  rounded-tr-none mr-1`}>{message.content}</p>
                                             </div>
                                             :
                                             <div>
-                                                <p className="whitespace-pre bg-zinc-500 w-fit max-w-[75%] flex-wrap text-wrap rounded-md px-1 rounded-tl-none mb-1">{message.content}</p>
+                                                <p className={`${sharedClasses} bg-gradient-to-tl from-red-600 to-yellow-500 rounded-tl-none mb-1`}>{message.content}</p>
                                             </div>
                                     }
                                 </>

@@ -5,7 +5,7 @@ import { Message } from "@chat-app/types";
 import { useState, useEffect } from "react";
 import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 import { Socket } from "socket.io-client";
-import MessageInput from "./MessageInput";
+import MessageInputForm from "./MessageInputForm";
 import SentMessages from "./SentMessages";
 import { Room } from "@prisma/client";
 
@@ -117,13 +117,7 @@ const ChatRoomContainer = ({
             {/* Sent messages */}
             <h1 className="text-2xl font-bold mt-2">Messages: </h1>
             <SentMessages messages={messages} username={username} />
-            <MessageInput socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
-            <a
-                className="bg-red-900 rounded p-1"
-                type="button"
-                href="/api/auth/logout"
-            >Logout</a>
-            {room.name}
+            <MessageInputForm socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
         </>
     );
 }

@@ -1,6 +1,7 @@
 "use client"
 import { Room } from "@prisma/client";
 import { FormEvent, useRef } from "react";
+import { FaPaperPlane } from "react-icons/fa6";
 import { Socket } from "socket.io-client";
 
 interface MessageInputProps {
@@ -10,7 +11,7 @@ interface MessageInputProps {
     roomSendingTo: Room
 }
 
-const MessageInput = ({
+const MessageInputForm = ({
     socket,
     username,
     isConnected,
@@ -38,22 +39,22 @@ const MessageInput = ({
     }
 
     return (
-        <form onSubmit={sendMessage}>
+        <form className="flex p-1 mt-2 items-center"
+            onSubmit={sendMessage}>
             <br />
-            <label><textarea className="w-[100%] rounded border-2 border-zinc-400 p-1"
+            <textarea className="w-[100%] rounded p-2 mr-2 bg-slate-600"
                 ref={messageBox}
                 onKeyDown={handleKeyDown}
                 disabled={!isConnected}
-                placeholder={isConnected ? "Message the room" : "Connecting to room..."}
-            ></textarea></label>
+                placeholder={isConnected ? "Type a message..." : "Connecting to room..."}
+            ></textarea>
             <br />
-            <button
-                className="bg-emerald-700 rounded p-1 mb-1"
-                type="submit"
-                disabled={!isConnected}
-            >Send</button>
+            <FaPaperPlane
+                className="hover:cursor-pointer text-slate-600"
+                size="2em"
+                onClick={(e) => sendMessage(e)} />
         </form>
     );
 }
 
-export default MessageInput;
+export default MessageInputForm;
