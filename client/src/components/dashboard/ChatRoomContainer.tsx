@@ -112,25 +112,25 @@ const ChatRoomContainer = ({
 
 
     return (
-        <div className="px-1">
-            <div className="flex flex-col h-screen">
-                {/* Connection status */}
-                <div className="flex">
-                    {isConnected
-                        ? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
-                        : <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
-                </div>
-                {/* Sent messages */}
-                <h1 className="text-2xl font-bold mt-2">Messages: </h1>
-                <div className="flex-grow overflow-auto"
-                    ref={scrollBox}>
-                    <SentMessages messages={messages} username={username} />
-                </div>
-                <div className="mt-auto">
-                    <MessageInputForm socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
-                </div>
+        // <div className="px-1">
+        <div className="flex flex-col h-dvh p-2">
+            {/* Connection status */}
+            <div className="flex">
+                {isConnected
+                    ? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
+                    : <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
+            </div>
+            {/* Sent messages */}
+            <h1 className="text-2xl font-bold mt-2">Messages: </h1>
+            <div className="flex-grow overflow-auto"
+                ref={scrollBox}>
+                <SentMessages messages={messages} username={username} />
+            </div>
+            <div className="mt-auto">
+                <MessageInputForm socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
             </div>
         </div>
+        // </div>
     );
 }
 

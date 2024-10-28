@@ -21,7 +21,7 @@ const Dashboard = () => {
 	const username = user?.name;
 
 	return (
-		<div className="flex h-screen">
+		<div className="flex h-dvh">
 			{/* Left edge nav bar */}
 			<div className="h-[100%] bg-slate-900 w-[100px] pt-3">
 				{/* Profile */}
