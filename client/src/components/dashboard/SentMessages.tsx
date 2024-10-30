@@ -3,15 +3,15 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { MessageForView } from "@chat-app/types";
 import Image from "next/image";
 
-const ProfilePicture = ({ avatarUrl }: { avatarUrl: string }) => {
+const ProfilePicture = ({ avatarUrl, minWidth }: { avatarUrl: string, minWidth?: number }) => {
 	return (
-		<div>
+		<div className={`${minWidth && `min-w-[${minWidth}px]`}`}>
 			<Image
 				className="rounded-full"
 				alt="PP"
 				src={avatarUrl || ""}
-				width={50}
-				height={50}
+				width={minWidth ? minWidth : 50}
+				height={minWidth ? minWidth : 50}
 			/>
 		</div>
 	);
@@ -36,7 +36,7 @@ const Message = ({ message }: { message: MessageForView }) => {
 				message.userId === userId ?
 					<div className="flex flex-row-reverse">
 						<div className="flex flex-row-reverse max-w-[85%]">
-							<ProfilePicture avatarUrl={message.avatarUrl} />
+							<ProfilePicture avatarUrl={message.avatarUrl} minWidth={50} />
 							<div>
 								<p className={`${sharedClasses} bg-gradient-to-tl from-purple-700 to-red-500  rounded-tr-none mr-2`}>{message.content}</p>
 								<p className={`text-xs text-slate-400`}>{localTime}</p>
@@ -46,7 +46,7 @@ const Message = ({ message }: { message: MessageForView }) => {
 					:
 					<div className="flex">
 						<div className="flex max-w-[85%]">
-							<ProfilePicture avatarUrl={message.avatarUrl} />
+							<ProfilePicture avatarUrl={message.avatarUrl} minWidth={50} />
 							<div>
 								<p className={`${sharedClasses} bg-gradient-to-tl from-red-600 to-yellow-500 rounded-tl-none ml-2`}>{message.content}</p>
 								<p className={`text-xs text-slate-400 flex flex-row-reverse`}>{localTime}</p>
