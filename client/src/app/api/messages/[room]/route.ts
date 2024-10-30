@@ -73,11 +73,10 @@ export const GET = async (
 	}, {} as UserMap);
 
 	const messagesWithUser: MessageForView[] = messages.map((msg: Message) => {
-		const { displayName, avatarUrl } = userToData[msg.userId];
 		return ({
 			...msg,
-			displayName: displayName ?? "Unknown User",
-			avatarUrl: avatarUrl ?? ""
+			displayName: userToData[msg.userId]?.displayName ?? "Unknown User",
+			avatarUrl: userToData[msg.userId]?.avatarUrl ?? ""
 		});
 	});
 
