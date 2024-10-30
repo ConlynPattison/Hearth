@@ -42,8 +42,6 @@ const MessageInputForm = ({
 
 		if (!userId || !messageBox.current?.value.trim()) return;
 
-		console.log("userId: " + userId)
-
 		socket?.emit("messageToRoom", roomSendingTo.name, messageBox.current.value, {
 			userId,
 			displayName: user.name,

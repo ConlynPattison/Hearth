@@ -79,15 +79,17 @@ const ChatRoomContainer = ({
 			});
 
 			socket.connect();
+			setIsConnected(socket.connected);
 			socket.emit("joinRoom", room.name, {
 				userId: user.sub,
 				displayName: user.name,
 				avatarUrl: user.picture
 			});
-			setIsConnected(socket.connected);
 
-			const fetchedMessages = await fetchRoomMessages();
-			setMessages((messagesInit) => [...fetchedMessages, ...messagesInit]);
+			fetchRoomMessages()
+				.then(fetchedMessages => {
+					setMessages((messagesInit) => [...fetchedMessages, ...messagesInit]);
+				});
 		}
 
 		if (socket.disconnected || !socket.hasListeners("connect")) {
