@@ -1,6 +1,7 @@
 "use client"
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { Message } from "@chat-app/types";
+import Image from "next/image";
 import { FaUser } from "react-icons/fa6";
 
 const ProfilePicture = ({ usernameSentFrom }: { usernameSentFrom: string }) => {
@@ -19,7 +20,7 @@ const ProfilePicture = ({ usernameSentFrom }: { usernameSentFrom: string }) => {
 	return (
 		<div>
 			{user?.picture &&
-				<img
+				<Image
 					className="rounded-full"
 					alt="PP"
 					src={user.picture}
