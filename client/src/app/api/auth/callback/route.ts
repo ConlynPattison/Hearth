@@ -2,6 +2,8 @@ import prisma from "@/util/postgres";
 import { AppRouteHandlerFnContext, handleCallback, getSession } from "@auth0/nextjs-auth0";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export const GET = async (req: NextRequest, ctx: AppRouteHandlerFnContext) => {
 	try {
 		const response = await handleCallback(req, ctx);
