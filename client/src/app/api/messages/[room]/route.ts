@@ -1,5 +1,4 @@
 import { messagesClient } from "@/util/mongodb";
-import prisma from "@/util/postgres";
 import { Message } from "@chat-app/types";
 
 export const GET = async (

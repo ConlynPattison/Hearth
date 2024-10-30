@@ -20,9 +20,11 @@ const ProfilePicture = ({ usernameSentFrom }: { usernameSentFrom: string }) => {
 		<div>
 			{user?.picture &&
 				<img
-					className="rounded-full max-w-[50px]"
+					className="rounded-full"
 					alt="PP"
 					src={user.picture}
+					width={50}
+					height={50}
 				/>}
 		</div>
 	);
