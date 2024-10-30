@@ -76,7 +76,7 @@ export const GET = async (
 		const { displayName, avatarUrl } = userToData[msg.userId];
 		return ({
 			...msg,
-			displayName: displayName ?? "",
+			displayName: displayName ?? "Unknown User",
 			avatarUrl: avatarUrl ?? ""
 		});
 	});
