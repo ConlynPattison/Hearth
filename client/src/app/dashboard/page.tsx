@@ -1,7 +1,7 @@
 "use client"
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import ChatRoomContainer from "../../components/dashboard/ChatRoomContainer";
-import { FaAngleDown, FaArrowRightFromBracket, FaComments, FaUser } from "react-icons/fa6";
+import { FaArrowRightFromBracket, FaComments, FaUser } from "react-icons/fa6";
 import InboxesContainer from "../../components/dashboard/InboxesContainer";
 import { useState } from "react";
 import { Room } from "@prisma/client";
@@ -25,14 +25,13 @@ const Dashboard = () => {
 			{/* Left edge nav bar */}
 			<div className="h-[100%] bg-slate-900 w-[100px] pt-3">
 				{/* Profile */}
-				<div className="flex flex-col">
+				<div className="flex flex-col w-[100%]">
 					<FaUser size="3em" className="text-slate-500 self-center" />
-					<div className="self-center">
-						<text className="text-sm h-[1em] w-[80%] overflow-hidden text-ellipsis whitespace-nowrap">
-							<abbr className="no-underline" title={username ?? ""}>{username ?? ""}</abbr>
-						</text>
-						<FaAngleDown className="translate-x-14 -translate-y-5" />
-					</div>
+					<p
+						className="self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap no-underline"
+						title={username ?? ""}>
+						{username ?? ""}
+					</p>
 				</div>
 				<div className="flex flex-col bg-slate-800 py-3">
 					<FaComments size="3em" className="self-center text-slate-500" />
