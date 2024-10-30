@@ -75,45 +75,52 @@ const saveMessageToDB = async (client, message) => {
  * @param {string} room 
  * @param {string} username 
  */
-const leaveRoom = (socket, room, username) => {
+const leaveRoom = (socket, room) => {
+	const { userId, userDisplayName } = socket.data;
+	const userData = { userId, displayName: userDisplayName, avatarUrl: "" }
 	setTimeout(() => io.to(room).emit(
 		"gateway",
-		`${username} has left the room.`
-	), 500);
+		`${userDisplayName} has left the room.`,
+		userData
+	), 250);
 	socket.leave(room);
-	console.log(`User ${username} left room: ${room}`);
+	console.log(`UserId ${userId} left room: ${room}`);
 }
 
 io.on("connection", (socket) => {
 	console.log("A user connected");
 
 	// Join a room
-	socket.on("joinRoom", (room, username = "undefined user") => {
-		socket.data.username = username
+	socket.on("joinRoom", (room, userData) => {
+		const { userId, displayName } = userData;
+		socket.data.userId = userId;
+		socket.data.userDisplayName = displayName;
 		socket.join(room);
 		io.to(room).emit(
 			"gateway",
-			`${username} has joined the room.`
+			`${displayName} has joined the room.`,
+			userData
 		);
-		console.log(`User ${username} joined room: ${room}`);
+		console.log(`UserId ${userId} joined room: ${room}`);
 	});
 
 	// Leave a room
-	socket.on("leaveRoom", (room, username) => {
-		leaveRoom(socket, room, username);
+	socket.on("leaveRoom", (room, userData) => {
+		leaveRoom(socket, room, userData);
 	});
 
 	// Send message to a specific room
-	socket.on("messageToRoom", (room, message, user) => {
-		io.to(room).emit("message", message, user);
+	socket.on("messageToRoom", (room, message, userData) => {
+		const { userId } = userData;
+		io.to(room).emit("message", message, userData);
 		console.log(`Message sent to room ${room}: ${message}`);
 
 		/** @type {import("@chat-app/types").Message} */
 		const messageToSave = {
 			type: "text",
 			content: message,
-			room: room,
-			user: user,
+			room,
+			userId,
 			time: Date.now()
 		}
 
@@ -122,15 +129,14 @@ io.on("connection", (socket) => {
 	});
 
 	socket.on("disconnecting", () => {
-		const username = socket.data.username || "Unknown User";
 		const roomsToLeave = Array.from(socket.rooms)?.filter((room) => room !== socket.id)
 		roomsToLeave.forEach((room) => {
-			leaveRoom(socket, room, username);
+			leaveRoom(socket, room);
 		});
 	})
 
 	socket.on("disconnect", () => {
-		console.log(`User ${socket.data.username || "unknown user"} disconnected`);
+		console.log(`UserId ${socket.data.userId || "unknown user"} disconnected`);
 	});
 });
 

@@ -1,7 +1,7 @@
 "use client"
 import { useSocket } from "@/context/SocketContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { Message } from "@chat-app/types";
+import { MessageForView } from "@chat-app/types";
 import { useState, useEffect, useRef } from "react";
 import { FaCheckCircle, FaMinusCircle } from "react-icons/fa";
 import { Socket } from "socket.io-client";
@@ -16,12 +16,11 @@ interface ChatRoomContainerProps {
 const ChatRoomContainer = ({
 	room,
 }: ChatRoomContainerProps) => {
-	const [username, setUsername] = useState("");
-	const [messages, setMessages] = useState<Message[]>([]);
+	const [messages, setMessages] = useState<MessageForView[]>([]);
 	const [isConnected, setIsConnected] = useState(false);
 	const scrollBox = useRef<HTMLDivElement>(null)
 
-	const { user, isLoading } = useUser();
+	const { user } = useUser();
 	const socket = useSocket();
 
 	useEffect(() => {
@@ -30,16 +29,11 @@ const ChatRoomContainer = ({
 	}, [messages]);
 
 	useEffect(() => {
-		if (user)
-			setUsername(user.name || "Unknown User");
-	}, [user]);
-
-	useEffect(() => {
-		if (!socket || !username || isLoading || !room) return;
+		if (!socket || !user || !room) return;
 
 		const fetchRoomMessages = async () => {
 			const response = await fetch(`/api/messages/${room.name}`);
-			const messages: Message[] = await response.json().catch(() => []);
+			const messages: MessageForView[] = await response.json().catch(() => []);
 			return messages;
 		}
 
@@ -56,30 +50,40 @@ const ChatRoomContainer = ({
 				setIsConnected(socket.connected)
 			});
 
-			socket.on("message", (msg, sender) => {
+			socket.on("message", (msg, userData) => {
+				const { userId, displayName, avatarUrl } = userData;
 				setMessages((messagesCurr) => {
 					return [...messagesCurr, {
-						type: "text", // TODO: this will change
+						type: "text",
 						content: msg,
-						user: sender,
-						room: room.name
+						userId,
+						room: room.name,
+						displayName,
+						avatarUrl
 					}];
 				});
 			});
 
-			socket.on("gateway", (msg, user) => {
+			socket.on("gateway", (msg, userData) => {
+				const { userId, displayName, avatarUrl } = userData;
 				setMessages((messagesCurr) => {
 					return [...messagesCurr, {
-						type: "joinLeave", // TODO: this will change
+						type: "joinLeave",
 						content: msg,
-						user: user,
-						room: room.name
+						userId,
+						room: room.name,
+						displayName,
+						avatarUrl,
 					}];
 				});
 			});
 
 			socket.connect();
-			socket.emit("joinRoom", room.name, username);
+			socket.emit("joinRoom", room.name, {
+				userId: user.sub,
+				displayName: user.name,
+				avatarUrl: user.picture
+			});
 			setIsConnected(socket.connected);
 
 			const fetchedMessages = await fetchRoomMessages();
@@ -108,7 +112,7 @@ const ChatRoomContainer = ({
 			window.removeEventListener("beforeunload", handleBeforeUnload);
 		};
 
-	}, [username, socket, isLoading, room]);
+	}, [user, socket, room]);
 
 
 	return (
@@ -124,10 +128,10 @@ const ChatRoomContainer = ({
 			<h1 className="text-2xl font-bold mt-2">Messages: </h1>
 			<div className="flex-grow overflow-auto"
 				ref={scrollBox}>
-				<SentMessages messages={messages} username={username} />
+				<SentMessages messages={messages} />
 			</div>
 			<div className="mt-auto">
-				<MessageInputForm socket={socket} roomSendingTo={room} username={username} isConnected={isConnected} />
+				<MessageInputForm socket={socket} roomSendingTo={room} isConnected={isConnected} />
 			</div>
 		</div>
 		// </div>

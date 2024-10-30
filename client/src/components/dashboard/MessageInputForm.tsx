@@ -1,4 +1,5 @@
 "use client"
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { Room } from "@prisma/client";
 import { FormEvent, useRef } from "react";
 import { FaPaperPlane } from "react-icons/fa6";
@@ -6,18 +7,25 @@ import { Socket } from "socket.io-client";
 
 interface MessageInputProps {
 	socket: Socket | null,
-	username: string,
 	isConnected: boolean,
 	roomSendingTo: Room
 }
 
 const MessageInputForm = ({
 	socket,
-	username,
 	isConnected,
 	roomSendingTo
 }: MessageInputProps) => {
+	const { user, isLoading } = useUser();
 	const messageBox = useRef<HTMLTextAreaElement>(null);
+
+	if (!user || isLoading) {
+		return (
+			<>Loading...</>
+		);
+	}
+
+	const userId = user?.sub;
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
@@ -32,9 +40,15 @@ const MessageInputForm = ({
 	const sendMessage = (e: FormEvent) => {
 		e.preventDefault();
 
-		if (!username || !messageBox.current?.value.trim()) return;
+		if (!userId || !messageBox.current?.value.trim()) return;
 
-		socket?.emit("messageToRoom", roomSendingTo.name, messageBox.current.value, username);
+		console.log("userId: " + userId)
+
+		socket?.emit("messageToRoom", roomSendingTo.name, messageBox.current.value, {
+			userId,
+			displayName: user.name,
+			avatarUrl: user.picture
+		});
 		messageBox.current.value = "";
 	}
 

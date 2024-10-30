@@ -1,5 +1,16 @@
-import { messagesClient } from "@/util/mongodb";
-import { Message } from "@chat-app/types";
+import mongo from "@/util/mongodb";
+import prisma from "@/util/postgres";
+import { Message, MessageForView } from "@chat-app/types";
+
+type BaseUserData = {
+	auth0Id: string,
+	displayName: string,
+	avatarUrl: string,
+};
+
+type UserMap = {
+	[userId: string]: BaseUserData
+};
 
 export const GET = async (
 	request: Request,
@@ -12,7 +23,7 @@ export const GET = async (
 	 */
 	const { room } = params;
 
-	await messagesClient.connect();
+	const messagesClient = await mongo.connect();
 
 	const messagesCollection = messagesClient.db("Cluster0").collection("messages");
 	const cursor = messagesCollection.find<Message>(
@@ -22,7 +33,7 @@ export const GET = async (
 		{
 			projection: {
 				_id: 0,
-				user: 1,
+				userId: 1,
 				time: 1,
 				room: 1,
 				content: 1
@@ -34,7 +45,41 @@ export const GET = async (
 		messages.push(message);
 	}
 
-	messagesClient.close();
+	await messagesClient.close();
 
-	return Response.json(messages);
+	if (messages.length === 0) {
+		return Response.json([]);
+	}
+
+	const userIds = new Set(messages.map(message => message.userId));
+
+	await prisma.$connect();
+	const users: BaseUserData[] = await prisma.user.findMany({
+		where: {
+			auth0Id: {
+				in: Array.from(userIds)
+			}
+		},
+		select: {
+			auth0Id: true,
+			avatarUrl: true,
+			displayName: true
+		}
+	});
+
+	const userToData = users.reduce((acc, user) => {
+		acc[user.auth0Id] = user;
+		return acc;
+	}, {} as UserMap);
+
+	const messagesWithUser: MessageForView[] = messages.map((msg: Message) => {
+		const { displayName, avatarUrl } = userToData[msg.userId];
+		return ({
+			...msg,
+			displayName,
+			avatarUrl: avatarUrl ?? null
+		});
+	});
+
+	return Response.json(messagesWithUser);
 }

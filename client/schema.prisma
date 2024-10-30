@@ -12,7 +12,7 @@ model User {
     auth0Id     String       @id @unique
     username    String       @db.VarChar(16)
     displayName String       @db.VarChar(32)
-    avatarUrl   String?      @db.VarChar(128)
+    avatarUrl   String       @db.VarChar(128)
     createdAt   DateTime     @default(now())
     isDeleted   Boolean      @default(false)
     UserOfRoom  UserOfRoom[]
