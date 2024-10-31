@@ -3,7 +3,7 @@ import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextResponse } from "next/server";
 
 // Under the context of a user-authentication-required route, fetch a JWT to use when instantiating the socket
-export const GET = withApiAuthRequired(async (_req: Request) => {
+export const GET = withApiAuthRequired(async () => {
 	const postAuthPayload = await fetchToken();
 
 	if (!postAuthPayload) {
