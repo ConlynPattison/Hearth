@@ -43,6 +43,8 @@ As a MVP(Minimum Viable Product) you can focus on building the Chat interface. R
 
 ### Authentication, authorization, security
 
+![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
+![Auth0](https://img.shields.io/badge/Auth0-%23131730?style=for-the-badge&logo=auth0)
 
 
 ### Hosting
