@@ -73,7 +73,7 @@ const saveMessageToDB = async (client, message) => {
 
 // Configure JWKS client
 const jwks = jwksClient({
-	jwksUri: "https://dev-0x6fmf7pr51yue6j.us.auth0.com/.well-known/jwks.json",
+	jwksUri: process.env.AUTH_KEY_PATH,
 	cache: true, // Cache the key for faster future lookups
 	rateLimit: true, // Rate limiting to avoid request overload
 	jwksRequestsPerMinute: 10, // Adjust rate limit if needed
