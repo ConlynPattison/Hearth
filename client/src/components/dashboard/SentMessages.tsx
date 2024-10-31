@@ -4,14 +4,16 @@ import { MessageForView } from "@chat-app/types";
 import Image from "next/image";
 
 const ProfilePicture = ({ avatarUrl, minWidth }: { avatarUrl: string, minWidth?: number }) => {
+	const width = minWidth ?? 50;
+	const url = avatarUrl || "/favicon\.ico"
 	return (
-		<div className={`${minWidth && `min-w-[${minWidth}px]`}`}>
+		<div>
 			<Image
-				className="rounded-full"
-				alt="PP"
-				src={avatarUrl || ""}
-				width={minWidth ? minWidth : 50}
-				height={minWidth ? minWidth : 50}
+				className={`rounded-full min-w-[${width}px]`}
+				alt="P.P."
+				src={url}
+				width={width}
+				height={width}
 			/>
 		</div>
 	);
