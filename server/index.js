@@ -5,6 +5,7 @@ import { configDotenv } from "dotenv";
 import { MongoClient, ServerApiVersion } from "mongodb";
 import jwt from "jsonwebtoken";
 import jwksClient from 'jwks-rsa';
+import { PrismaClient } from "@prisma/client";
 
 configDotenv();
 const port = process.env.PORT || 4000;
@@ -50,6 +51,19 @@ async function run() {
 	}
 }
 run().catch(console.dir);
+
+const prisma = new PrismaClient();
+
+async function runPrisma() {
+	try {
+		await prisma.$connect();
+		await prisma.$queryRaw`SELECT 1`;
+		console.log("Pinged your deployment to Postgres!");
+	} finally {
+		await prisma.$disconnect();
+	}
+}
+runPrisma().catch(console.dir);
 
 /**
  * 
