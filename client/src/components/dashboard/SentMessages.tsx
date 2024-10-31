@@ -7,7 +7,7 @@ const ProfilePicture = ({ avatarUrl, minWidth }: { avatarUrl: string, minWidth?:
 	const width = minWidth ?? 50;
 	const url = avatarUrl || "/favicon\.ico"
 	return (
-		<div>
+		<div className="flex-none">
 			<Image
 				className={`rounded-full min-w-[${width}px]`}
 				alt="P.P."

@@ -59,7 +59,8 @@ const ChatRoomContainer = ({
 						userId,
 						room: room.name,
 						displayName,
-						avatarUrl
+						avatarUrl,
+						time: new Date().toUTCString()
 					}];
 				});
 			});
