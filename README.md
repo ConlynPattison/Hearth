@@ -26,6 +26,7 @@ As a MVP(Minimum Viable Product) you can focus on building the Chat interface. R
 
 -   [x] Users are shown a status for their connection to the `channel` server
 -   [ ] Arguments in the socket server are validated - [JOI](https://www.npmjs.com/package/joi)
+-   [ ] Implement an emoji-selecting tool that is similar to Zoom's chat method
 
 ## Technologies Used
 
