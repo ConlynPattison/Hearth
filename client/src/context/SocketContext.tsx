@@ -8,12 +8,27 @@ const socketURL = process.env.NEXT_PUBLIC_SOCKET_URL;
 
 export const SocketProvider = ({ children }: Readonly<{ children: ReactNode }>) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
-
 	useEffect(() => {
-		const socketInstance = io(socketURL, {
-			transports: ["websocket", "polling"]
-		});
-		setSocket(socketInstance);
+		// Fetching token from Next.js cookies given by successful Auth0 authentication
+		const getToken = async () => {
+			const data = fetch("/api/auth/token")
+				.then(async response => {
+					const data = await response.json();
+					return data;
+				}).catch(error => console.error(error));
+			return data;
+		}
+
+		// Init socket once token is received and provide auth for socket server authentication
+		getToken().then(data => {
+			const socketInstance = io(socketURL, {
+				transports: ["websocket", "polling"],
+				auth: {
+					token: data.token
+				}
+			});
+			setSocket(socketInstance);
+		}).catch(error => console.error(error));
 	}, []);
 
 	if (!socketURL || !socket) {

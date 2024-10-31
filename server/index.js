@@ -3,6 +3,8 @@ import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
 import { MongoClient, ServerApiVersion } from "mongodb";
+import jwt from "jsonwebtoken";
+import jwksClient from 'jwks-rsa';
 
 configDotenv();
 const port = process.env.PORT || 4000;
@@ -69,6 +71,25 @@ const saveMessageToDB = async (client, message) => {
 	await client.close();
 }
 
+// Configure JWKS client
+const jwks = jwksClient({
+	jwksUri: "https://dev-0x6fmf7pr51yue6j.us.auth0.com/.well-known/jwks.json",
+	cache: true, // Cache the key for faster future lookups
+	rateLimit: true, // Rate limiting to avoid request overload
+	jwksRequestsPerMinute: 10, // Adjust rate limit if needed
+});
+
+// Helper function to get signing key from JWKS
+const getKey = (header, callback) => {
+	jwks.getSigningKey(header.kid, (err, key) => {
+		if (err) {
+			return callback(err);
+		}
+		const signingKey = key.getPublicKey();
+		callback(null, signingKey);
+	});
+};
+
 /**
  * 
  * @param {Socket} socket 
@@ -87,11 +108,34 @@ const leaveRoom = (socket, room) => {
 	console.log(`UserId ${userId} left room: ${room}`);
 }
 
+io.use(async (socket, next) => {
+	const token = socket.handshake.auth.token;
+
+	if (!token) {
+		return next(new Error('Authentication error: Token not provided'));
+	}
+
+	// Verify the token using the dynamically fetched key
+	jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
+		if (err) {
+			console.error(err)
+			return next(new Error('Authentication error: Invalid token'));
+		}
+
+		// Attach decoded token data to socket
+		console.log("Client successfully authenticated with Auth0...")
+		socket.user = decoded;
+		next();
+	});
+});
+
+
 io.on("connection", (socket) => {
 	console.log("A user connected");
 
 	// Join a room
 	socket.on("joinRoom", (room, userData) => {
+
 		const { userId, displayName } = userData;
 		socket.data.userId = userId;
 		socket.data.userDisplayName = displayName;
