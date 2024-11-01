@@ -48,5 +48,6 @@ export const GET = async (req: NextRequest, ctx: AppRouteHandlerFnContext) => {
 		return response;
 	} catch (error) {
 		console.error(error);
+		return Response.json({ error: error }, { status: 500 })
 	}
 }
