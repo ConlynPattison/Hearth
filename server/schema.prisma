@@ -10,7 +10,7 @@ datasource db {
 
 model User {
     auth0Id     String       @id @unique
-    username    String       @db.VarChar(16)
+    username    String       @db.VarChar(64)
     displayName String       @db.VarChar(32)
     avatarUrl   String       @db.VarChar(128)
     createdAt   DateTime     @default(now())
