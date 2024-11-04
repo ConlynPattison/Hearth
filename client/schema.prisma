@@ -92,7 +92,7 @@ model UsersOnRealms {
 }
 
 model FactionsOnUsersOnRealms {
-    factionsOnUsersOnRealms Int @unique @default(autoincrement())
+    factionsOnUsersOnRealmsId Int @unique @default(autoincrement())
 
     auth0Id String
     user    User   @relation(fields: [auth0Id], references: [auth0Id])
