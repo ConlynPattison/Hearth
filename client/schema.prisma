@@ -18,6 +18,7 @@ model Realm {
     Domain                  Domain[]
     Room                    Room[]
     FactionsOnUsersOnRealms FactionsOnUsersOnRealms[]
+    Faction                 Faction[]
 }
 
 model User {
@@ -33,10 +34,14 @@ model User {
     FactionsOnUsersOnRealms FactionsOnUsersOnRealms[]
 }
 
+// finish this by adding the parentDomainId? and permissionsId
 model Room {
     roomId    Int     @id @default(autoincrement())
     roomName  String  @db.VarChar(32)
     isPrivate Boolean @default(false)
+
+    permissionsId Int?
+    permissions   Permissions? @relation(fields: [permissionsId], references: [permissionsId])
 
     realmId Int
     realm   Realm @relation(fields: [realmId], references: [realmId])
@@ -48,6 +53,9 @@ model Faction {
     factionColor String  @db.Char(8) // hex 
     isDeleted    Boolean @default(false)
 
+    realmId Int
+    realm   Realm @relation(fields: [realmId], references: [realmId])
+
     FactionsWithPermissions FactionsWithPermissions[]
     FactionsOnUsersOnRealms FactionsOnUsersOnRealms[]
 }
@@ -58,6 +66,9 @@ model Domain {
 
     realmId Int
     realm   Realm @relation(fields: [realmId], references: [realmId])
+
+    permissionsId Int?
+    permissions   Permissions? @relation(fields: [permissionsId], references: [permissionsId])
 
     // Self-referencing relation to define the parent domain
     parentDomain   Domain? @relation("ParentToChildren", fields: [parentDomainId], references: [domainId])
@@ -76,6 +87,8 @@ model Permissions {
 
     UserWithPermissions     UserWithPermissions[]
     FactionsWithPermissions FactionsWithPermissions[]
+    Domain                  Domain[]
+    Room                    Room[]
 }
 
 model UsersOnRealms {
