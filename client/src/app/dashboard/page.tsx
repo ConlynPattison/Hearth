@@ -11,12 +11,14 @@ const Dashboard = () => {
 		user,
 	} = useUser();
 
-	const defaultRoom = {
+	const defaultRoom: Room = {
 		roomId: 829427992384792,
 		roomName: "room1",
 		isPrivate: false,
-		realmId: 100
+		realmId: 100,
+		permissionsId: null
 	}
+	
 	const [room, setRoom] = useState<Room>(defaultRoom);
 
 	const username = user?.name;
