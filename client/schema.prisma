@@ -34,7 +34,6 @@ model User {
     FactionsOnUsersOnRealms FactionsOnUsersOnRealms[]
 }
 
-// finish this by adding the parentDomainId? and permissionsId
 model Room {
     roomId    Int     @id @default(autoincrement())
     roomName  String  @db.VarChar(32)
