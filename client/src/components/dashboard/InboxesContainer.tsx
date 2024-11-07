@@ -3,29 +3,39 @@ import { Dispatch, SetStateAction } from "react";
 
 const rooms: Room[] = [
 	{
-		id: 829427992384792,
-		name: "room1",
-		isPrivate: false
+		roomId: 829427992384792,
+		roomName: "room1",
+		isPrivate: false,
+		realmId: 100,
+		permissionsId: null
 	},
 	{
-		id: 239873249328,
-		name: "Side Populus",
-		isPrivate: false
+		roomId: 239873249328,
+		roomName: "Side Populus",
+		isPrivate: false,
+		realmId: 100,
+		permissionsId: null
 	},
 	{
-		id: 432984973215,
-		name: "Bwazil Room",
-		isPrivate: false
+		roomId: 432984973215,
+		roomName: "Bwazil Room",
+		isPrivate: false,
+		realmId: 100,
+		permissionsId: null
 	},
 	{
-		id: 1923048329874982,
-		name: "Relish Tides",
-		isPrivate: false
+		roomId: 1923048329874982,
+		roomName: "Relish Tides",
+		isPrivate: false,
+		realmId: 100,
+		permissionsId: null
 	},
 	{
-		id: 239487312984732,
-		name: "Tandom Room Extra",
-		isPrivate: false
+		roomId: 239487312984732,
+		roomName: "Tandom Room Extra",
+		isPrivate: false,
+		realmId: 100,
+		permissionsId: null
 	}
 ]
 
@@ -45,7 +55,7 @@ const Inbox = ({ room, setRoom, isSelectedRoom }: InboxProps) => {
 			onClick={() => setRoom(room)}
 			type="button"
 		>
-			{room.name}
+			{room.roomName}
 		</button>
 	)
 }
@@ -64,10 +74,10 @@ const InboxesContainer = ({
 		<div className="flex flex-col">
 			{rooms.map((room) =>
 				<Inbox
-					key={room.id}
+					key={room.roomId}
 					room={room}
 					setRoom={setRoom}
-					isSelectedRoom={room.id === selectedRoom.id}
+					isSelectedRoom={room.roomId === selectedRoom.roomId}
 				/>
 			)}
 		</div>

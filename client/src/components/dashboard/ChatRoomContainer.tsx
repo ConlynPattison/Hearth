@@ -32,7 +32,7 @@ const ChatRoomContainer = ({
 		if (!socket || !user || !room) return;
 
 		const fetchRoomMessages = async () => {
-			const response = await fetch(`/api/messages/${room.name}`);
+			const response = await fetch(`/api/messages/${room.roomName}`);
 			const messages: MessageForView[] = await response.json().catch(() => []);
 			return messages;
 		}
@@ -57,7 +57,7 @@ const ChatRoomContainer = ({
 						type: "text",
 						content: msg,
 						userId,
-						room: room.name,
+						room: room.roomName,
 						displayName,
 						avatarUrl,
 						time: new Date().toUTCString()
@@ -72,7 +72,7 @@ const ChatRoomContainer = ({
 						type: "joinLeave",
 						content: msg,
 						userId,
-						room: room.name,
+						room: room.roomName,
 						displayName,
 						avatarUrl,
 					}];
@@ -81,7 +81,7 @@ const ChatRoomContainer = ({
 
 			socket.connect();
 			setIsConnected(socket.connected);
-			socket.emit("joinRoom", room.name, {
+			socket.emit("joinRoom", room.roomName, {
 				userId: user.sub,
 				displayName: user.name,
 				avatarUrl: user.picture

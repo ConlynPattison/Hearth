@@ -1,11 +1,11 @@
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
-import { MongoClient, ServerApiVersion } from "mongodb";
-import jwt from "jsonwebtoken";
-import jwksClient from 'jwks-rsa';
-import { PrismaClient } from "@prisma/client";
+import { runMongo } from "./lib/mongo";
+import { runPrisma } from "./lib/postgres";
+import clientAuthenticated from "./middleware/clientAuthenticated";
+import { leaveRoom } from "./lib/socket";
 
 configDotenv();
 const port = process.env.PORT || 4000;
@@ -24,125 +24,7 @@ const io = new Server(httpServer, {
 	}
 });
 
-const dbUsername = process.env.MONGO_CLUSTER_ADMIN_USERNAME || "";
-const dbPassword = process.env.MONGO_CLUSTER_ADMIN_PASSWORD || "";
-const dbPath = process.env.MONGO_CLUSTER_PATH || "";
-const uri = `mongodb+srv://${dbUsername}:${dbPassword}@${dbPath}`;
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const messagesClient = new MongoClient(uri, {
-	serverApi: {
-		version: ServerApiVersion.v1,
-		strict: true,
-		deprecationErrors: true,
-	},
-	tls: true
-});
-
-async function run() {
-	try {
-		// Connect the client to the server	(optional starting in v4.7)
-		await messagesClient.connect();
-		// Send a ping to confirm a successful connection
-		await messagesClient.db("admin").command({ ping: 1 });
-		console.log("Pinged your deployment. You successfully connected to MongoDB!");
-	} finally {
-		// Ensures that the client will close when you finish/error
-		await messagesClient.close();
-	}
-}
-run().catch(console.dir);
-
-const prisma = new PrismaClient();
-
-async function runPrisma() {
-	try {
-		await prisma.$connect();
-		await prisma.$queryRaw`SELECT 1`;
-		console.log("Pinged your deployment to Postgres!");
-	} finally {
-		await prisma.$disconnect();
-	}
-}
-runPrisma().catch(console.dir);
-
-/**
- * 
- * @param {MongoClient} client 
- * @param {import("@chat-app/types").Message} message 
- * @param {string} username 
- */
-const saveMessageToDB = async (client, message) => {
-	await client.connect();
-	const messageDB = client.db("Cluster0");
-	const messageCollection = messageDB.collection("messages");
-
-	await messageCollection.insertOne({ ...message }).then((result) => {
-		console.log(`Inserted new message with ID {${result.insertedId}}`);
-	}).catch((reason) => {
-		console.error(reason);
-	});
-
-	await client.close();
-}
-
-// Configure JWKS client
-const jwks = jwksClient({
-	jwksUri: process.env.AUTH_KEY_PATH,
-	cache: true, // Cache the key for faster future lookups
-	rateLimit: true, // Rate limiting to avoid request overload
-	jwksRequestsPerMinute: 10, // Adjust rate limit if needed
-});
-
-// Helper function to get signing key from JWKS
-const getKey = (header, callback) => {
-	jwks.getSigningKey(header.kid, (err, key) => {
-		if (err) {
-			return callback(err);
-		}
-		const signingKey = key.getPublicKey();
-		callback(null, signingKey);
-	});
-};
-
-/**
- * 
- * @param {Socket} socket 
- * @param {string} room 
- * @param {string} username 
- */
-const leaveRoom = (socket, room) => {
-	const { userId, userDisplayName } = socket.data;
-	const userData = { userId, displayName: userDisplayName, avatarUrl: "" }
-	setTimeout(() => io.to(room).emit(
-		"gateway",
-		`${userDisplayName} has left the room.`,
-		userData
-	), 250);
-	socket.leave(room);
-	console.log(`UserId ${userId} left room: ${room}`);
-}
-
-io.use(async (socket, next) => {
-	const token = socket.handshake.auth.token;
-
-	if (!token) {
-		return next(new Error('Authentication error: Token not provided'));
-	}
-
-	// Verify the token using the dynamically fetched key
-	jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
-		if (err) {
-			console.error(err)
-			return next(new Error('Authentication error: Invalid token'));
-		}
-
-		// Attach decoded token data to socket
-		console.log("Client successfully authenticated with Auth0...")
-		socket.user = decoded;
-		next();
-	});
-});
-
+io.use(clientAuthenticated);
 
 io.on("connection", (socket) => {
 	console.log("A user connected");
@@ -164,7 +46,7 @@ io.on("connection", (socket) => {
 
 	// Leave a room
 	socket.on("leaveRoom", (room, userData) => {
-		leaveRoom(socket, room, userData);
+		leaveRoom(io, socket, room, userData);
 	});
 
 	// Send message to a specific room
@@ -189,7 +71,7 @@ io.on("connection", (socket) => {
 	socket.on("disconnecting", () => {
 		const roomsToLeave = Array.from(socket.rooms)?.filter((room) => room !== socket.id)
 		roomsToLeave.forEach((room) => {
-			leaveRoom(socket, room);
+			leaveRoom(io, socket, room);
 		});
 	})
 
@@ -198,6 +80,8 @@ io.on("connection", (socket) => {
 	});
 });
 
-httpServer.listen(port);
+runMongo().catch(console.dir);
+runPrisma().catch(console.dir);
 
+httpServer.listen(port);
 console.log(`Server running, listening on port: ${port}`);
