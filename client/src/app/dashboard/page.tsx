@@ -11,11 +11,14 @@ const Dashboard = () => {
 		user,
 	} = useUser();
 
-	const defaultRoom = {
-		id: 829427992384792,
-		name: "room1",
-		isPrivate: false
+	const defaultRoom: Room = {
+		roomId: 829427992384792,
+		roomName: "room1",
+		isPrivate: false,
+		realmId: 100,
+		permissionsId: null
 	}
+	
 	const [room, setRoom] = useState<Room>(defaultRoom);
 
 	const username = user?.name;
@@ -57,7 +60,7 @@ const Dashboard = () => {
 
 				{/* Right middle messages */}
 				<div className="bg-slate-800 w-[100%] h-[100%]">
-					{room && <ChatRoomContainer key={room.id} room={room} />}
+					{room && <ChatRoomContainer key={room.roomId} room={room} />}
 				</div>
 
 				{/* Right edge profile info */}

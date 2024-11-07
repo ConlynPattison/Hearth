@@ -8,43 +8,142 @@ datasource db {
     url      = env("DATABASE_URL_PG")
 }
 
+model Realm {
+    realmId      Int      @id @default(autoincrement())
+    realmName    String   @db.VarChar(16)
+    isSearchable Boolean  @default(true)
+    createdAt    DateTime @default(now())
+
+    UsersOnRealms           UsersOnRealms[]
+    Domain                  Domain[]
+    Room                    Room[]
+    FactionsOnUsersOnRealms FactionsOnUsersOnRealms[]
+    Faction                 Faction[]
+}
+
 model User {
-    auth0Id     String       @id @unique
-    username    String       @db.VarChar(64)
-    displayName String       @db.VarChar(32)
-    avatarUrl   String       @db.VarChar(128)
-    createdAt   DateTime     @default(now())
-    isDeleted   Boolean      @default(false)
-    UserOfRoom  UserOfRoom[]
+    auth0Id     String   @id @unique
+    username    String   @db.VarChar(64)
+    displayName String   @db.VarChar(32)
+    avatarUrl   String   @db.VarChar(128)
+    createdAt   DateTime @default(now())
+    isDeleted   Boolean  @default(false)
+
+    UsersOnRealms           UsersOnRealms[]
+    UserWithPermissions     UserWithPermissions[]
+    FactionsOnUsersOnRealms FactionsOnUsersOnRealms[]
 }
 
 model Room {
-    id         Int          @id @default(autoincrement())
-    name       String       @db.VarChar(32)
-    isPrivate  Boolean
-    UserOfRoom UserOfRoom[]
+    roomId    Int     @id @default(autoincrement())
+    roomName  String  @db.VarChar(32)
+    isPrivate Boolean @default(false)
+
+    permissionsId Int?
+    permissions   Permissions? @relation(fields: [permissionsId], references: [permissionsId])
+
+    realmId Int
+    realm   Realm @relation(fields: [realmId], references: [realmId])
 }
 
-model UserOfRoom {
-    roles   UserOfRoomRole[]
-    status  UserOfRoomStatus
-    user    User             @relation(fields: [auth0Id], references: [auth0Id])
+model Faction {
+    factionId    Int     @id @default(autoincrement())
+    factionName  String  @db.VarChar(16)
+    factionColor String  @db.Char(8) // hex 
+    isDeleted    Boolean @default(false)
+
+    realmId Int
+    realm   Realm @relation(fields: [realmId], references: [realmId])
+
+    FactionsWithPermissions FactionsWithPermissions[]
+    FactionsOnUsersOnRealms FactionsOnUsersOnRealms[]
+}
+
+model Domain {
+    domainId   Int    @id @default(autoincrement())
+    domainName String @db.VarChar(16)
+
+    realmId Int
+    realm   Realm @relation(fields: [realmId], references: [realmId])
+
+    permissionsId Int?
+    permissions   Permissions? @relation(fields: [permissionsId], references: [permissionsId])
+
+    // Self-referencing relation to define the parent domain
+    parentDomain   Domain? @relation("ParentToChildren", fields: [parentDomainId], references: [domainId])
+    parentDomainId Int?
+
+    // Inverse relation for child domains
+    children Domain[] @relation("ParentToChildren")
+}
+
+model Permissions {
+    permissionsId        Int     @id @default(autoincrement())
+    canView              Boolean @default(false)
+    canChangePermissions Boolean @default(false)
+    canAddMembers        Boolean @default(false)
+    canRemoveMembers     Boolean @default(false)
+
+    UserWithPermissions     UserWithPermissions[]
+    FactionsWithPermissions FactionsWithPermissions[]
+    Domain                  Domain[]
+    Room                    Room[]
+}
+
+model UsersOnRealms {
+    userOnRealmId Int                 @unique @default(autoincrement())
+    memberLevel   UsersOnRealmsLevels @default(MEMBER)
+
     auth0Id String
-    room    Room             @relation(fields: [roomId], references: [id])
-    roomId  Int
+    user    User   @relation(fields: [auth0Id], references: [auth0Id])
 
-    @@id([auth0Id, roomId])
+    realmId Int
+    realm   Realm @relation(fields: [realmId], references: [realmId])
+
+    @@id([auth0Id, realmId])
 }
 
-enum UserOfRoomRole {
+model FactionsOnUsersOnRealms {
+    factionsOnUsersOnRealmsId Int @unique @default(autoincrement())
+
+    auth0Id String
+    user    User   @relation(fields: [auth0Id], references: [auth0Id])
+
+    realmId Int
+    realm   Realm @relation(fields: [realmId], references: [realmId])
+
+    factionId Int
+    faction   Faction @relation(fields: [factionId], references: [factionId])
+
+    @@id([auth0Id, realmId, factionId])
+}
+
+enum UsersOnRealmsLevels {
+    OWNER
     ADMIN
     MEMBER
-    OWNER
 }
 
-enum UserOfRoomStatus {
-    INVITED
-    JOINED
-    REMOVED
-    BANNED
+model UserWithPermissions {
+    userWithPermissionsId Int @unique @default(autoincrement())
+
+    auth0Id String
+    user    User   @relation(fields: [auth0Id], references: [auth0Id])
+
+    permissionsId Int
+    permissions   Permissions @relation(fields: [permissionsId], references: [permissionsId])
+
+    @@id([auth0Id, permissionsId])
+}
+
+model FactionsWithPermissions {
+    factionsWithPermissionsId Int @unique @default(autoincrement())
+
+    factionId Int
+    faction   Faction @relation(fields: [factionId], references: [factionId])
+
+    permissionsId Int
+    permissions   Permissions @relation(fields: [permissionsId], references: [permissionsId])
+
+    @@id([factionId, permissionsId])
 }
