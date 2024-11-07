@@ -2,10 +2,10 @@ import { Server } from "socket.io";
 import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
-import { runMongo } from "./lib/mongo";
-import { runPrisma } from "./lib/postgres";
-import clientAuthenticated from "./middleware/clientAuthenticated";
-import { leaveRoom } from "./lib/socket";
+import { runMongo } from "./lib/mongo.js";
+import { runPrisma } from "./lib/postgres.js";
+import { clientAuthenticated } from "./middleware/clientAuthenticated.js";
+import { leaveRoom } from "./lib/socket.js";
 
 configDotenv();
 const port = process.env.PORT || 4000;

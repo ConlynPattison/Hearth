@@ -1,5 +1,7 @@
+import { configDotenv } from "dotenv";
 import { MongoClient, ServerApiVersion } from "mongodb";
 
+configDotenv();
 const dbUsername = process.env.MONGO_CLUSTER_ADMIN_USERNAME || "";
 const dbPassword = process.env.MONGO_CLUSTER_ADMIN_PASSWORD || "";
 const dbPath = process.env.MONGO_CLUSTER_PATH || "";

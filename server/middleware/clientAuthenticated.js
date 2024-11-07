@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
-import { getKey } from "../lib/jwt";
+import { getKey } from "../lib/jwt.js";
 
-export default clientAuthenticated = async (socket, next) => {
+export const clientAuthenticated = async (socket, next) => {
 	const token = socket.handshake.auth.token;
 
 	if (!token) {

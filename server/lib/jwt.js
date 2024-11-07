@@ -1,3 +1,5 @@
+import jwksClient from "jwks-rsa";
+
 // Configure JWKS client
 const jwks = jwksClient({
 	jwksUri: process.env.AUTH_KEY_PATH,
