@@ -1,15 +1,16 @@
 "use client"
 import { useUser, withPageAuthRequired } from "@auth0/nextjs-auth0/client";
 import ChatRoomContainer from "../../components/dashboard/ChatRoomContainer";
-import { FaArrowRightFromBracket, FaComments, FaUser } from "react-icons/fa6";
+import { FaArrowRightFromBracket, FaComments, FaPlus, FaUser } from "react-icons/fa6";
 import InboxesContainer from "../../components/dashboard/InboxesContainer";
-import { useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { Room } from "@prisma/client";
+import Modal from "@/components/ui/Modal";
+import CreateRealmForm from "@/components/dashboard/CreateRealmForm";
 
 const Dashboard = () => {
-	const {
-		user,
-	} = useUser();
+	const { user } = useUser();
+	const username = user?.name;
 
 	const defaultRoom: Room = {
 		roomId: 829427992384792,
@@ -18,10 +19,23 @@ const Dashboard = () => {
 		realmId: 100,
 		permissionsId: null
 	}
-	
+
 	const [room, setRoom] = useState<Room>(defaultRoom);
 
-	const username = user?.name;
+	const dialog = useRef<HTMLDialogElement>(null);
+
+	const openModal = (e: FormEvent) => {
+		e.stopPropagation();
+		if (dialog.current && !dialog.current.open) {
+			dialog.current.showModal();
+		}
+	}
+	const closeModal = (e: FormEvent) => {
+		e.stopPropagation();
+		if (dialog.current) {
+			dialog.current.close();
+		}
+	}
 
 	return (
 		<div className="flex h-dvh">
@@ -41,13 +55,21 @@ const Dashboard = () => {
 				</div>
 				<div className="flex flex-col bg-slate-900 py-3">
 					<a
-						className=" hover:cursor-pointer self-center"
+						className="hover:cursor-pointer self-center"
 						href="/api/auth/logout"
 						title="Log out"
 					><FaArrowRightFromBracket size="3em"
 						className="bg-transparent text-slate-500" />
 					</a>
 				</div>
+				<div className="flex flex-col bg-slate-900 py-3 hover:cursor-pointer"
+					onClick={openModal} >
+					<FaPlus size="3em" className="self-center text-slate-500" />
+				</div>
+				<Modal ref={dialog}>
+					<CreateRealmForm dialog={dialog} />
+					<button type="button" onClick={closeModal}>Close</button>
+				</Modal>
 			</div>
 
 			{/* Outer container */}
