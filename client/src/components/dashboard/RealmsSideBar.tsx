@@ -4,7 +4,7 @@ import CreateRealmForm from "./CreateRealmForm"
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { $Enums, Realm, UsersOnRealms } from "@prisma/client";
+import { Realm, UsersOnRealms } from "@prisma/client";
 
 const RealmsSideBar = () => {
 	const { user } = useUser();
@@ -68,6 +68,7 @@ const RealmsSideBar = () => {
 			<div>
 				{realms.map((realm) => (
 					<div className="flex flex-col bg-slate-900 py-3"
+						key={realm.realmId}
 						title={realm.realmName}>
 						<FaFireFlameCurved size="3em" className="self-center text-slate-500" />
 						<span className="text-center self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap">
