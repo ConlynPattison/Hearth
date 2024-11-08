@@ -1,12 +1,31 @@
-import { FaArrowRightFromBracket, FaComments, FaPlus, FaUser } from "react-icons/fa6"
+import { FaArrowRightFromBracket, FaComments, FaFireFlameCurved, FaPlus, FaUser } from "react-icons/fa6"
 import Modal from "../ui/Modal"
 import CreateRealmForm from "./CreateRealmForm"
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { FormEvent, useRef } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { $Enums, Realm, UsersOnRealms } from "@prisma/client";
 
 const RealmsSideBar = () => {
 	const { user } = useUser();
 	const username = user?.name;
+	const [realms, setRealms] = useState<({
+		UsersOnRealms: UsersOnRealms[];
+	} & Realm)[]>([]);
+
+	useEffect(() => {
+		const fetchRealms = async () => {
+			return await axios.get("/api/realms");
+		}
+
+		fetchRealms()
+			.then(res => {
+				const { data } = res;
+				if (data.realms) {
+					setRealms(data.realms);
+				}
+			}).catch(e => console.error(e));
+	}, []);
 
 	const dialog = useRef<HTMLDialogElement>(null);
 
@@ -24,7 +43,7 @@ const RealmsSideBar = () => {
 	}
 
 	return (
-		<div className="h-[100%] bg-slate-900 w-[100px] pt-3">
+		<div className="h-[100%] bg-slate-900 w-[100px] pt-3 overflow-y-scroll">
 			{/* Profile */}
 			<div className="flex flex-col w-[100%]">
 				<FaUser size="3em" className="text-slate-500 self-center" />
@@ -45,6 +64,17 @@ const RealmsSideBar = () => {
 				><FaArrowRightFromBracket size="3em"
 					className="bg-transparent text-slate-500" />
 				</a>
+			</div>
+			<div>
+				{realms.map((realm) => (
+					<div className="flex flex-col bg-slate-900 py-3"
+						title={realm.realmName}>
+						<FaFireFlameCurved size="3em" className="self-center text-slate-500" />
+						<span className="text-center self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap">
+							{realm.realmName}
+						</span>
+					</div>
+				))}
 			</div>
 			<div className="flex flex-col bg-slate-900 py-3 hover:cursor-pointer"
 				onClick={openModal} >
