@@ -1,5 +1,6 @@
 import axios from "axios";
 import { RefObject } from "react";
+import { mutate } from "swr";
 
 interface CreateRealmFormProps {
 	dialog: RefObject<HTMLDialogElement>
@@ -23,6 +24,7 @@ const CreateRealmForm = ({ dialog }: CreateRealmFormProps) => {
 		}).then(create => {
 			if (create.status === 200) {
 				alert("Realm successfully created!");
+				mutate("/api/realms");
 			}
 
 			dialog.current?.close();
