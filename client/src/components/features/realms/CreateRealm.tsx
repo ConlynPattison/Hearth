@@ -1,8 +1,8 @@
 "use client"
 import Modal from "@/components/ui/Modal";
 import { FaPlus } from "react-icons/fa6";
-import CreateRealmForm from "../CreateRealmForm";
 import { useRef, FormEvent } from "react";
+import CreateRealmForm from "./CreateRealmForm";
 
 const CreateRealm = () => {
 	const dialog = useRef<HTMLDialogElement>(null);
