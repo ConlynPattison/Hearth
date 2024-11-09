@@ -7,12 +7,14 @@ interface PatchRealmFormProps {
 	dialog: RefObject<HTMLDialogElement>
 }
 
-const CreateRealmForm = ({ dialog }: PatchRealmFormProps) => {
+const PatchRealmForm = ({ dialog }: PatchRealmFormProps) => {
 	const [activeRealm] = useContext(RealmContext);
 
 	const create = async (e: FormData) => {
-		const isPrivate = e.get("realm_is_private") || undefined;
+		const isSearchable = e.get("realm_is_private");
 		const realmName = e.get("realm_name");
+
+		console.log(isSearchable, realmName)
 
 		if (!realmName || typeof realmName !== "string") {
 			alert("Failed to update realm");
@@ -21,8 +23,9 @@ const CreateRealmForm = ({ dialog }: PatchRealmFormProps) => {
 
 		axios.patch("/api/realms", {
 			body: {
-				isPrivate: isPrivate === undefined ? false : isPrivate as unknown as boolean,
-				realmName
+				isSearchable: (isSearchable === null || isSearchable === "off") ? false : true,
+				realmName,
+				realmId: activeRealm?.realmId
 			},
 		}).then(patch => {
 			if (patch.status === 200) {
@@ -59,4 +62,4 @@ const CreateRealmForm = ({ dialog }: PatchRealmFormProps) => {
 	);
 };
 
-export default CreateRealmForm;
+export default PatchRealmForm;

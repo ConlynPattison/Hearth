@@ -8,7 +8,7 @@ interface CreateRealmFormProps {
 
 const CreateRealmForm = ({ dialog }: CreateRealmFormProps) => {
 	const create = async (e: FormData) => {
-		const isPrivate = e.get("realm_is_private") || undefined;
+		const isSearchable = e.get("realm_is_private");
 		const realmName = e.get("realm_name");
 
 		if (!realmName || typeof realmName !== "string") {
@@ -18,7 +18,7 @@ const CreateRealmForm = ({ dialog }: CreateRealmFormProps) => {
 
 		axios.post("/api/realms", {
 			body: {
-				isPrivate: isPrivate === undefined ? false : isPrivate as unknown as boolean,
+				isSearchable: isSearchable === undefined ? false : isSearchable as unknown as boolean,
 				realmName
 			},
 		}).then(create => {
