@@ -3,7 +3,7 @@ import { Room } from "@prisma/client";
 import { useEffect, useState } from "react";
 import ChatRoomContainer from "./ChatRoomContainer";
 import InboxesContainer from "./InboxesContainer";
-import SideBar from "./SideBar/SideBar";
+import SideBar from "./sidebar/SideBar";
 import { useParams } from "next/navigation";
 import RealmContext from "@/context/RealmContext";
 
