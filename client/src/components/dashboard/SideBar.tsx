@@ -1,7 +1,7 @@
 import { FaArrowRightFromBracket, FaComments } from "react-icons/fa6"
 import Realms from "./Realms";
 import Profile from "./Profile";
-import CreateRealm from "./CreateRealm";
+import CreateRealm from "@/components/features/realms/CreateRealm";
 
 const SideBar = () => {
 	return (
