@@ -41,6 +41,7 @@ const CreateRealmForm = ({ dialog }: CreateRealmFormProps) => {
 					<input
 						name="realm_name"
 						required
+						maxLength={16}
 						placeholder="Name your realm..." /></label>
 				<label>Is this Realm Private?
 					<input

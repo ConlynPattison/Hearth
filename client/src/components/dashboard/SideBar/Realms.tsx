@@ -1,16 +1,13 @@
 "use client"
+import RealmContext from "@/context/RealmContext";
 import { UsersOnRealms, Realm } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { FaFireFlameCurved } from "react-icons/fa6";
 import useSWR from "swr";
 
-interface RealmsProps {
-	realmId?: string
-}
-
-const Realms = ({ realmId }: RealmsProps) => {
+const Realms = () => {
 	const router = useRouter();
 
 	const fetcher = (url: string) => axios.get(url).then(res => res.data);
@@ -18,12 +15,6 @@ const Realms = ({ realmId }: RealmsProps) => {
 		revalidateOnFocus: false,
 		dedupingInterval: 60000,
 	});
-
-	const [currRealmId, setCurrRealmId] = useState("");
-
-	useEffect(() => {
-		if (realmId) setCurrRealmId(realmId);
-	}, [realmId])
 
 	const defaultRealms = data ? data.realms as ({
 		UsersOnRealms: UsersOnRealms[];
@@ -33,6 +24,16 @@ const Realms = ({ realmId }: RealmsProps) => {
 		UsersOnRealms: UsersOnRealms[];
 	} & Realm)[]>(defaultRealms);
 
+	const [realmId, setRealmId] = useContext(RealmContext);
+
+	useEffect(() => {
+		if (realmId === null) {
+			if (setRealmId !== undefined && realms.length > 0) {
+				setRealmId(realms[0]?.realmId);
+			}
+		}
+	}, [realmId, realms, setRealmId]);
+
 	useEffect(() => {
 		if (!isLoading && data) {
 			setRealms(data.realms);
@@ -41,7 +42,7 @@ const Realms = ({ realmId }: RealmsProps) => {
 		if (error) {
 			console.error(error);
 		}
-	}, [data, error, isLoading]);
+	}, [data, error, isLoading, realmId]);
 
 	if (isLoading) return <>Loading...</>
 	if (error) return <>Error: {error.message}</>
@@ -49,7 +50,7 @@ const Realms = ({ realmId }: RealmsProps) => {
 	return (
 		<>
 			{!isLoading && realms.map((realm) => (
-				<div className={`flex flex-col py-3 hover:cursor-pointer ${Number(currRealmId) === realm.realmId ? "bg-slate-800" : "bg-slate-900"}`}
+				<div className={`flex flex-col py-3 hover:cursor-pointer ${realmId === realm.realmId ? "bg-slate-800" : "bg-slate-900"}`}
 					key={realm.realmId}
 					title={realm.realmName}
 					onClick={() => { router.replace(`/dashboard/${realm.realmId}`) }}>

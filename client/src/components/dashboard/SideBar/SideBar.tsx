@@ -3,11 +3,7 @@ import Realms from "./Realms";
 import Profile from "./Profile";
 import CreateRealm from "./CreateRealm";
 
-interface SideBarProps {
-	realmId?: string
-}
-
-const SideBar = ({ realmId }: SideBarProps) => {
+const SideBar = () => {
 	return (
 		<div className="h-[100%] bg-slate-900 w-[100px] pt-3 overflow-y-scroll">
 			{/* Profile */}
@@ -24,7 +20,7 @@ const SideBar = ({ realmId }: SideBarProps) => {
 					className="bg-transparent text-slate-500" />
 				</a>
 			</div>
-			<Realms realmId={realmId} />
+			<Realms />
 			<CreateRealm />
 		</div>
 	)

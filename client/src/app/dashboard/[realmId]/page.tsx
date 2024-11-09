@@ -2,11 +2,10 @@
 import Dashboard from "@/components/dashboard/Dashboard";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
-const DashboardRealmPage = async ({ params }: { params?: Record<string, string | string[]> }) => {
-	const realmId = params?.realmId;
+const DashboardRealmPage = async () => {
 
 	return (
-		<Dashboard realmId={realmId as string} />
+		<Dashboard />
 	);
 }
 
