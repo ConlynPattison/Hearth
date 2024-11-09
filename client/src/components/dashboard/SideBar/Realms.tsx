@@ -2,13 +2,14 @@
 import RealmContext from "@/context/RealmContext";
 import { UsersOnRealms, Realm } from "@prisma/client";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useContext } from "react";
 import { FaFireFlameCurved } from "react-icons/fa6";
 import useSWR from "swr";
 
 const Realms = () => {
 	const router = useRouter();
+	const { realmId } = useParams();
 
 	const fetcher = (url: string) => axios.get(url).then(res => res.data);
 	const { data, error, isLoading } = useSWR('/api/realms', fetcher, {
@@ -24,15 +25,28 @@ const Realms = () => {
 		UsersOnRealms: UsersOnRealms[];
 	} & Realm)[]>(defaultRealms);
 
-	const [realmId, setRealmId] = useContext(RealmContext);
+	const [activeRealm, setActiveRealm] = useContext(RealmContext);
 
 	useEffect(() => {
-		if (realmId === null) {
-			if (setRealmId !== undefined && realms.length > 0) {
-				setRealmId(realms[0]?.realmId);
+		// If realm has not been initialized yet
+		if (activeRealm === null) {
+			// If there are realms to set to
+			if (setActiveRealm !== undefined && realms.length > 0) {
+				// If there is a param for the intended open realm
+				if (realmId && !Array.isArray(realmId) && realmId.length > 0) {
+					const realmWithUserData = realms.find((realm) => realm.realmId === parseInt(realmId, 10));
+					if (realmWithUserData !== undefined) setActiveRealm({
+						realmId: realmWithUserData.realmId,
+						createdAt: realmWithUserData?.createdAt,
+						realmName: realmWithUserData.realmName,
+						isSearchable: realmWithUserData.isSearchable
+					})
+				} else {
+					setActiveRealm(realms[0]);
+				}
 			}
 		}
-	}, [realmId, realms, setRealmId]);
+	}, [activeRealm, realms, setActiveRealm, realmId]);
 
 	useEffect(() => {
 		if (!isLoading && data) {
@@ -42,7 +56,7 @@ const Realms = () => {
 		if (error) {
 			console.error(error);
 		}
-	}, [data, error, isLoading, realmId]);
+	}, [data, error, isLoading, activeRealm]);
 
 	if (isLoading) return <>Loading...</>
 	if (error) return <>Error: {error.message}</>
@@ -50,7 +64,7 @@ const Realms = () => {
 	return (
 		<>
 			{!isLoading && realms.map((realm) => (
-				<div className={`flex flex-col py-3 hover:cursor-pointer ${realmId === realm.realmId ? "bg-slate-800" : "bg-slate-900"}`}
+				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "bg-slate-800" : "bg-slate-900"}`}
 					key={realm.realmId}
 					title={realm.realmName}
 					onClick={() => { router.replace(`/dashboard/${realm.realmId}`) }}>

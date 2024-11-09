@@ -1,11 +1,10 @@
 "use client"
 import { Room } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ChatRoomContainer from "./ChatRoomContainer";
 import InboxesContainer from "./InboxesContainer";
-import SideBar from "./sidebar/SideBar";
-import { useParams } from "next/navigation";
-import RealmContext from "@/context/RealmContext";
+import SideBar from "./Sidebar/SideBar";
+import { RealmProvider } from "@/context/RealmContext";
 
 const Dashboard = () => {
 	const defaultRoom: Room = {
@@ -18,16 +17,9 @@ const Dashboard = () => {
 
 	const [room, setRoom] = useState<Room>(defaultRoom);
 
-	const { realmId } = useParams();
-	const [currentRealmId, setCurrentRealmId] = useState<number | null>(realmId === undefined ? null : Number(realmId));
-
-	useEffect(() => {
-		setCurrentRealmId(realmId === undefined ? null : Number(realmId));
-	}, [realmId]);
-
 	return (
 		<>
-			{!Array.isArray(realmId) && <RealmContext.Provider value={[currentRealmId, setCurrentRealmId]}>
+			{<RealmProvider>
 				<div className="flex h-dvh">
 					{/* Left edge nav bar */}
 					<SideBar />
@@ -50,7 +42,7 @@ const Dashboard = () => {
 						</div>
 					</div>
 				</div >
-			</RealmContext.Provider>}
+			</RealmProvider>}
 		</>
 	);
 }
