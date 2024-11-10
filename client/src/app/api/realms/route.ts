@@ -26,7 +26,11 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 				}
 			},
 			include: {
-				UsersOnRealms: true
+				UsersOnRealms: {
+					where: {
+						auth0Id: userAuth0Id
+					}
+				}
 			}
 		});
 		await prisma.$disconnect();

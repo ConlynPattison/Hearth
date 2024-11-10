@@ -2,6 +2,10 @@
 import { Realm } from "@prisma/client";
 import { createContext, Dispatch, ReactNode, SetStateAction, useState } from "react";
 
+// type RealmWithAuth = {
+// 	UsersOnRealms: UsersOnRealms[];
+// } & Realm
+
 // Sends the Id of the active realm if one is chosen otherwise undefined
 const RealmContext = createContext<[
 	Realm | null,

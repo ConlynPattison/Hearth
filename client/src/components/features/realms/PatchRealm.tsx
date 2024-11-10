@@ -20,17 +20,19 @@ const PatchRealm = () => {
 		}
 	}
 	return (
-		<div className="bg-slate-900 flex flex-col py-3 text-center rounded-md mt-3 mx-3 hover:cursor-pointer"
-			onClick={openModal}
-			title="Change realm properties">
-			<FaGear size="3em" className="self-center text-slate-500" />
+		<>
+			<div className="bg-slate-900 flex flex-col py-3 text-center rounded-md mt-3 mx-3 hover:cursor-pointer"
+				onClick={openModal}
+				title="Update server properties">
+				<FaGear size="3em" className="self-center text-slate-500" />
+			</div>
 			<Modal ref={dialog}>
 				<h1 className="text-center text-lg"
 				>Update Server Info</h1>
 				<PatchRealmForm dialog={dialog} />
 				<button type="button" onClick={closeModal}>Close</button>
 			</Modal>
-		</div>
+		</>
 	);
 }
 
