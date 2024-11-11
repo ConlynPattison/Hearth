@@ -119,7 +119,6 @@ const ChatRoomContainer = ({
 
 
 	return (
-		// <div className="px-1">
 		<div className="flex flex-col h-dvh p-2">
 			{/* Connection status */}
 			<div className="flex">
@@ -137,7 +136,6 @@ const ChatRoomContainer = ({
 				<MessageInputForm socket={socket} roomSendingTo={room} isConnected={isConnected} />
 			</div>
 		</div>
-		// </div>
 	);
 }
 

@@ -1,5 +1,6 @@
 import { Room } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
+import PatchRealm from "../features/realms/PatchRealm";
 
 const rooms: Room[] = [
 	{
@@ -72,6 +73,7 @@ const InboxesContainer = ({
 
 	return (
 		<div className="flex flex-col">
+			<PatchRealm />
 			{rooms.map((room) =>
 				<Inbox
 					key={room.roomId}
