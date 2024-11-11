@@ -21,16 +21,23 @@ const CreateRealm = () => {
 	}
 	return (
 		<>
-			<div className={`flex flex-col dark:bg-slate-900 bg-slate-200 py-3 hover:cursor-pointer`}
+			<div className={`flex flex-col dark:bg-slate-900 bg-slate-200 py-3 hover:cursor-pointer hover:brightness-90`}
 				onClick={openModal}
 				title="Create new realm">
 				<FaPlus size="3em" className="self-center dark:text-slate-500 text-slate-700" />
 			</div>
 			<Modal ref={dialog}>
-				<h1 className="text-center text-lg"
-				>New Realm Info</h1>
-				<CreateRealmForm dialog={dialog} />
-				<button type="button" onClick={closeModal}>Close</button>
+				<div className="flex flex-col">
+					<h1 className="text-center text-lg"
+					>New Realm Info</h1>
+					<hr />
+					<CreateRealmForm dialog={dialog} />
+					<button
+						className="hover:brightness-90 dark:bg-slate-700 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"
+						type="button"
+						onClick={closeModal}
+					>Close</button>
+				</div>
 			</Modal>
 		</>
 	);

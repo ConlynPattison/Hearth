@@ -9,7 +9,7 @@ const Modal = forwardRef<HTMLDialogElement, ModalProps>(({
 }: { children: React.ReactNode }, ref) => {
 
 	return (
-		<dialog className="backdrop:backdrop-blur-sm rounded-md p-4"
+		<dialog className="backdrop:backdrop-blur-sm rounded-md p-4 color-by-mode dark:bg-slate-800 shadow-2xl max-w-[65%]"
 			ref={ref}>
 			{children}
 			{/* <button type="button" onClick={() => {

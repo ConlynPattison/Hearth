@@ -21,6 +21,12 @@ body {
 }
 
 @layer utilities {
+	.color-by-mode {
+		color: var(--foreground);
+	}
+}
+
+@layer utilities {
   .text-balance {
     text-wrap: balance;
   }

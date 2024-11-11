@@ -14,7 +14,7 @@ const Profile = () => {
 	}
 
 	return (
-		<div className="flex flex-col w-[100%] hover:cursor-pointer"
+		<div className="flex flex-col w-[100%]"
 			onClick={handleProfileClick}>
 			<FaUser size="3em" className="dark:text-slate-500 text-slate-700 self-center" />
 			<p

@@ -66,7 +66,7 @@ const Realms = () => {
 	return (
 		<>
 			{!isLoading && realms.map((realm) => (
-				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-50" : "dark:bg-slate-900 bg-slate-200"}`}
+				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-50" : "hover:brightness-90 dark:bg-slate-900 bg-slate-200"}`}
 					key={realm.realmId}
 					title={realm.realmName}
 					onClick={() => { router.replace(`/dashboard/${realm.realmId}`) }}>

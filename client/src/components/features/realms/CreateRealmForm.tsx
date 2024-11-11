@@ -39,15 +39,19 @@ const CreateRealmForm = ({ dialog }: CreateRealmFormProps) => {
 			<div className="flex flex-col">
 				<label>Name:
 					<input
+						className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
 						name="realm_name"
 						required
 						maxLength={16}
 						placeholder="Name your realm..." /></label>
-				<label>Is this Realm Private?
+				<label>Is this realm private?
 					<input
 						name="realm_is_private"
 						type="checkbox" /></label>
-				<button type="submit">Submit</button>
+				<button
+					className="hover:brightness-90 dark:bg-green-900 dark:color-by-mode text-green-800 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"
+					type="submit"
+				>Submit</button>
 			</div>
 		</form>
 	);

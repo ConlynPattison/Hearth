@@ -62,7 +62,7 @@ const MessageInputForm = ({
 			></textarea>
 			<br />
 			<FaPaperPlane
-				className="hover:cursor-pointer dark:text-slate-600 text-slate-400"
+				className="hover:brightness-90 hover:cursor-pointer dark:text-slate-600 text-slate-400"
 				size="2em"
 				onClick={(e) => sendMessage(e)} />
 		</form>

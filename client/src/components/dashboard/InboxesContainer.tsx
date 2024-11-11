@@ -50,7 +50,7 @@ const Inbox = ({ room, setRoom, isSelectedRoom }: InboxProps) => {
 
 	const bg = isSelectedRoom ?
 		"bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200"
-		: "dark:bg-slate-900 bg-slate-200";
+		: "hover:brightness-90 dark:bg-slate-900 bg-slate-200";
 	return (
 		<button className={`${bg} py-3 text-center rounded-md mt-3 mx-3`}
 			onClick={() => setRoom(room)}

@@ -29,7 +29,7 @@ const PatchRealm = () => {
 
 	return (
 		<>
-			<div className="dark:bg-slate-900 bg-slate-200 flex flex-col py-3 text-center rounded-md mt-3 mx-3 hover:cursor-pointer"
+			<div className="hover:brightness-90 dark:bg-slate-900 bg-slate-200 flex flex-col py-3 text-center rounded-md mt-3 mx-3 hover:cursor-pointer"
 				onClick={openModal}
 				title="Update realm properties">
 				<FaGear size="3em" className="self-center dark:text-slate-500 text-slate-700" />
@@ -39,16 +39,27 @@ const PatchRealm = () => {
 					<div className="flex flex-col">
 						<h1 className="text-center text-lg"
 						>Delete Realm</h1>
+						<hr />
 						<DeleteRealmForm dialog={dialog} />
-						<button type="button" onClick={() => setTryingDelete(false)}>Cancel</button>
+						<button
+							className="hover:brightness-90 dark:bg-slate-700 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"
+							type="button"
+							onClick={() => setTryingDelete(false)}
+						>Cancel</button>
 					</div>
 					:
 					<div className="flex flex-col">
 						<h1 className="text-center text-lg"
 						>Update Realm Info</h1>
+						<hr />
 						<PatchRealmForm dialog={dialog} />
-						<button type="button" onClick={closeModal}>Close</button>
 						<button
+							className="hover:brightness-90 dark:bg-slate-700 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"
+							type="button"
+							onClick={closeModal}
+						>Close</button>
+						<button
+							className="hover:brightness-90 dark:bg-red-900 dark:color-by-mode text-red-800 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center disabled:dark:bg-red-950 disabled:bg-slate-300"
 							type="button"
 							onClick={() => setTryingDelete(true)}
 							disabled={!userCanDeleteRealm}
