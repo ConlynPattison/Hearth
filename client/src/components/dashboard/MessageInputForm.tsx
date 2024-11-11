@@ -54,7 +54,7 @@ const MessageInputForm = ({
 		<form className="flex p-1 mt-2 items-center"
 			onSubmit={sendMessage}>
 			<br />
-			<textarea className="w-[100%] rounded p-2 mr-2 bg-slate-600"
+			<textarea className="w-[100%] rounded p-2 mr-2 dark:bg-slate-600 bg-slate-200"
 				ref={messageBox}
 				onKeyDown={handleKeyDown}
 				disabled={!isConnected}
@@ -62,7 +62,7 @@ const MessageInputForm = ({
 			></textarea>
 			<br />
 			<FaPaperPlane
-				className="hover:cursor-pointer text-slate-600"
+				className="hover:cursor-pointer dark:text-slate-600 text-slate-400"
 				size="2em"
 				onClick={(e) => sendMessage(e)} />
 		</form>

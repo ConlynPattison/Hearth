@@ -16,7 +16,7 @@ const Profile = () => {
 	return (
 		<div className="flex flex-col w-[100%] hover:cursor-pointer"
 			onClick={handleProfileClick}>
-			<FaUser size="3em" className="text-slate-500 self-center" />
+			<FaUser size="3em" className="dark:text-slate-500 text-slate-700 self-center" />
 			<p
 				className="self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap no-underline"
 				title={username ?? ""}>

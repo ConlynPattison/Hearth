@@ -40,7 +40,7 @@ const Message = ({ message }: { message: MessageForView }) => {
 						<div className="flex flex-row-reverse max-w-[85%]">
 							<ProfilePicture avatarUrl={message.avatarUrl} minWidth={50} />
 							<div>
-								<p className={`${sharedClasses} bg-gradient-to-tl from-purple-700 to-red-500  rounded-tr-none mr-2`}>{message.content}</p>
+								<p className={`${sharedClasses} bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200 rounded-tr-none mr-2`}>{message.content}</p>
 								<p className={`text-xs text-slate-400`}>{localTime}</p>
 							</div>
 						</div>
@@ -50,7 +50,7 @@ const Message = ({ message }: { message: MessageForView }) => {
 						<div className="flex max-w-[85%]">
 							<ProfilePicture avatarUrl={message.avatarUrl} minWidth={50} />
 							<div>
-								<p className={`${sharedClasses} bg-gradient-to-tl from-red-600 to-yellow-500 rounded-tl-none ml-2`}>{message.content}</p>
+								<p className={`${sharedClasses} bg-gradient-to-tl dark:from-red-600 dark:to-yellow-500 from-red-300 to-yellow-200 rounded-tl-none ml-2`}>{message.content}</p>
 								<p className={`text-xs text-slate-400 flex flex-row-reverse`}>{localTime}</p>
 							</div>
 						</div>

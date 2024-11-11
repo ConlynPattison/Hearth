@@ -28,17 +28,17 @@ const Dashboard = () => {
 					<div className="bg-red-600 w-[100%] overflow-y-auto h-[100%] sm:flex">
 
 						{/* Left middle inbox & rooms */}
-						<div className="bg-slate-800 sm:w-[400px] sm:h-[100%]">
+						<div className="bg-slate-50 dark:bg-slate-800 sm:w-[400px] sm:h-[100%]">
 							<InboxesContainer setRoom={setRoom} selectedRoom={room} />
 						</div>
 
 						{/* Right middle messages */}
-						<div className="bg-slate-800 w-[100%] h-[100%]">
+						<div className="bg-slate-50 dark:bg-slate-800 w-[100%] h-[100%]">
 							{room && <ChatRoomContainer key={room.roomId} room={room} />}
 						</div>
 
 						{/* Right edge profile info */}
-						<div className="bg-slate-900 sm:w-[300px] sm:h-[100%]">
+						<div className="bg-slate-200 dark:bg-slate-900 sm:w-[300px] sm:h-[100%]">
 						</div>
 					</div>
 				</div >

@@ -66,11 +66,11 @@ const Realms = () => {
 	return (
 		<>
 			{!isLoading && realms.map((realm) => (
-				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "bg-slate-800" : "bg-slate-900"}`}
+				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-50" : "dark:bg-slate-900 bg-slate-200"}`}
 					key={realm.realmId}
 					title={realm.realmName}
 					onClick={() => { router.replace(`/dashboard/${realm.realmId}`) }}>
-					<FaFireFlameCurved size="3em" className="self-center text-slate-500" />
+					<FaFireFlameCurved size="3em" className="self-center dark:text-slate-500 text-slate-700" />
 					<span className="text-center self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap">
 						{realm.realmName}
 					</span>

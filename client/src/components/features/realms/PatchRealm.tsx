@@ -29,10 +29,10 @@ const PatchRealm = () => {
 
 	return (
 		<>
-			<div className="bg-slate-900 flex flex-col py-3 text-center rounded-md mt-3 mx-3 hover:cursor-pointer"
+			<div className="dark:bg-slate-900 bg-slate-200 flex flex-col py-3 text-center rounded-md mt-3 mx-3 hover:cursor-pointer"
 				onClick={openModal}
 				title="Update realm properties">
-				<FaGear size="3em" className="self-center text-slate-500" />
+				<FaGear size="3em" className="self-center dark:text-slate-500 text-slate-700" />
 			</div>
 			<Modal ref={dialog}>
 				{tryingDelete ?
