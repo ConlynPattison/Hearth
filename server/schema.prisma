@@ -98,7 +98,7 @@ model UsersOnRealms {
     user    User   @relation(fields: [auth0Id], references: [auth0Id])
 
     realmId Int
-    realm   Realm @relation(fields: [realmId], references: [realmId])
+    realm   Realm @relation(fields: [realmId], references: [realmId], onDelete: Cascade)
 
     @@id([auth0Id, realmId])
 }

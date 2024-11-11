@@ -29,21 +29,23 @@ const Realms = () => {
 
 	useEffect(() => {
 		// If realm has not been initialized yet
-		if (activeRealm === null) {
+		if (activeRealm === null || !realms.some((realm) => realm.realmId === activeRealm.realmId)) {
 			// If there are realms to set to
 			if (setActiveRealm !== undefined && realms.length > 0) {
 				// If there is a param for the intended open realm
 				if (realmId && !Array.isArray(realmId) && realmId.length > 0) {
 					const realmWithUserData = realms.find((realm) => realm.realmId === parseInt(realmId, 10));
-					if (realmWithUserData !== undefined) setActiveRealm({
-						realmId: realmWithUserData.realmId,
-						createdAt: realmWithUserData?.createdAt,
-						realmName: realmWithUserData.realmName,
-						isSearchable: realmWithUserData.isSearchable
-					})
+					// if the intended realm DOES exist:
+					if (realmWithUserData !== undefined) setActiveRealm(realmWithUserData);
+					else {
+						router.replace("/dashboard");
+					}
 				} else {
-					setActiveRealm(realms[0]);
+					setActiveRealm(realms[0] || null);
 				}
+			} else if (setActiveRealm !== undefined) {
+				setActiveRealm(null);
+				router.replace("/dashboard");
 			}
 		}
 	}, [activeRealm, realms, setActiveRealm, realmId]);

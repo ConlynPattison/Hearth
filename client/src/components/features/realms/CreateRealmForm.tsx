@@ -18,7 +18,7 @@ const CreateRealmForm = ({ dialog }: CreateRealmFormProps) => {
 
 		axios.post("/api/realms", {
 			body: {
-				isSearchable: isSearchable === undefined ? false : isSearchable as unknown as boolean,
+				isSearchable: (isSearchable === null || isSearchable === "off") ? false : true,
 				realmName
 			},
 		}).then(create => {

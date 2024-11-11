@@ -10,11 +10,9 @@ interface PatchRealmFormProps {
 const PatchRealmForm = ({ dialog }: PatchRealmFormProps) => {
 	const [activeRealm] = useContext(RealmContext);
 
-	const create = async (e: FormData) => {
+	const patch = async (e: FormData) => {
 		const isSearchable = e.get("realm_is_private");
 		const realmName = e.get("realm_name");
-
-		console.log(isSearchable, realmName)
 
 		if (!realmName || typeof realmName !== "string") {
 			alert("Failed to update realm");
@@ -41,7 +39,7 @@ const PatchRealmForm = ({ dialog }: PatchRealmFormProps) => {
 	}
 
 	return (
-		<form action={create}>
+		<form action={patch}>
 			<div className="flex flex-col">
 				<label>Name:
 					<input
