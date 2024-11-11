@@ -17,7 +17,7 @@ const messagesClient = new MongoClient(uri, {
 	tls: true
 });
 
-async function runMongo() {
+const runMongo = async () => {
 	try {
 		// Connect the client to the server	(optional starting in v4.7)
 		await messagesClient.connect();
@@ -31,13 +31,11 @@ async function runMongo() {
 }
 
 /**
- * @param {MongoClient} client 
  * @param {import("@chat-app/types").Message} message 
- * @param {string} username 
  */
-const saveMessageToDB = async (client, message) => {
-	await client.connect();
-	const messageDB = client.db("Cluster0");
+const saveMessageToDB = async (message) => {
+	await messagesClient.connect();
+	const messageDB = messagesClient.db("Cluster0");
 	const messageCollection = messageDB.collection("messages");
 
 	await messageCollection.insertOne({ ...message }).then((result) => {
@@ -46,7 +44,7 @@ const saveMessageToDB = async (client, message) => {
 		console.error(reason);
 	});
 
-	await client.close();
+	await messagesClient.close();
 }
 
 export { runMongo, saveMessageToDB };

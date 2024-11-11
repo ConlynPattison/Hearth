@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
-import { runMongo } from "./lib/mongo.js";
+import { runMongo, saveMessageToDB } from "./lib/mongo.js";
 import { runPrisma } from "./lib/postgres.js";
 import { clientAuthenticated } from "./middleware/clientAuthenticated.js";
 import { leaveRoom } from "./lib/socket.js";
@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
 		}
 
 		// if (process.env.NODE_ENV == "development")
-		saveMessageToDB(messagesClient, messageToSave);
+		saveMessageToDB(messageToSave);
 	});
 
 	socket.on("disconnecting", () => {

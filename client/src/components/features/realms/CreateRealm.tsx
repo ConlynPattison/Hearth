@@ -28,7 +28,7 @@ const CreateRealm = () => {
 			</div>
 			<Modal ref={dialog}>
 				<h1 className="text-center text-lg"
-				>New Server Info</h1>
+				>New Realm Info</h1>
 				<CreateRealmForm dialog={dialog} />
 				<button type="button" onClick={closeModal}>Close</button>
 			</Modal>

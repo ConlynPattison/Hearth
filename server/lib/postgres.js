@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function runPrisma() {
+const runPrisma = async () => {
 	try {
 		await prisma.$connect();
 		await prisma.$queryRaw`SELECT 1`;
