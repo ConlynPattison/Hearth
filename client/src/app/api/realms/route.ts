@@ -16,7 +16,6 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 		const userAuth0Id = session.user.sub;
 
 		// Fetch and send the realm data []
-		await prisma.$connect();
 		const realms = await prisma.realm.findMany({
 			where: {
 				UsersOnRealms: {
@@ -33,7 +32,6 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 				}
 			}
 		});
-		await prisma.$disconnect();
 
 		return NextResponse.json({ success: true, realms }, { status: 200 });
 	}
@@ -67,7 +65,6 @@ const POST = withApiAuthRequired(async (req: NextRequest) => {
 
 		const { realmName, isSearchable } = params.data;
 
-		await prisma.$connect();
 		const realm = await prisma.realm.create({
 			data: {
 				realmName,
@@ -81,7 +78,6 @@ const POST = withApiAuthRequired(async (req: NextRequest) => {
 				memberLevel: UsersOnRealmsLevels.OWNER
 			}
 		})
-		await prisma.$disconnect();
 
 		return NextResponse.json({ success: true, message: `Successfully created realm with realmId: ${realm.realmId}` }, { status: 200 });
 	}

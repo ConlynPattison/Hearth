@@ -53,7 +53,6 @@ export const GET = async (
 
 	const userIds = new Set(messages.map(message => message.userId));
 
-	await prisma.$connect();
 	const users: BaseUserData[] = await prisma.user.findMany({
 		where: {
 			auth0Id: {

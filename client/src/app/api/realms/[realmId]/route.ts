@@ -27,7 +27,6 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 		const { realmId } = parsedParams.data;
 
 		// Fetch and send the realm data
-		await prisma.$connect();
 		const realm = await prisma.realm.findFirst({
 			where: {
 				UsersOnRealms: {
@@ -45,7 +44,6 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 				}
 			}
 		});
-		await prisma.$disconnect();
 
 		if (realm === null) {
 			return NextResponse.json({ success: false, message: `Realm with realmId ${realmId} not found within realms of userId ${userAuth0Id}` }, { status: 404 });
@@ -78,7 +76,6 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 		const { realmId } = parsedParams.data;
 
 		// check authorization (must be owner)
-		await prisma.$connect();
 		const realm = await prisma.usersOnRealms.findFirst({
 			where: {
 				auth0Id: userAuth0Id,
@@ -86,20 +83,17 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 				memberLevel: UsersOnRealmsLevels.OWNER
 			}
 		});
-		await prisma.$disconnect();
 
 		if (realm === null) {
 			return NextResponse.json({ success: false, message: `Realm with realmId ${realmId} not found within realms of userId ${userAuth0Id}` }, { status: 404 });
 		}
 
 		// Fetch and send the realm data
-		await prisma.$connect();
 		const deletedRealm = await prisma.realm.delete({
 			where: {
 				realmId
 			}
 		});
-		await prisma.$disconnect();
 
 		return NextResponse.json({ success: true, message: `Realm with realmId ${deletedRealm.realmId} successfully deleted` });
 	}
