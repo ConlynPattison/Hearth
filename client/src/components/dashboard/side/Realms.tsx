@@ -48,7 +48,7 @@ const Realms = () => {
 				router.replace("/dashboard");
 			}
 		}
-	}, [activeRealm, realms, setActiveRealm, realmId]);
+	}, [activeRealm, realms, setActiveRealm, realmId, router]);
 
 	useEffect(() => {
 		if (!isLoading && data) {

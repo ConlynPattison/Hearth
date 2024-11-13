@@ -1,6 +1,5 @@
 import prisma from "@/util/postgres";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { UsersOnRealmsLevels } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
