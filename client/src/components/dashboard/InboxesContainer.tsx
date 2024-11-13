@@ -48,7 +48,7 @@ const Inbox = ({ room, setRoom, isSelectedRoom }: InboxProps) => {
 		"bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200"
 		: "hover:brightness-90 dark:bg-slate-900 bg-slate-200";
 	return (
-		<button className={`${bg} py-3 text-center rounded-md mt-3 mx-3`}
+		<button className={`${bg} py-2 text-center rounded-md mt-2 mx-2`}
 			onClick={() => setRoom(room)}
 			type="button"
 		>
@@ -68,7 +68,7 @@ const InboxesContainer = ({
 }: InboxesContainerProps) => {
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col h-[100%]">
 			<PatchRealm />
 			{rooms.map((room) =>
 				<Inbox

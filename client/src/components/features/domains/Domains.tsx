@@ -4,6 +4,7 @@ import axios from "axios";
 import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import useSWR from "swr";
+import CreateDomain from "./CreateDomain";
 
 type PermissionedDomain = Domain & {
 	DomainPermissions: Permissions[]
@@ -37,22 +38,27 @@ const DomainItem = ({
 
 	return (
 		<div className={`${depth === 0 ? "pt-8" : "ml-8 mt-2"}`}>
-			<div
-				className="hover:cursor-pointer hover:dark:brightness-90 hover:underline flex"
-				onClick={() => setVisibleDomains(curr => {
-					return {
-						...curr,
-						[domain.domainId]: !showContents
-					}
-				})}
-			>
-				<div className="translate-y-[2px]"
-				>{showContents ? <FaAngleDown size={"1em"} /> : <FaAngleRight />}</div>
-				{domain.domainName}
+			<div className="flex">
+				<div
+					className="hover:cursor-pointer hover:dark:brightness-90 hover:underline flex"
+					onClick={() => setVisibleDomains(curr => {
+						return {
+							...curr,
+							[domain.domainId]: !showContents
+						}
+					})}
+				>
+					<div className="translate-y-[2px]">
+						{showContents ? <FaAngleDown /> : <FaAngleRight />}
+					</div>
+					{domain.domainName}
+				</div>
+				{depth < 2 &&
+					<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
 			</div>
 			{showContents &&
 				<>
-					<div className="ml-4"># example-room</div>
+					<div className="ml-4 py-1"># example-room</div>
 					{domain.children.map((childDomain) =>
 						<DomainItem
 							visibleDomains={visibleDomains}
@@ -81,7 +87,10 @@ const Domains = () => {
 	if (isLoading) return (<>Loading domains..</>)
 
 	return (
-		<div className="select-none">
+		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px]">
+			<CreateDomain parentDomainName={null} parentDomainId={null}>
+				Create new domain
+			</CreateDomain>
 			{data?.domains.map((domain) => {
 				return (
 					<DomainItem
