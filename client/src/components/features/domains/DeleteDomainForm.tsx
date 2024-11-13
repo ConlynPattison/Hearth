@@ -18,7 +18,7 @@ const DeleteDomainForm = ({ dialog, domainName, domainId }: DeleteDomainFormProp
 			.then(patch => {
 				if (patch.status === 200) {
 					alert("Realm successfully deleted!");
-					mutate("/api/realms");
+					mutate(`/api/realms/${activeRealm?.realmId}/domains`);
 				}
 
 				dialog.current?.close();

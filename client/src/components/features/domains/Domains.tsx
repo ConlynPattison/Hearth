@@ -93,7 +93,7 @@ const Domains = () => {
 	});
 
 	if (error) return (<>Error: {error}</>);
-	if (isLoading) return (<>Loading domains..</>)
+	if (isLoading) return (<>Loading domains..</>) // TODO: change to skeleton state
 
 	return (
 		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px]">

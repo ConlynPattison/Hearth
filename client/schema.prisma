@@ -43,6 +43,9 @@ model Room {
     realmId Int
     realm   Realm @relation(fields: [realmId], references: [realmId])
 
+    domainId Int?
+    domain   Domain? @relation(fields: [domainId], references: [domainId])
+
     RoomPermissions RoomPermissions[]
 }
 
@@ -77,6 +80,7 @@ model Domain {
     children Domain[] @relation("ParentToChildren")
 
     DomainPermissions DomainPermissions[]
+    Room              Room[]
 }
 
 model Permissions {

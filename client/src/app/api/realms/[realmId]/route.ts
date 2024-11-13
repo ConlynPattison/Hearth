@@ -57,6 +57,8 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	}
 });
 
+const deleteSchema = getSchema;
+
 const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
 		// Is the user authenticated?
@@ -68,7 +70,7 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 		}
 		const userAuth0Id = session.user.sub;
 
-		const parsedParams = getSchema.safeParse(params);
+		const parsedParams = deleteSchema.safeParse(params);
 		if (!parsedParams.success) {
 			return NextResponse.json({ success: false, message: `Invalid arguments for get realm with error: ${parsedParams.error}` }, { status: 400 });
 		}
@@ -76,7 +78,7 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 		const { realmId } = parsedParams.data;
 
 		// check authorization (must be owner)
-		const realm = await prisma.usersOnRealms.findFirst({
+		const authorization = await prisma.usersOnRealms.findFirst({
 			where: {
 				auth0Id: userAuth0Id,
 				realmId,
@@ -84,8 +86,8 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			}
 		});
 
-		if (realm === null) {
-			return NextResponse.json({ success: false, message: `Realm with realmId ${realmId} not found within realms of userId ${userAuth0Id}` }, { status: 404 });
+		if (authorization === null) {
+			return NextResponse.json({ success: false, message: `Realm with realmId ${realmId} not found within admin realms of userId ${userAuth0Id}` }, { status: 404 });
 		}
 
 		// Fetch and send the realm data

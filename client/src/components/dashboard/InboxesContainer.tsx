@@ -9,30 +9,35 @@ const rooms: Room[] = [
 		roomName: "room1",
 		isPrivate: false,
 		realmId: 100,
+		domainId: null
 	},
 	{
 		roomId: 239873249328,
 		roomName: "Side Populus",
 		isPrivate: false,
 		realmId: 100,
+		domainId: null
 	},
 	{
 		roomId: 432984973215,
 		roomName: "Bwazil Room",
 		isPrivate: false,
 		realmId: 100,
+		domainId: null
 	},
 	{
 		roomId: 1923048329874982,
 		roomName: "Relish Tides",
 		isPrivate: false,
 		realmId: 100,
+		domainId: null
 	},
 	{
 		roomId: 239487312984732,
 		roomName: "Tandom Room Extra",
 		isPrivate: false,
 		realmId: 100,
+		domainId: null
 	}
 ]
 
