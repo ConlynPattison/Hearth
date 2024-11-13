@@ -37,15 +37,36 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			return NextResponse.json({ success: false, message: `UserId ${userAuth0Id} not authorized to access realmId ${realmId}` }, { status: 403 })
 		}
 
+		// TODO: in query or with post-query logic, remove domains that the user cannot access
+		// fetches depth of three (max) for domains found in a realm from each root domain
 		const domains = await prisma.domain.findMany({
 			where: {
 				realmId,
 				parentDomainId: null
 			},
 			include: {
+				DomainPermissions: {
+					include: {
+						permissions: true
+					}
+				},
 				children: {
 					include: {
-						children: true
+						DomainPermissions: {
+							include: {
+								permissions: true
+							}
+						},
+						children: {
+							include: {
+								DomainPermissions: {
+									include: {
+										permissions: true
+									}
+								},
+								children: true
+							}
+						}
 					}
 				},
 			}
@@ -59,4 +80,9 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	}
 });
 
-export { GET };
+const POST = withApiAuthRequired(async (req: NextRequest) => {
+
+	return NextResponse.json({ success: true }, { status: 200 });
+});
+
+export { GET, POST };

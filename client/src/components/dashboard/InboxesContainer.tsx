@@ -1,6 +1,7 @@
 import { Room } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
 import PatchRealm from "../features/realms/PatchRealm";
+import Domains from "../features/domains/Domains";
 
 const rooms: Room[] = [
 	{
@@ -77,6 +78,8 @@ const InboxesContainer = ({
 					isSelectedRoom={room.roomId === selectedRoom.roomId}
 				/>
 			)}
+			{/* Testing for domains: */}
+			<Domains />
 		</div>
 	);
 }
