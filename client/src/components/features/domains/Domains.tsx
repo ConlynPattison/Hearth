@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import useSWR from "swr";
 import CreateDomain from "./CreateDomain";
+import DeleteDomain from "./DeleteDomain";
 
 type PermissionedDomain = Domain & {
 	DomainPermissions: Permissions[]
@@ -35,12 +36,15 @@ const DomainItem = ({
 	setVisibleDomains
 }: DomainItemProps) => {
 	const showContents = visibleDomains[domain.domainId] ?? true;
+	const [showOptions, setShowOptions] = useState(false);
 
 	return (
 		<div className={`${depth === 0 ? "pt-8" : "ml-8 mt-2"}`}>
-			<div className="flex">
+			<div className="flex"
+				onMouseOver={() => setShowOptions(true)}
+				onMouseLeave={() => setShowOptions(false)}>
 				<div
-					className="hover:cursor-pointer hover:dark:brightness-90 hover:underline flex"
+					className="hover:cursor-pointer hover:dark:brightness-90 flex"
 					onClick={() => setVisibleDomains(curr => {
 						return {
 							...curr,
@@ -53,8 +57,13 @@ const DomainItem = ({
 					</div>
 					{domain.domainName}
 				</div>
-				{depth < 2 &&
-					<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
+				{showOptions &&
+					<>
+						{depth < 2 &&
+							<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
+						<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
+					</>}
+
 			</div>
 			{showContents &&
 				<>
