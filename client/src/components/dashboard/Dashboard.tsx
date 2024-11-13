@@ -12,7 +12,6 @@ const Dashboard = () => {
 		roomName: "room1",
 		isPrivate: false,
 		realmId: 100,
-		permissionsId: null
 	}
 
 	const [room, setRoom] = useState<Room>(defaultRoom);
