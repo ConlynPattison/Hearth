@@ -3,10 +3,10 @@ import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
 import { Message } from "@chat-app/types";
-import { saveMessageToDB, runMongo } from "@lib/mongo";
-import { leaveRoom } from "@lib/socket";
-import { clientAuthenticated } from "@middleware/clientAuthenticated";
-import { runPrisma } from "@lib/postgres";
+import { saveMessageToDB, runMongo } from "./lib/mongo.js";
+import { clientAuthenticated } from "./middleware/clientAuthenticated.js";
+import { runPrisma } from "./lib/postgres.js";
+import { leaveRoom } from "./lib/socket.js";
 
 type UserData = {
 	userId: string,

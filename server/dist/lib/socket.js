@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.leaveRoom = void 0;
 const leaveRoom = (io, socket, room) => {
     const { userId, userDisplayName } = socket.data;
     const userData = { userId, displayName: userDisplayName, avatarUrl: "" };
@@ -8,4 +5,4 @@ const leaveRoom = (io, socket, room) => {
     socket.leave(room);
     console.log(`UserId ${userId} left room: ${room}`);
 };
-exports.leaveRoom = leaveRoom;
+export { leaveRoom };
