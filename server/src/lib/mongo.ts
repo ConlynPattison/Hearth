@@ -1,3 +1,4 @@
+import { Message } from "@chat-app/types";
 import { configDotenv } from "dotenv";
 import { MongoClient, ServerApiVersion } from "mongodb";
 
@@ -30,10 +31,7 @@ const runMongo = async () => {
 	}
 }
 
-/**
- * @param {import("@chat-app/types").Message} message 
- */
-const saveMessageToDB = async (message) => {
+const saveMessageToDB = async (message: Message) => {
 	await messagesClient.connect();
 	const messageDB = messagesClient.db("Cluster0");
 	const messageCollection = messageDB.collection("messages");

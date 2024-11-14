@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken"
 import { getKey } from "../lib/jwt.js";
+import { ExtendedError, Socket } from "socket.io";
 
-export const clientAuthenticated = async (socket, next) => {
+export const clientAuthenticated = async (socket: Socket, next: (err?: ExtendedError) => void) => {
 	const token = socket.handshake.auth.token;
 
 	if (!token) {
@@ -17,7 +18,7 @@ export const clientAuthenticated = async (socket, next) => {
 
 		// Attach decoded token data to socket
 		console.log("Client successfully authenticated with Auth0...")
-		socket.user = decoded;
+		socket.data.user = decoded;
 		next();
 	});
 }

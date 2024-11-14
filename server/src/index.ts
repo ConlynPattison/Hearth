@@ -1,11 +1,17 @@
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
-import { runMongo, saveMessageToDB } from "./lib/mongo.js";
-import { runPrisma } from "./lib/postgres.js";
-import { clientAuthenticated } from "./middleware/clientAuthenticated.js";
-import { leaveRoom } from "./lib/socket.js";
+import { Message } from "@chat-app/types";
+import { saveMessageToDB, runMongo } from "@lib/mongo";
+import { leaveRoom } from "@lib/socket";
+import { clientAuthenticated } from "@middleware/clientAuthenticated";
+import { runPrisma } from "@lib/postgres";
+
+type UserData = {
+	userId: string,
+	displayName: string
+}
 
 configDotenv();
 const port = process.env.PORT || 4000;
@@ -26,11 +32,11 @@ const io = new Server(httpServer, {
 
 io.use(clientAuthenticated);
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: Socket) => {
 	console.log("A user connected");
 
 	// Join a room
-	socket.on("joinRoom", (room, userData) => {
+	socket.on("joinRoom", (room: string, userData: UserData) => {
 
 		const { userId, displayName } = userData;
 		socket.data.userId = userId;
@@ -45,23 +51,22 @@ io.on("connection", (socket) => {
 	});
 
 	// Leave a room
-	socket.on("leaveRoom", (room, userData) => {
-		leaveRoom(io, socket, room, userData);
+	socket.on("leaveRoom", (room: string) => {
+		leaveRoom(io, socket, room);
 	});
 
 	// Send message to a specific room
-	socket.on("messageToRoom", (room, message, userData) => {
+	socket.on("messageToRoom", (room: string, message: string, userData: UserData) => {
 		const { userId } = userData;
 		io.to(room).emit("message", message, userData);
 		console.log(`Message sent to room ${room}: ${message}`);
 
-		/** @type {import("@chat-app/types").Message} */
-		const messageToSave = {
+		const messageToSave: Message = {
 			type: "text",
 			content: message,
 			room,
 			userId,
-			time: Date.now()
+			time: Date.now().toString()
 		}
 
 		// if (process.env.NODE_ENV == "development")
@@ -70,9 +75,11 @@ io.on("connection", (socket) => {
 
 	socket.on("disconnecting", () => {
 		const roomsToLeave = Array.from(socket.rooms)?.filter((room) => room !== socket.id)
-		roomsToLeave.forEach((room) => {
-			leaveRoom(io, socket, room);
-		});
+		if (roomsToLeave) {
+			roomsToLeave.forEach((room) => {
+				leaveRoom(io, socket, room);
+			});
+		}
 	})
 
 	socket.on("disconnect", () => {
