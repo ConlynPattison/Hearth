@@ -18,7 +18,8 @@ const ChatRoomContainer = ({
 }: ChatRoomContainerProps) => {
 	const [messages, setMessages] = useState<MessageForView[]>([]);
 	const [isConnected, setIsConnected] = useState(false);
-	const scrollBox = useRef<HTMLDivElement>(null)
+	const scrollBox = useRef<HTMLDivElement>(null);
+	const [scrolledToTop, setScrolledToTop] = useState(false);
 
 	const { user } = useUser();
 	const socket = useSocket();
@@ -131,8 +132,12 @@ const ChatRoomContainer = ({
 				<h1 className="px-1 text-2xl font-bold mt-1">Messages: </h1>
 			</div>
 
-			<div className="absolute top-[60px] left-0 right-0 h-20 bg-gradient-to-b from-background dark:from-slate-800 from-0% to-transparent to-100% pointer-events-none z-10"></div>
+			{scrolledToTop || <div className="absolute top-[60px] left-0 right-0 h-20 bg-gradient-to-b from-background dark:from-slate-800 from-0% to-transparent to-100% pointer-events-none z-10"></div>}
 			<div className="flex-grow overflow-auto"
+				onScroll={(e) => {
+					const atTop = e.currentTarget.scrollTop === 0;
+					if (atTop !== scrolledToTop) setScrolledToTop(atTop)
+				}}
 				ref={scrollBox}>
 				<SentMessages messages={messages} />
 			</div>
