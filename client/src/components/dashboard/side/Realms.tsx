@@ -4,8 +4,31 @@ import { UsersOnRealms, Realm } from "@prisma/client";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useContext } from "react";
+import { IconType } from "react-icons";
 import { FaFireFlameCurved } from "react-icons/fa6";
 import useSWR from "swr";
+
+const SelectedRealmIcon = ({ Icon }: { Icon: IconType }) => {
+	return (
+		<Icon size="3em" style={{ stroke: "url(#blue-gradient)" }} />
+	);
+}
+import { TbEyeCheck } from "react-icons/tb";
+
+export const EyeIconGradient = ({ className }: { className: string }) => {
+	return (
+		<>
+			<svg width="0" height="0">
+				<linearGradient id="icon-gradient" x1="100%" y1="100%" x2="0%" y2="0%">
+					<stop stopColor="#6a43f9" offset="20%" />
+					<stop stopColor="#f39959" offset="80%" />
+				</linearGradient>
+			</svg>
+
+
+		</>
+	);
+}
 
 const Realms = () => {
 	const router = useRouter();
@@ -65,12 +88,24 @@ const Realms = () => {
 
 	return (
 		<>
+			<svg width="0" height="0">
+				<linearGradient id="icon-gradient" x1="100%" y1="100%" x2="0%" y2="0%">
+					<stop stopColor="#7e22ce" offset="20%" />
+					<stop stopColor="#ef4444" offset="80%" />
+				</linearGradient>
+			</svg>
 			{!isLoading && realms.map((realm) => (
 				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-100" : "hover:brightness-90 dark:bg-slate-900 bg-slate-200"}`}
 					key={realm.realmId}
 					title={realm.realmName}
 					onClick={() => { router.replace(`/dashboard/${realm.realmId}`) }}>
-					<FaFireFlameCurved size="3em" className="self-center dark:text-slate-500 text-slate-700" />
+					<div className="self-center">
+						<FaFireFlameCurved
+							className="dark:text-slate-500 text-slate-700"
+							size="3em"
+							style={{ fill: `${activeRealm?.realmId === realm.realmId && "url(#icon-gradient)"}` }}
+						/>
+					</div>
 					<span className="text-center self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap">
 						{realm.realmName}
 					</span>
