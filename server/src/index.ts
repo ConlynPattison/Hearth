@@ -66,7 +66,7 @@ io.on("connection", (socket: Socket) => {
 			content: message,
 			room,
 			userId,
-			time: Date.now().toString()
+			time: Date.now()
 		}
 
 		// if (process.env.NODE_ENV == "development")

@@ -5,7 +5,7 @@ export type Message = {
 	userId: string,
 	content: string,
 	room: string,
-	time?: string // created once the socket server emits to other clients
+	time?: number // created once the socket server emits to other clients
 };
 
 export type MessageForView = Message & {

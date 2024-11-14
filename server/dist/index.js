@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
             content: message,
             room,
             userId,
-            time: Date.now().toString()
+            time: Date.now()
         };
         // if (process.env.NODE_ENV == "development")
         saveMessageToDB(messageToSave);

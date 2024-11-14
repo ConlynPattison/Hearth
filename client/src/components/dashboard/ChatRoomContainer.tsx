@@ -60,7 +60,7 @@ const ChatRoomContainer = ({
 						room: room.roomName,
 						displayName,
 						avatarUrl,
-						time: new Date().toUTCString()
+						time: Date.now()
 					}];
 				});
 			});
