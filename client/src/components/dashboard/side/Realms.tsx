@@ -4,31 +4,8 @@ import { UsersOnRealms, Realm } from "@prisma/client";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect, useContext } from "react";
-import { IconType } from "react-icons";
 import { FaFireFlameCurved } from "react-icons/fa6";
 import useSWR from "swr";
-
-const SelectedRealmIcon = ({ Icon }: { Icon: IconType }) => {
-	return (
-		<Icon size="3em" style={{ stroke: "url(#blue-gradient)" }} />
-	);
-}
-import { TbEyeCheck } from "react-icons/tb";
-
-export const EyeIconGradient = ({ className }: { className: string }) => {
-	return (
-		<>
-			<svg width="0" height="0">
-				<linearGradient id="icon-gradient" x1="100%" y1="100%" x2="0%" y2="0%">
-					<stop stopColor="#6a43f9" offset="20%" />
-					<stop stopColor="#f39959" offset="80%" />
-				</linearGradient>
-			</svg>
-
-
-		</>
-	);
-}
 
 const Realms = () => {
 	const router = useRouter();
