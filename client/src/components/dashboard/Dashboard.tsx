@@ -25,7 +25,7 @@ const Dashboard = () => {
 					<SideBar />
 
 					{/* Outer container */}
-					<div className="bg-red-600 w-[100%] overflow-y-auto h-[100%] sm:flex">
+					<div className="bg-red-600 w-[100%] overflow-y-auto h-[100%] sm:flex no-scrollbar">
 
 						{/* Left middle inbox & rooms */}
 						<div className="bg-slate-50 dark:bg-slate-800 sm:w-[400px] sm:h-[100%]">
@@ -38,8 +38,8 @@ const Dashboard = () => {
 						</div>
 
 						{/* Right edge profile info */}
-						<div className="bg-slate-200 dark:bg-slate-900 sm:w-[300px] sm:h-[100%]">
-						</div>
+						{/* <div className="bg-slate-200 dark:bg-slate-900 sm:w-[300px] sm:h-[100%]">
+						</div> */}
 					</div>
 				</div >
 			</RealmProvider>}

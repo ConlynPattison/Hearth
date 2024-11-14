@@ -6,12 +6,13 @@ import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import useSWR from "swr";
 import CreateDomain from "./CreateDomain";
 import DeleteDomain from "./DeleteDomain";
+import PatchDomain from "./PatchDomain";
 
 type PermissionedDomain = Domain & {
 	DomainPermissions: Permissions[]
 }
 
-type OptionallyParentalDomain = PermissionedDomain & {
+export type OptionallyParentalDomain = PermissionedDomain & {
 	children: OptionallyParentalDomain[]
 }
 
@@ -21,19 +22,23 @@ type GetDomainsData = {
 }
 
 interface DomainItemProps {
-	domain: OptionallyParentalDomain,
-	depth: number,
-	visibleDomains: { [key: number]: boolean },
+	domain: OptionallyParentalDomain;
+	depth: number;
+	visibleDomains: { [key: number]: boolean };
 	setVisibleDomains: Dispatch<SetStateAction<{
 		[key: number]: boolean;
-	}>>
+	}>>;
+	parentDomainName: string | null;
+	domains: OptionallyParentalDomain[];
 }
 
 const DomainItem = ({
 	domain,
 	depth,
 	visibleDomains,
-	setVisibleDomains
+	setVisibleDomains,
+	parentDomainName,
+	domains
 }: DomainItemProps) => {
 	const showContents = visibleDomains[domain.domainId] ?? true;
 	const [showOptions, setShowOptions] = useState(false);
@@ -62,6 +67,7 @@ const DomainItem = ({
 						{depth < 2 &&
 							<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
 						<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
+						<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains}/>
 					</>}
 
 			</div>
@@ -74,7 +80,9 @@ const DomainItem = ({
 							setVisibleDomains={setVisibleDomains}
 							key={childDomain.domainId}
 							domain={childDomain}
-							depth={depth + 1} />)}
+							parentDomainName={domain.domainName}
+							depth={depth + 1}
+							domains={domains}/>)}
 				</>
 			}
 		</div>
@@ -96,7 +104,7 @@ const Domains = () => {
 	if (isLoading) return (<>Loading domains..</>) // TODO: change to skeleton state
 
 	return (
-		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px]">
+		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px] m-2">
 			<CreateDomain parentDomainName={null} parentDomainId={null}>
 				Create new domain
 			</CreateDomain>
@@ -107,7 +115,9 @@ const Domains = () => {
 						domain={domain}
 						visibleDomains={visibleDomains}
 						setVisibleDomains={setVisibleDomains}
-						depth={0} />
+						domains={data?.domains}
+						depth={0}
+						parentDomainName={null} />
 				);
 			})}
 		</div>

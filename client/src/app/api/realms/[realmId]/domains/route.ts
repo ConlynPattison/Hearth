@@ -183,7 +183,6 @@ const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			if (currentDepth >= MAX_DOMAIN_DEPTH) {
 				return NextResponse.json({ success: false, message: `ParentDomainId ${parentDomainId} is at or beyond the max depth for sub-domain allocation. Current depth: ${currentDepth}, max depth: ${MAX_DOMAIN_DEPTH}` }, { status: 404 })
 			}
-
 		}
 
 		const domain = await prisma.domain.create({
@@ -203,4 +202,101 @@ const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	}
 });
 
-export { GET, POST };
+const patchBodySchema = z.object({
+	domainName: z.string().max(16).min(1),
+	parentDomainId: z.number().finite().positive().nullable(),
+	domainId: z.number().finite().positive(),
+	isPrivate: z.boolean()
+});
+
+const patchQuerySchema = z.object({
+	realmId: z.string().transform((id) => parseInt(id, 10)),
+})
+
+/**
+ * @notes Current behavior moves all children of updated domain to the original parent of the updated domain.
+ * This could be changed to allow for tree-segments to be moved entirely IF the logic for knowing when a move
+ * is valid were implemented.
+ */
+const PATCH = withApiAuthRequired(async (req: NextRequest, { params }) => {
+	try {
+		// is user authenticated?
+		const session = await getSession(req, new NextResponse());
+
+		if (!session || !session.user || typeof session.user.sub !== "string") {
+			console.error("Failed to get user session data");
+			return NextResponse.json({ sucess: false, message: "Failed to get user session data" }, { status: 401 });
+		}
+		const userAuth0Id = session.user.sub;
+
+		// are arguments valid?
+		const { body } = await req.json();
+
+		const parsedBodyParam = patchBodySchema.safeParse(body);
+		if (!parsedBodyParam.success) {
+			return NextResponse.json({ success: false, message: `Invalid arguments for update realm with error: ${parsedBodyParam.error}` }, { status: 400 });
+		}
+
+		const { domainName, domainId, parentDomainId, isPrivate } = parsedBodyParam.data;
+
+		const parsedQueryParams = patchQuerySchema.safeParse(params);
+		if (!parsedQueryParams.success) {
+			return NextResponse.json({ success: false, message: `Invalid arguments for update realm with error: ${parsedQueryParams.error}` }, { status: 400 });
+		}
+
+		const { realmId } = parsedQueryParams.data;
+
+		// is user authorized to make this patch? => (owner or admin of realm)
+		const userOnRealm = await prisma.usersOnRealms.findFirst({
+			where: {
+				auth0Id: userAuth0Id,
+				realmId,
+				memberLevel: {
+					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
+				}
+			}
+		});
+
+		if (userOnRealm === null) {
+			return NextResponse.json({ sucess: false, message: `UserId ${userAuth0Id} not authorized for update request on realmId ${realmId}` }, { status: 401 });
+		}
+
+		await prisma.$transaction(async (prisma) => {
+			const originalDomain = await prisma.domain.findFirst({
+				where: {
+					domainId
+				}
+			});
+
+			await prisma.domain.updateMany({
+				where: {
+					parentDomainId: originalDomain?.domainId
+				},
+				data: {
+					parentDomainId: originalDomain?.parentDomainId
+				}
+			});
+		});
+
+		// perform the update TODO: consider the addition of a "updatedAt"
+		const updatedDomain = await prisma.domain.update({
+			where: {
+				realmId,
+				domainId
+			},
+			data: {
+				parentDomainId,
+				domainName,
+				isPrivate
+			}
+		});
+
+		return NextResponse.json({ success: true, message: `Successfully updated realm with domainId: ${updatedDomain.domainId}` }, { status: 200 });
+	}
+	catch (err) {
+		console.error(err);
+		return NextResponse.json({ success: false, message: `Server error: ${err}` }, { status: 500 })
+	}
+});
+
+export { GET, POST, PATCH };
