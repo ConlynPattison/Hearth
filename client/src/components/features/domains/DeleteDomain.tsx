@@ -30,7 +30,7 @@ const DeleteDomain = ({ domainName, domainId }: DeleteDomainProps) => {
 			<div className="hover:cursor-pointer hover:dark:brightness-90 flex"
 				title="Delete domain"
 				onClick={openModal}>
-				<div className="translate-y-[2px] px-1 dark:text-red-700"><FaTrash /></div>
+				<div className="px-1 dark:text-red-700"><FaTrash /></div>
 			</div>
 			<Modal ref={dialog}>
 				<div className="flex flex-col">

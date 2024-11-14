@@ -32,7 +32,7 @@ const CreateDomain = ({ parentDomainName, parentDomainId, children }: CreateDoma
 				title="Create domain"
 				onClick={openModal}>
 				{children}
-				<div className="translate-y-[2px] px-1 dark:text-green-600"><FaPlus /></div>
+				<div className="px-1 dark:text-green-600"><FaPlus /></div>
 			</div>
 			<Modal ref={dialog}>
 				<div className="flex flex-col">

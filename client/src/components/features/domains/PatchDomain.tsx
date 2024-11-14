@@ -34,7 +34,7 @@ const PatchDomain = ({ parentDomainName, domain, domains }: PatchDomainProps) =>
 			<div className="hover:cursor-pointer hover:dark:brightness-90 flex"
 				title="Change domain"
 				onClick={openModal}>
-				<div className="translate-y-[2px] px-1 dark:text-cyan-600"><FaGears /></div>
+				<div className="px-1 dark:text-cyan-600"><FaGears /></div>
 			</div>
 			<Modal ref={dialog}>
 				<div className="flex flex-col">

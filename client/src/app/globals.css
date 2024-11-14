@@ -3,54 +3,62 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	--background: #ffffff;
+	--foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	:root {
+		--background: #0a0a0a;
+		--foreground: #ededed;
+	}
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+	color: var(--foreground);
+	background: var(--background);
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
-  .color-by-mode {
-    color: var(--foreground);
-  }
-  .text-balance {
-    text-wrap: balance;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    scrollbar-width: none;
-  }
+	.color-by-mode {
+		color: var(--foreground);
+	}
+
+	.text-balance {
+		text-wrap: balance;
+	}
+
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.no-scrollbar {
+		scrollbar-width: none;
+	}
+
+	.bg-slate-750 {
+		background: rgb(36, 49, 70);
+	}
 }
+
 /* width */
 ::-webkit-scrollbar {
-  width: 10px;
+	width: 10px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #00000000;
+	background: #00000000;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.157);
-  border-radius: 5px;
+	background: rgba(0, 0, 0, 0.157);
+	border-radius: 5px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.342);
+	background: rgba(0, 0, 0, 0.342);
 }

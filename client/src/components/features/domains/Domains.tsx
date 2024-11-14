@@ -44,7 +44,7 @@ const DomainItem = ({
 	const [showOptions, setShowOptions] = useState(false);
 
 	return (
-		<div className={`${depth === 0 ? "pt-8" : "ml-8 mt-2"}`}>
+		<div className={`${depth === 0 ? "mt-6" : "ml-8 mt-2"}`}>
 			<div className="flex"
 				onMouseOver={() => setShowOptions(true)}
 				onMouseLeave={() => setShowOptions(false)}>
@@ -57,17 +57,18 @@ const DomainItem = ({
 						}
 					})}
 				>
-					<div className="translate-y-[2px]">
+					<div className="pr-1">
 						{showContents ? <FaAngleDown /> : <FaAngleRight />}
 					</div>
-					{domain.domainName}
+					<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
+					>{domain.domainName}</span>
 				</div>
 				{showOptions &&
 					<>
 						{depth < 2 &&
 							<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
 						<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
-						<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains}/>
+						<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains} />
 					</>}
 
 			</div>
@@ -82,7 +83,7 @@ const DomainItem = ({
 							domain={childDomain}
 							parentDomainName={domain.domainName}
 							depth={depth + 1}
-							domains={domains}/>)}
+							domains={domains} />)}
 				</>
 			}
 		</div>
@@ -106,7 +107,8 @@ const Domains = () => {
 	return (
 		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px] m-2">
 			<CreateDomain parentDomainName={null} parentDomainId={null}>
-				Create new domain
+				<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
+				>Create new domain</span>
 			</CreateDomain>
 			{data?.domains.map((domain) => {
 				return (
