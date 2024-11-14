@@ -119,15 +119,19 @@ const ChatRoomContainer = ({
 
 
 	return (
-		<div className="flex flex-col h-dvh p-2">
-			{/* Connection status */}
-			<div className="flex">
-				{isConnected
-					? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
-					: <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
+		<div className="flex flex-col h-dvh relative dark:bg-slate-750">
+			{/* Heading */}
+			<div className="flex-shrink-0 h-[60px] border-b-2 dark:border-slate-800 border-slate-200 overflow-hidden">
+				{/* Connection status */}
+				<div className="flex px-1">
+					{isConnected
+						? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
+						: <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
+				</div>
+				<h1 className="px-1 text-2xl font-bold mt-1">Messages: </h1>
 			</div>
-			{/* Sent messages */}
-			<h1 className="text-2xl font-bold mt-2">Messages: </h1>
+
+			<div className="absolute top-[60px] left-0 right-0 h-20 bg-gradient-to-b from-background dark:from-slate-800 from-0% to-transparent to-100% pointer-events-none z-10"></div>
 			<div className="flex-grow overflow-auto"
 				ref={scrollBox}>
 				<SentMessages messages={messages} />
