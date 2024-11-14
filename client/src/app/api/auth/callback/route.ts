@@ -24,7 +24,6 @@ export const GET = async (req: NextRequest, ctx: AppRouteHandlerFnContext) => {
 
 		const { user } = session;
 
-		await prisma.$connect();
 		const userUpserted = await prisma.user.upsert({
 			update: {
 				avatarUrl: user.picture,
@@ -41,7 +40,6 @@ export const GET = async (req: NextRequest, ctx: AppRouteHandlerFnContext) => {
 				isDeleted: false,
 			}
 		});
-		await prisma.$disconnect();
 
 		console.log(`UserId ${userUpserted.auth0Id} upserted`);
 

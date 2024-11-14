@@ -1,6 +1,7 @@
 import { Room } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
 import PatchRealm from "../features/realms/PatchRealm";
+import Domains from "../features/domains/Domains";
 
 const rooms: Room[] = [
 	{
@@ -8,36 +9,15 @@ const rooms: Room[] = [
 		roomName: "room1",
 		isPrivate: false,
 		realmId: 100,
-		permissionsId: null
-	},
-	{
-		roomId: 239873249328,
-		roomName: "Side Populus",
-		isPrivate: false,
-		realmId: 100,
-		permissionsId: null
+		domainId: null
 	},
 	{
 		roomId: 432984973215,
 		roomName: "Bwazil Room",
 		isPrivate: false,
 		realmId: 100,
-		permissionsId: null
+		domainId: null
 	},
-	{
-		roomId: 1923048329874982,
-		roomName: "Relish Tides",
-		isPrivate: false,
-		realmId: 100,
-		permissionsId: null
-	},
-	{
-		roomId: 239487312984732,
-		roomName: "Tandom Room Extra",
-		isPrivate: false,
-		realmId: 100,
-		permissionsId: null
-	}
 ]
 
 interface InboxProps {
@@ -52,7 +32,7 @@ const Inbox = ({ room, setRoom, isSelectedRoom }: InboxProps) => {
 		"bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200"
 		: "hover:brightness-90 dark:bg-slate-900 bg-slate-200";
 	return (
-		<button className={`${bg} py-3 text-center rounded-md mt-3 mx-3`}
+		<button className={`${bg} py-2 text-center rounded-md mt-2 mx-2`}
 			onClick={() => setRoom(room)}
 			type="button"
 		>
@@ -72,7 +52,7 @@ const InboxesContainer = ({
 }: InboxesContainerProps) => {
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col h-[100%]">
 			<PatchRealm />
 			{rooms.map((room) =>
 				<Inbox
@@ -82,6 +62,8 @@ const InboxesContainer = ({
 					isSelectedRoom={room.roomId === selectedRoom.roomId}
 				/>
 			)}
+			{/* Testing for domains: */}
+			<Domains />
 		</div>
 	);
 }

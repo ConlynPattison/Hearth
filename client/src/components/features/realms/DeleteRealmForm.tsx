@@ -3,11 +3,11 @@ import axios from "axios";
 import { RefObject, useContext } from "react";
 import { mutate } from "swr";
 
-interface PatchRealmFormProps {
+interface DeleteRealmFormProps {
 	dialog: RefObject<HTMLDialogElement>
 }
 
-const DeleteRealmForm = ({ dialog }: PatchRealmFormProps) => {
+const DeleteRealmForm = ({ dialog }: DeleteRealmFormProps) => {
 	const [activeRealm] = useContext(RealmContext);
 
 	const deleteRealm = async (e: FormData) => {

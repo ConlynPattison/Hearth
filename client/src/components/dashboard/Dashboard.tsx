@@ -12,7 +12,7 @@ const Dashboard = () => {
 		roomName: "room1",
 		isPrivate: false,
 		realmId: 100,
-		permissionsId: null
+		domainId: null
 	}
 
 	const [room, setRoom] = useState<Room>(defaultRoom);
@@ -25,15 +25,15 @@ const Dashboard = () => {
 					<SideBar />
 
 					{/* Outer container */}
-					<div className="bg-red-600 w-[100%] overflow-y-auto h-[100%] sm:flex">
+					<div className="bg-red-600 w-[100%] overflow-y-auto h-[100%] sm:flex no-scrollbar">
 
 						{/* Left middle inbox & rooms */}
-						<div className="bg-slate-50 dark:bg-slate-800 sm:w-[400px] sm:h-[100%]">
+						<div className="bg-slate-100 dark:bg-slate-800 sm:w-[400px] sm:h-[100%]">
 							<InboxesContainer setRoom={setRoom} selectedRoom={room} />
 						</div>
 
 						{/* Right middle messages */}
-						<div className="bg-slate-50 dark:bg-slate-800 w-[100%] h-[100%]">
+						<div className="bg-slate-50 dark:bg-slate-750 w-[100%] h-[100%]">
 							{room && <ChatRoomContainer key={room.roomId} room={room} />}
 						</div>
 
