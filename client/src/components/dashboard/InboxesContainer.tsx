@@ -1,4 +1,4 @@
-import { Room } from "@prisma/client";
+import { Room, RoomScope, RoomType } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
 import PatchRealm from "../features/realms/PatchRealm";
 import Domains from "../features/domains/Domains";
@@ -9,14 +9,24 @@ const rooms: Room[] = [
 		roomName: "room1",
 		isPrivate: false,
 		realmId: 100,
-		domainId: null
+		domainId: null,
+		roomDescription: "test room",
+		roomScope: RoomScope.REALM,
+		roomType: RoomType.TEXT,
+		isAgeRestricted: false,
+		roomIconUrl: ""
 	},
 	{
 		roomId: 432984973215,
 		roomName: "Bwazil Room",
 		isPrivate: false,
 		realmId: 100,
-		domainId: null
+		domainId: null,
+		roomDescription: "test room",
+		roomScope: RoomScope.REALM,
+		roomType: RoomType.TEXT,
+		isAgeRestricted: false,
+		roomIconUrl: ""
 	},
 ]
 
@@ -52,7 +62,7 @@ const InboxesContainer = ({
 }: InboxesContainerProps) => {
 
 	return (
-		<div className="flex flex-col h-[100%]">
+		<div className="flex flex-col h-[100%] sm:w-[240px]">
 			<PatchRealm />
 			{rooms.map((room) =>
 				<Inbox

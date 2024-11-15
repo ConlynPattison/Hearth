@@ -42,7 +42,7 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 });
 
 const postSchema = z.object({
-	realmName: z.string(),
+	realmName: z.string().min(1).max(16),
 	isSearchable: z.boolean().optional(),
 });
 

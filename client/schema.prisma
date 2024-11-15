@@ -33,20 +33,51 @@ model User {
     UsersOnRealms               UsersOnRealms[]
     UsersOnRealmWithPermissions UsersOnRealmWithPermissions[]
     FactionsOnUsersOnRealms     FactionsOnUsersOnRealms[]
+    UsersInRooms                UsersInRooms[]
 }
 
 model Room {
-    roomId    Int     @id @default(autoincrement())
-    roomName  String  @db.VarChar(32)
-    isPrivate Boolean @default(false)
+    roomId          Int       @id @default(autoincrement())
+    roomName        String?   @db.VarChar(32) // not required on DMs
+    isPrivate       Boolean   @default(false)
+    roomScope       RoomScope // for discriminating realm-based vs. DM style rooms
+    roomType        RoomType
+    roomIconUrl     String?   @db.VarChar(128)
+    roomDescription String?   @db.VarChar(256)
+    isAgeRestricted Boolean   @default(false)
 
-    realmId Int
-    realm   Realm @relation(fields: [realmId], references: [realmId])
+    realmId Int? // not required for rooms that are outside realm context (DM, groups)
+    realm   Realm? @relation(fields: [realmId], references: [realmId])
 
     domainId Int?
     domain   Domain? @relation(fields: [domainId], references: [domainId])
 
     RoomPermissions RoomPermissions[]
+    UsersInRooms    UsersInRooms[]
+}
+
+enum RoomScope {
+    REALM
+    GROUP_CHAT
+    DIRECT_MESSAGE
+}
+
+enum RoomType {
+    TEXT
+    VOICE
+}
+
+model UsersInRooms {
+    userInRoomId Int @id @default(autoincrement())
+
+    auth0Id String // References the User in the room
+    user    User   @relation(fields: [auth0Id], references: [auth0Id])
+
+    roomId Int // References the Room the user is part of
+    room   Room @relation(fields: [roomId], references: [roomId])
+
+    // Constraints
+    @@unique([auth0Id, roomId]) // Ensures a user is only in the room once
 }
 
 model Faction {
@@ -66,7 +97,7 @@ model Faction {
 
 model Domain {
     domainId   Int     @id @default(autoincrement())
-    domainName String  @db.VarChar(16)
+    domainName String  @db.VarChar(32)
     isPrivate  Boolean @default(false)
 
     realmId Int

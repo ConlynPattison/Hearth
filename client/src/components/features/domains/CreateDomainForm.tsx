@@ -16,7 +16,7 @@ const CreateDomainForm = ({ dialog, parentDomainId }: CreateDomainFormProps) => 
 		const domainName = e.get("domain_name");
 
 		if (!domainName || typeof domainName !== "string") {
-			alert("Failed to create realm");
+			alert("Failed to create domain");
 			return;
 		}
 

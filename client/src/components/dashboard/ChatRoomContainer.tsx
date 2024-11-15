@@ -19,14 +19,14 @@ const ChatRoomContainer = ({
 	const [messages, setMessages] = useState<MessageForView[]>([]);
 	const [isConnected, setIsConnected] = useState(false);
 	const scrollBox = useRef<HTMLDivElement>(null);
-	const [scrolledToTop, setScrolledToTop] = useState(false);
+	const [scrolledToTop, setScrolledToTop] = useState(true);
 
 	const { user } = useUser();
 	const socket = useSocket();
 
 	useEffect(() => {
 		if (!scrollBox.current) return;
-		scrollBox.current.scrollTop = scrollBox.current.scrollHeight
+		scrollBox.current.scrollTop = scrollBox.current.scrollHeight;
 	}, [messages]);
 
 	useEffect(() => {
@@ -58,7 +58,7 @@ const ChatRoomContainer = ({
 						type: "text",
 						content: msg,
 						userId,
-						room: room.roomName,
+						room: room.roomName ?? "", // TODO: change when server handles ID
 						displayName,
 						avatarUrl,
 						time: Date.now()
@@ -73,7 +73,7 @@ const ChatRoomContainer = ({
 						type: "joinLeave",
 						content: msg,
 						userId,
-						room: room.roomName,
+						room: room.roomName ?? "", // TODO: change when server handles ID
 						displayName,
 						avatarUrl,
 					}];

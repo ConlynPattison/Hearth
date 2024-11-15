@@ -1,5 +1,5 @@
 import RealmContext from "@/context/RealmContext";
-import { Domain, Permissions } from "@prisma/client";
+import { Domain, Permissions, Room, RoomScope } from "@prisma/client";
 import axios from "axios";
 import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
@@ -7,9 +7,11 @@ import useSWR from "swr";
 import CreateDomain from "./CreateDomain";
 import DeleteDomain from "./DeleteDomain";
 import PatchDomain from "./PatchDomain";
+import CreateRoom from "../rooms/CreateRoom";
 
 type PermissionedDomain = Domain & {
-	DomainPermissions: Permissions[]
+	DomainPermissions: Permissions[],
+	Room: Room[]
 }
 
 export type OptionallyParentalDomain = PermissionedDomain & {
@@ -18,7 +20,8 @@ export type OptionallyParentalDomain = PermissionedDomain & {
 
 type GetDomainsData = {
 	success: boolean,
-	domains: OptionallyParentalDomain[]
+	domains: OptionallyParentalDomain[],
+	rooms: Room[]
 }
 
 interface DomainItemProps {
@@ -45,11 +48,11 @@ const DomainItem = ({
 
 	return (
 		<div className={`${depth === 0 ? "mt-6" : "ml-8 mt-2"}`}>
-			<div className="flex"
+			<div className="flex w-[100%]"
 				onMouseOver={() => setShowOptions(true)}
 				onMouseLeave={() => setShowOptions(false)}>
 				<div
-					className="hover:cursor-pointer hover:dark:brightness-90 flex"
+					className="hover:cursor-pointer hover:dark:brightness-90 flex max-w-[95%] overflow-hidden"
 					onClick={() => setVisibleDomains(curr => {
 						return {
 							...curr,
@@ -60,8 +63,9 @@ const DomainItem = ({
 					<div className="pr-1">
 						{showContents ? <FaAngleDown /> : <FaAngleRight />}
 					</div>
-					<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
-					>{domain.domainName}</span>
+					<span className="font-bold text-xs dark:text-slate-400 text-slate-50 overflow-hidden text-ellipsis whitespace-nowrap">
+						{domain.domainName}
+					</span>
 				</div>
 				{showOptions &&
 					<>
@@ -69,12 +73,15 @@ const DomainItem = ({
 							<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
 						<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
 						<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains} />
+						<CreateRoom domainId={domain.domainId} domainName={domain.domainName} roomScope={RoomScope.REALM} />
 					</>}
 
 			</div>
 			{showContents &&
 				<>
-					<div className="ml-4 py-1"># example-room</div>
+					{domain.Room.map((room) => (
+						<div className="ml-4 py-1"># {room.roomName}</div>
+					))}
 					{domain.children.map((childDomain) =>
 						<DomainItem
 							visibleDomains={visibleDomains}
@@ -105,11 +112,24 @@ const Domains = () => {
 	if (isLoading) return (<>Loading domains..</>) // TODO: change to skeleton state
 
 	return (
-		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px] m-2">
-			<CreateDomain parentDomainName={null} parentDomainId={null}>
-				<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
-				>Create new domain</span>
-			</CreateDomain>
+		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px] m-2 w-[100%]">
+			{activeRealm &&
+				<div className="pb-2">
+					<CreateDomain parentDomainName={null} parentDomainId={null}>
+						<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
+						>Create new domain</span>
+					</CreateDomain>
+					<CreateRoom domainId={null} domainName={null} roomScope={RoomScope.REALM}>
+						<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
+						>Create new room</span>
+					</CreateRoom>
+				</div>
+			}
+			{data?.rooms.map((room) => (
+				<div>
+					# {room.roomName}
+				</div>
+			))}
 			{data?.domains.map((domain) => {
 				return (
 					<DomainItem

@@ -27,6 +27,7 @@ const DomainsOptions = ({ domains, selectedDomain, depth }: DomainsOptionsProps)
 			{domains.map((domain) =>
 				<>
 					<option
+						key={domain.domainId}
 						value={domain.domainId}
 						selected={domain.domainId === selectedDomain.parentDomainId}>
 						{padding}{domain.domainName}

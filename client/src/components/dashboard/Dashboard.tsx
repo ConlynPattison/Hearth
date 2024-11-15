@@ -1,5 +1,5 @@
 "use client"
-import { Room } from "@prisma/client";
+import { Room, RoomScope, RoomType } from "@prisma/client";
 import { useState } from "react";
 import ChatRoomContainer from "./ChatRoomContainer";
 import InboxesContainer from "./InboxesContainer";
@@ -12,7 +12,12 @@ const Dashboard = () => {
 		roomName: "room1",
 		isPrivate: false,
 		realmId: 100,
-		domainId: null
+		domainId: null,
+		roomDescription: "test room",
+		roomScope: RoomScope.REALM,
+		roomType: RoomType.TEXT,
+		isAgeRestricted: false,
+		roomIconUrl: ""
 	}
 
 	const [room, setRoom] = useState<Room>(defaultRoom);
