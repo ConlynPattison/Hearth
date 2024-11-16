@@ -4,11 +4,10 @@ import axios from "axios";
 import { Dispatch, SetStateAction, useContext, useState } from "react";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import useSWR from "swr";
-import CreateDomain from "./CreateDomain";
-import DeleteDomain from "./DeleteDomain";
-import PatchDomain from "./PatchDomain";
-import CreateRoom from "../rooms/CreateRoom";
-import Test from "@/components/ui/Modal.test";
+import CreateDomain from "./CreateDomain/CreateDomain";
+import DeleteDomain from "./DeleteDomain/DeleteDomain";
+import PatchDomain from "./PatchDomain/PatchDomain";
+import CreateRoom from "../rooms/CreateRoom/CreateRoom";
 
 type PermissionedDomain = Domain & {
 	DomainPermissions: Permissions[],
@@ -123,7 +122,6 @@ const Domains = () => {
 						<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
 						>Create new room</span>
 					</CreateRoom>
-					<Test />
 				</div>
 			}
 			{data?.rooms.map((room) => (

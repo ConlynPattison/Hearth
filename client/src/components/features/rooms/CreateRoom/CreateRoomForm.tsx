@@ -2,6 +2,7 @@ import RealmContext from "@/context/RealmContext";
 import { RoomTypeOptions } from "@/util/prisma";
 import { RoomScope, RoomType } from "@prisma/client";
 import axios from "axios";
+import React, { forwardRef } from "react";
 import { ChangeEvent, RefObject, useContext, useRef, useState } from "react";
 import { mutate } from "swr";
 
@@ -11,7 +12,9 @@ interface CreateRoomFormProps {
 	roomScope: RoomScope;
 }
 
-const CreateRoomForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) => {
+const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
+	{ dialog, domainId, roomScope }: CreateRoomFormProps, ref
+) => {
 	const [activeRealm] = useContext(RealmContext);
 
 	const [isPrivate, setIsPrivate] = useState(false);
@@ -61,11 +64,11 @@ const CreateRoomForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) =>
 	}
 
 	return (
-		<form action={create}>
-			<div className="flex flex-col">
-				<label>Name:
+		<form action={create} ref={ref}>
+			<div className="flex flex-col gap-2">
+				<label className="flex flex-col">Name:
 					<input
-						className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
+						className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 px-1 rounded-sm"
 						name="room_name"
 						onChange={(e) => setRoomName(e.target.value?.trim())} // TODO: validate this 
 						value={roomName}
@@ -73,21 +76,23 @@ const CreateRoomForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) =>
 						minLength={1}
 						maxLength={32}
 						placeholder="Name your room..." /></label>
-				<label>Is this room private?
+				<label className="flex">Is this room private?
 					<input
+						className="ml-auto"
 						checked={isPrivate}
 						onChange={(e) => setIsPrivate(e.target.checked)}
 						name="room_is_private"
 						type="checkbox" /></label>
-				<label>Is this room age restricted?
+				<label className="flex">Is this room age restricted?
 					<input
+						className="ml-auto"
 						checked={isAgeRestricted}
 						onChange={(e) => setIsAgeRestricted(e.target.checked)}
 						name="room_is_age_restricted"
 						type="checkbox" /></label>
-				<label>Select a room type
+				<label className="flex">Select a room type:
 					<select
-						className="dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
+						className="dark:bg-slate-600 bg-slate-200 ml-auto text-center rounded-sm"
 						name="room_type"
 						onChange={changedRoomType}>
 						{RoomTypeOptions.map((optionValue) => {
@@ -102,22 +107,22 @@ const CreateRoomForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) =>
 						})}
 					</select>
 				</label>
-				<label htmlFor="room_description">Enter a description for the room: </label>
-				<textarea
-					id="room_description"
-					ref={descriptionRef}
-					maxLength={256}
-					className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
-					name="room_is_age_restricted"
-					placeholder="Type a description..."
-				/>
-				<button
-					className="hover:brightness-90 dark:bg-green-900 dark:color-by-mode text-green-800 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"
-					type="submit"
-				>Submit</button>
+				<div className="flex flex-col">
+					<label htmlFor="room_description">Enter a description for the room: </label>
+					<textarea
+						id="room_description"
+						ref={descriptionRef}
+						maxLength={256}
+						className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 px-1 rounded-sm"
+						name="room_is_age_restricted"
+						placeholder="Type a description..."
+					/>
+				</div>
 			</div>
 		</form>
 	);
-};
+});
+
+CreateRoomForm.displayName = "CreateRoomForm";
 
 export default CreateRoomForm;

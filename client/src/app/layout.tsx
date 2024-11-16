@@ -32,6 +32,7 @@ export default function RootLayout({
 			<UserProvider>
 				<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 					{children}
+					<div id="modal-root"></div>
 				</body>
 			</UserProvider>
 		</html>

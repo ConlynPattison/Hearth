@@ -1,6 +1,6 @@
 import { Room, RoomScope, RoomType } from "@prisma/client";
 import { Dispatch, SetStateAction } from "react";
-import PatchRealm from "../features/realms/PatchRealm";
+import PatchRealm from "../features/realms/PatchRealm/PatchRealm";
 import Domains from "../features/domains/Domains";
 
 const rooms: Room[] = [

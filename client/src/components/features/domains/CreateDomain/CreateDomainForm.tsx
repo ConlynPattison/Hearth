@@ -1,6 +1,6 @@
 import RealmContext from "@/context/RealmContext";
 import axios from "axios";
-import { RefObject, useContext } from "react";
+import { RefObject, forwardRef, useContext, useState } from "react";
 import { mutate } from "swr";
 
 interface CreateDomainFormProps {
@@ -8,23 +8,19 @@ interface CreateDomainFormProps {
 	parentDomainId: number | null;
 }
 
-const CreateDomainForm = ({ dialog, parentDomainId }: CreateDomainFormProps) => {
+const CreateDomainForm = forwardRef<HTMLFormElement, CreateDomainFormProps>((
+	{ dialog, parentDomainId }: CreateDomainFormProps, ref) => {
 	const [activeRealm] = useContext(RealmContext);
 
-	const create = async (e: FormData) => {
-		const isPrivate = e.get("domain_is_private");
-		const domainName = e.get("domain_name");
+	const [isPrivate, setIsPrivate] = useState(false);
+	const [domainName, setDomainName] = useState("");
 
-		if (!domainName || typeof domainName !== "string") {
-			alert("Failed to create domain");
-			return;
-		}
-
+	const create = async () => {
 		axios.post(`/api/realms/${activeRealm?.realmId}/domains`, {
 			body: {
 				parentDomainId,
 				domainName,
-				isPrivate: (isPrivate === null || isPrivate === "off") ? false : true
+				isPrivate,
 			},
 		}).then(create => {
 			if (create.status === 200) {
@@ -40,26 +36,29 @@ const CreateDomainForm = ({ dialog, parentDomainId }: CreateDomainFormProps) => 
 	}
 
 	return (
-		<form action={create}>
-			<div className="flex flex-col">
-				<label>Name:
+		<form action={create} ref={ref}>
+			<div className="flex flex-col gap-2">
+				<label className="flex flex-col">Name:
 					<input
-						className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
+						className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 px-1 rounded-sm"
 						name="domain_name"
 						required
 						maxLength={16}
+						value={domainName}
+						onChange={(e) => setDomainName(e.target.value)}
 						placeholder="Name your domain..." /></label>
-				<label>Is this domain private?
+				<label className="flex">Is this domain private?
 					<input
+						className="ml-auto"
 						name="domain_is_private"
+						checked={isPrivate}
+						onChange={(e) => setIsPrivate(e.target.checked)}
 						type="checkbox" /></label>
-				<button
-					className="hover:brightness-90 dark:bg-green-900 dark:color-by-mode text-green-800 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"
-					type="submit"
-				>Submit</button>
 			</div>
 		</form>
 	);
-};
+});
+
+CreateDomainForm.displayName = "CreateDomainForm";
 
 export default CreateDomainForm;

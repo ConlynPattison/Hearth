@@ -1,4 +1,5 @@
 import { FormEvent, forwardRef, useRef } from "react";
+import { createPortal } from "react-dom";
 import { FaX } from "react-icons/fa6";
 
 interface ModalProps {
@@ -45,7 +46,9 @@ const ModalHeading = ({ children, closeModal }: ModalHeadingProps) => {
 					{children}
 				</h1>
 				<button className="self-center border-none hover:bg-slate-200 dark:hover:bg-slate-700 p-1 rounded-md translate-x-3 -translate-y-3"
-					onClick={closeModal}>
+					onClick={closeModal}
+					type="button"
+					title="Close">
 					<div className="flex items-center justify-center h-full">
 						<FaX className="text-slate-500" />
 					</div>
@@ -78,8 +81,12 @@ const ModalFooter = ({ children }: ModalProps) => {
 const ModalButtonGroup = ({ children, closeModal }: ModalButtonGroupProps) => {
 	return (
 		<div className="flex">
-			<button className=" ml-auto hover:bg-slate-200 dark:hover:bg-slate-700 px-2 py-1 rounded-md"
-				onClick={closeModal}>Cancel</button>
+			<button
+				className=" ml-auto hover:bg-slate-200 dark:hover:bg-slate-700 px-2 py-1 rounded-md"
+				onClick={closeModal}
+				type="button">
+				Cancel
+			</button>
 			{children}
 		</div >
 	);
@@ -89,11 +96,14 @@ const Modal = forwardRef<HTMLDialogElement, ModalProps>(({
 	children
 }: { children?: React.ReactNode }, ref) => {
 
-	return (
+	const modalRoot = document.getElementById("modal-root");
+
+	return createPortal(
 		<dialog className="backdrop:backdrop-blur-sm backdrop:backdrop-brightness-75 rounded-md p-6 color-by-mode dark:bg-slate-800 shadow-2xl max-w-[65%]"
 			ref={ref}>
 			{children}
-		</dialog >
+		</dialog >,
+		modalRoot ?? document.body
 	);
 });
 

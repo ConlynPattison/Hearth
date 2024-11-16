@@ -1,9 +1,9 @@
 import RealmContext from "@/context/RealmContext";
 import axios from "axios";
-import { RefObject, useContext } from "react";
+import { Fragment, RefObject, forwardRef, useContext, useState } from "react";
 import { mutate } from "swr";
 import { Domain } from "@prisma/client"
-import { OptionallyParentalDomain } from "./Domains";
+import { OptionallyParentalDomain } from "../Domains";
 import React from "react";
 
 interface PatchRealmFormProps {
@@ -25,37 +25,32 @@ const DomainsOptions = ({ domains, depth }: DomainsOptionsProps) => {
 	return (
 		<>
 			{domains.map((domain) =>
-				<React.Fragment key={domain.domainId}>
+				<Fragment key={domain.domainId}>
 					<option
 						key={`option_${domain.domainId}`}
 						value={domain.domainId}>
 						{padding}{domain.domainName}
 					</option >
 					{domain.children && <DomainsOptions key={domain.domainId} domains={domain.children} depth={1 + depth} />}
-				</React.Fragment>
+				</Fragment>
 			)
 			}
 		</>
 	)
 }
 
-const PatchDomainForm = ({ dialog, domain, domains }: PatchRealmFormProps) => {
+const PatchDomainForm = forwardRef<HTMLFormElement, PatchRealmFormProps>(({ dialog, domain, domains }: PatchRealmFormProps, ref) => {
 	const [activeRealm] = useContext(RealmContext);
 
-	const patch = async (e: FormData) => {
-		const isPrivate = e.get("domain_is_private");
-		const domainNameInput = e.get("domain_name");
-		const parentDomainId = parseInt(e.get("domain_parent") as string, 10) || null;
+	const [isPrivate, setIsPrivate] = useState(domain.isPrivate);
+	const [domainName, setDomainName] = useState(domain.domainName);
+	const [parentDomainId, setParentDomainId] = useState<number | null>(domain.parentDomainId);
 
-		if (!domainNameInput || typeof domainNameInput !== "string") {
-			alert("Failed to update domain");
-			return;
-		}
-
+	const patch = async () => {
 		axios.patch(`/api/realms/${activeRealm?.realmId}/domains`, {
 			body: {
-				isPrivate: (isPrivate === null || isPrivate === "off") ? false : true,
-				domainName: domainNameInput,
+				isPrivate,
+				domainName,
 				domainId: domain.domainId,
 				parentDomainId
 			},
@@ -73,39 +68,44 @@ const PatchDomainForm = ({ dialog, domain, domains }: PatchRealmFormProps) => {
 	}
 
 	return (
-		<form action={patch}>
-			<div className="flex flex-col">
-				<label>Name:
+		<form action={patch} ref={ref}>
+			<div className="flex flex-col gap-2">
+				<label className="flex flex-col">Name:
 					<input
-						className="dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
+						className="dark:bg-slate-600 bg-slate-200 px-1 rounded-sm"
 						name="domain_name"
 						required
 						maxLength={16}
 						minLength={1}
-						defaultValue={domain.domainName}
+						value={domainName}
+						onChange={(e) => setDomainName(e.target.value)}
 						placeholder="Rename your domain..." /></label>
-				<label>Is this domain private?
+				<label className="flex">Is this domain private?
 					<input
+						className="ml-auto"
 						name="domain_is_private"
-						defaultChecked={domain.isPrivate}
+						checked={isPrivate}
+						onChange={(e) => setIsPrivate(e.target.checked)}
 						type="checkbox" /></label>
-				<label>Change the parent?
+				<label className="flex" >Parent domain:
 					<select
-						className="dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
-						name="domain_parent"
-						defaultValue={domain.parentDomainId || undefined}>
+						className="dark:bg-slate-600 bg-slate-200 ml-auto text-center px-1 rounded-sm"
+						value={parentDomainId || undefined}
+						title="Domain parent"
+						onChange={(e) => setParentDomainId(parseInt(e.target.value, 10))}
+					>
 						<option
 							value={undefined}
 							className="italic"
 						>- Root -</option>
 						<DomainsOptions key={domain.domainId} domains={domains} depth={0} />
-					</select></label>
-				<button
-					className="hover:brightness-90 dark:bg-green-900 dark:color-by-mode text-green-800 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"
-					type="submit">Save</button>
+					</select>
+				</label>
 			</div>
 		</form>
 	);
-};
+});
+
+PatchDomainForm.displayName = "PatchDomainForm";
 
 export default PatchDomainForm;
