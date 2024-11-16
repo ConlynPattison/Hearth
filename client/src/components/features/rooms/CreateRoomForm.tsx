@@ -11,7 +11,7 @@ interface CreateRoomFormProps {
 	roomScope: RoomScope;
 }
 
-const CreateDomainForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) => {
+const CreateRoomForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) => {
 	const [activeRealm] = useContext(RealmContext);
 
 	const [isPrivate, setIsPrivate] = useState(false);
@@ -106,6 +106,7 @@ const CreateDomainForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) 
 				<textarea
 					id="room_description"
 					ref={descriptionRef}
+					maxLength={256}
 					className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
 					name="room_is_age_restricted"
 					placeholder="Type a description..."
@@ -119,4 +120,4 @@ const CreateDomainForm = ({ dialog, domainId, roomScope }: CreateRoomFormProps) 
 	);
 };
 
-export default CreateDomainForm;
+export default CreateRoomForm;

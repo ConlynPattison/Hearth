@@ -1,5 +1,5 @@
 "use client"
-import Modal from "@/components/ui/Modal";
+import { Modal } from "@/components/ui/Modal";
 import { FaPlus } from "react-icons/fa6";
 import { useRef, FormEvent, ReactNode } from "react";
 import CreateDomainForm from "./CreateDomainForm";

@@ -1,5 +1,5 @@
 "use client"
-import Modal from "@/components/ui/Modal";
+import { Modal } from "@/components/ui/Modal";
 import { FaTrash } from "react-icons/fa6";
 import { useRef, FormEvent } from "react";
 import DeleteDomainForm from "./DeleteDomainForm";

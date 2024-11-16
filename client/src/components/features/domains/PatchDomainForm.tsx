@@ -4,6 +4,7 @@ import { RefObject, useContext } from "react";
 import { mutate } from "swr";
 import { Domain } from "@prisma/client"
 import { OptionallyParentalDomain } from "./Domains";
+import React from "react";
 
 interface PatchRealmFormProps {
 	dialog: RefObject<HTMLDialogElement>;
@@ -13,11 +14,10 @@ interface PatchRealmFormProps {
 
 interface DomainsOptionsProps {
 	domains: OptionallyParentalDomain[];
-	selectedDomain: Domain;
 	depth: number;
 }
 
-const DomainsOptions = ({ domains, selectedDomain, depth }: DomainsOptionsProps) => {
+const DomainsOptions = ({ domains, depth }: DomainsOptionsProps) => {
 	const padding = "--- ".repeat(depth);
 
 	if (depth >= 2) return;
@@ -25,15 +25,14 @@ const DomainsOptions = ({ domains, selectedDomain, depth }: DomainsOptionsProps)
 	return (
 		<>
 			{domains.map((domain) =>
-				<>
+				<React.Fragment key={domain.domainId}>
 					<option
-						key={domain.domainId}
-						value={domain.domainId}
-						selected={domain.domainId === selectedDomain.parentDomainId}>
+						key={`option_${domain.domainId}`}
+						value={domain.domainId}>
 						{padding}{domain.domainName}
 					</option >
-					{domain.children && <DomainsOptions selectedDomain={selectedDomain} domains={domain.children} depth={1 + depth} />}
-				</>
+					{domain.children && <DomainsOptions key={domain.domainId} domains={domain.children} depth={1 + depth} />}
+				</React.Fragment>
 			)
 			}
 		</>
@@ -93,13 +92,13 @@ const PatchDomainForm = ({ dialog, domain, domains }: PatchRealmFormProps) => {
 				<label>Change the parent?
 					<select
 						className="dark:bg-slate-600 bg-slate-200 ml-1 px-1 rounded-sm"
-						name="domain_parent">
+						name="domain_parent"
+						defaultValue={domain.parentDomainId || undefined}>
 						<option
 							value={undefined}
-							selected={domain.parentDomainId === null}
 							className="italic"
 						>- Root -</option>
-						<DomainsOptions selectedDomain={domain} domains={domains} depth={0} />
+						<DomainsOptions key={domain.domainId} domains={domains} depth={0} />
 					</select></label>
 				<button
 					className="hover:brightness-90 dark:bg-green-900 dark:color-by-mode text-green-800 bg-slate-200 rounded-md w-fit px-2 py-1 mt-2 self-center"

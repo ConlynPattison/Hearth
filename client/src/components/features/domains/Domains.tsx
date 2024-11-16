@@ -8,6 +8,7 @@ import CreateDomain from "./CreateDomain";
 import DeleteDomain from "./DeleteDomain";
 import PatchDomain from "./PatchDomain";
 import CreateRoom from "../rooms/CreateRoom";
+import Test from "@/components/ui/Modal.test";
 
 type PermissionedDomain = Domain & {
 	DomainPermissions: Permissions[],
@@ -44,13 +45,10 @@ const DomainItem = ({
 	domains
 }: DomainItemProps) => {
 	const showContents = visibleDomains[domain.domainId] ?? true;
-	const [showOptions, setShowOptions] = useState(false);
 
 	return (
 		<div className={`${depth === 0 ? "mt-6" : "ml-8 mt-2"}`}>
-			<div className="flex w-[100%]"
-				onMouseOver={() => setShowOptions(true)}
-				onMouseLeave={() => setShowOptions(false)}>
+			<div className="flex w-[100%] group">
 				<div
 					className="hover:cursor-pointer hover:dark:brightness-90 flex max-w-[95%] overflow-hidden"
 					onClick={() => setVisibleDomains(curr => {
@@ -63,24 +61,26 @@ const DomainItem = ({
 					<div className="pr-1">
 						{showContents ? <FaAngleDown /> : <FaAngleRight />}
 					</div>
-					<span className="font-bold text-xs dark:text-slate-400 text-slate-50 overflow-hidden text-ellipsis whitespace-nowrap">
+					<span className="font-bold text-xs dark:text-slate-400 text-slate-500 overflow-hidden text-ellipsis whitespace-nowrap">
 						{domain.domainName}
 					</span>
 				</div>
-				{showOptions &&
-					<>
-						{depth < 2 &&
-							<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
-						<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
-						<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains} />
-						<CreateRoom domainId={domain.domainId} domainName={domain.domainName} roomScope={RoomScope.REALM} />
-					</>}
+				<div className="hidden group-hover:flex">
+					{depth < 2 &&
+						<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
+					<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
+					<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains} />
+					<CreateRoom domainId={domain.domainId} domainName={domain.domainName} roomScope={RoomScope.REALM} />
+				</div>
 
 			</div>
-			{showContents &&
+			{
+				showContents &&
 				<>
 					{domain.Room.map((room) => (
-						<div className="ml-4 py-1"># {room.roomName}</div>
+						<div
+							key={room.roomId}
+							className="ml-4 py-1"># {room.roomName}</div>
 					))}
 					{domain.children.map((childDomain) =>
 						<DomainItem
@@ -93,7 +93,7 @@ const DomainItem = ({
 							domains={domains} />)}
 				</>
 			}
-		</div>
+		</div >
 	);
 }
 
@@ -123,10 +123,11 @@ const Domains = () => {
 						<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
 						>Create new room</span>
 					</CreateRoom>
+					<Test />
 				</div>
 			}
 			{data?.rooms.map((room) => (
-				<div>
+				<div key={room.roomId}>
 					# {room.roomName}
 				</div>
 			))}

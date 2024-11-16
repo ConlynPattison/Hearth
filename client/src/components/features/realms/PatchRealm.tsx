@@ -1,5 +1,5 @@
 "use client"
-import Modal from "@/components/ui/Modal";
+import { Modal } from "@/components/ui/Modal";
 import { FaGear } from "react-icons/fa6";
 import PatchRealmForm from "./PatchRealmForm";
 import { useRef, FormEvent, useContext, useState } from "react";
