@@ -1,4 +1,4 @@
-import { FormEvent, forwardRef, useRef } from "react";
+import { FormEvent, forwardRef, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { FaX } from "react-icons/fa6";
 
@@ -99,9 +99,16 @@ const Modal = forwardRef<HTMLDialogElement, ModalProps>(({
 	const modalRoot = document.getElementById("modal-root");
 
 	return createPortal(
-		<dialog className="backdrop:backdrop-blur-sm backdrop:backdrop-brightness-75 rounded-md p-6 color-by-mode dark:bg-slate-800 shadow-2xl max-w-[65%]"
-			ref={ref}>
-			{children}
+		<dialog className="backdrop:backdrop-blur-sm backdrop:backdrop-brightness-75 rounded-md color-by-mode dark:bg-slate-800 shadow-2xl max-w-[65%]"
+			ref={ref}
+			onClick={(e) => {
+				if (e.target === e.currentTarget) {
+					e.currentTarget.close();
+				}
+			}}>
+			<div className="p-6">
+				{children}
+			</div>
 		</dialog >,
 		modalRoot ?? document.body
 	);
