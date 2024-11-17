@@ -2,7 +2,7 @@ import RealmContext from "@/context/RealmContext";
 import { RoomTypeOptions } from "@/util/prisma";
 import { RoomScope, RoomType } from "@prisma/client";
 import axios from "axios";
-import React, { forwardRef } from "react";
+import React, { forwardRef, useEffect } from "react";
 import { ChangeEvent, RefObject, useContext, useRef, useState } from "react";
 import { mutate } from "swr";
 
@@ -30,6 +30,24 @@ const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
 			setRoomType(value as RoomType);
 		}
 	}
+
+	useEffect(() => {
+		if (!dialog.current) return;
+		const dialogRef = dialog.current;
+
+		const resetForm = () => {
+			setIsPrivate(false);
+			setRoomName("");
+			setRoomType(RoomType.TEXT);
+			setIsAgeRestricted(false);
+			if (descriptionRef.current) {
+				descriptionRef.current.value = "";
+			}
+		}
+		dialogRef.addEventListener("close", resetForm);
+
+		return () => dialogRef.removeEventListener("close", resetForm);
+	}, [dialog, descriptionRef]);
 
 	const create = async () => {
 		if (!activeRealm) {
@@ -64,7 +82,7 @@ const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
 	}
 
 	return (
-		<form action={create} ref={ref}>
+		<form onSubmit={create} ref={ref}>
 			<div className="flex flex-col gap-2">
 				<label className="flex flex-col">Name:
 					<input
@@ -94,6 +112,7 @@ const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
 					<select
 						className="dark:bg-slate-600 bg-slate-200 ml-auto text-center rounded-sm"
 						name="room_type"
+						value={roomType}
 						onChange={changedRoomType}>
 						{RoomTypeOptions.map((optionValue) => {
 							return (

@@ -1,4 +1,4 @@
-import { FormEvent, forwardRef, useEffect, useRef } from "react";
+import { FormEvent, forwardRef, useRef } from "react";
 import { createPortal } from "react-dom";
 import { FaX } from "react-icons/fa6";
 

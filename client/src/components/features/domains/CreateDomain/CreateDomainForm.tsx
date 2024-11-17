@@ -1,6 +1,6 @@
 import RealmContext from "@/context/RealmContext";
 import axios from "axios";
-import { RefObject, forwardRef, useContext, useState } from "react";
+import { RefObject, forwardRef, useContext, useEffect, useState } from "react";
 import { mutate } from "swr";
 
 interface CreateDomainFormProps {
@@ -14,6 +14,19 @@ const CreateDomainForm = forwardRef<HTMLFormElement, CreateDomainFormProps>((
 
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [domainName, setDomainName] = useState("");
+
+	useEffect(() => {
+		if (!dialog.current) return;
+		const dialogRef = dialog.current;
+
+		const resetForm = () => {
+			setIsPrivate(false);
+			setDomainName("")
+		}
+		dialogRef.addEventListener("close", resetForm);
+
+		return () => dialogRef.removeEventListener("close", resetForm);
+	}, [dialog]);
 
 	const create = async () => {
 		axios.post(`/api/realms/${activeRealm?.realmId}/domains`, {

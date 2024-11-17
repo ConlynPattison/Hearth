@@ -1,5 +1,5 @@
 import axios from "axios";
-import { RefObject, forwardRef, useState } from "react";
+import { RefObject, forwardRef, useEffect, useState } from "react";
 import { mutate } from "swr";
 
 interface CreateRealmFormProps {
@@ -10,6 +10,19 @@ const CreateRealmForm = forwardRef<HTMLFormElement, CreateRealmFormProps>((
 	{ dialog }: CreateRealmFormProps, ref) => {
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [realmName, setRealmName] = useState("");
+
+	useEffect(() => {
+		if (!dialog.current) return;
+		const dialogRef = dialog.current;
+
+		const resetForm = () => {
+			setRealmName("");
+			setIsPrivate(false);
+		}
+		dialogRef.addEventListener("close", resetForm);
+
+		return () => dialogRef.removeEventListener("close", resetForm);
+	}, [dialog]);
 
 	const create = async () => {
 		axios.post("/api/realms", {

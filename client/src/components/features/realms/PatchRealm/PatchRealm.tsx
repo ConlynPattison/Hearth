@@ -2,7 +2,7 @@
 import { Modal, ModalButtonGroup, ModalContent, ModalFooter, ModalHeading, useModal } from "@/components/ui/Modal";
 import { FaGear } from "react-icons/fa6";
 import PatchRealmForm from "./PatchRealmForm";
-import { useRef, useContext, useState } from "react";
+import { useRef, useContext, useState, useEffect } from "react";
 import RealmContext from "@/context/RealmContext";
 import DeleteRealmForm from "../DeleteRealm/DeleteRealmForm";
 import { UsersOnRealmsLevels } from "@prisma/client";
@@ -15,6 +15,19 @@ const PatchRealm = () => {
 	const { dialog, closeModal, openModal } = useModal();
 	const deleteFormRef = useRef<HTMLFormElement>(null);
 	const updateFormRef = useRef<HTMLFormElement>(null);
+
+	useEffect(() => {
+		if (!dialog.current) return;
+
+		const dialogRef = dialog.current;
+
+		const resetForm = () => {
+			setTryingDelete(false);
+		}
+		dialogRef.addEventListener("close", resetForm);
+
+		return () => dialogRef.removeEventListener("close", resetForm);
+	}, [dialog]);
 
 	return (
 		<>

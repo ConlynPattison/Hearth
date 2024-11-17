@@ -1,6 +1,6 @@
 import RealmContext from "@/context/RealmContext";
 import axios from "axios";
-import { RefObject, forwardRef, useContext, useState } from "react";
+import { RefObject, forwardRef, useContext, useEffect, useState } from "react";
 import { mutate } from "swr";
 
 interface PatchRealmFormProps {
@@ -13,6 +13,13 @@ const PatchRealmForm = forwardRef<HTMLFormElement, PatchRealmFormProps>((
 
 	const [realmName, setRealmName] = useState(activeRealm?.realmName || "");
 	const [isPrivate, setIsPrivate] = useState(activeRealm?.isSearchable || false);
+
+	useEffect(() => {
+		if (activeRealm !== null) {
+			setRealmName(activeRealm.realmName);
+			setIsPrivate(!activeRealm.isSearchable);
+		}
+	}, [activeRealm]);
 
 	const patch = async () => {
 		axios.patch("/api/realms", {

@@ -1,6 +1,6 @@
 import RealmContext from "@/context/RealmContext";
 import axios from "axios";
-import { RefObject, forwardRef, useContext, useState } from "react";
+import { RefObject, forwardRef, useContext, useEffect, useState } from "react";
 import { mutate } from "swr";
 
 interface DeleteRealmFormProps {
@@ -11,6 +11,18 @@ const DeleteRealmForm = forwardRef<HTMLFormElement, DeleteRealmFormProps>((
 	{ dialog }: DeleteRealmFormProps, ref) => {
 	const [activeRealm] = useContext(RealmContext);
 	const [realmName, setRealmName] = useState("");
+
+	useEffect(() => {
+		if (!dialog.current) return;
+		const dialogRef = dialog.current;
+
+		const resetForm = () => {
+			setRealmName("");
+		}
+		dialogRef.addEventListener("close", resetForm);
+
+		return () => dialogRef.removeEventListener("close", resetForm);
+	}, [dialog]);
 
 	const deleteRealm = async () => {
 		axios.delete(`/api/realms/${activeRealm?.realmId}`)
@@ -30,7 +42,10 @@ const DeleteRealmForm = forwardRef<HTMLFormElement, DeleteRealmFormProps>((
 	return (
 		<form action={deleteRealm} ref={ref}>
 			<div className="flex flex-col gap-2">
-				<p><strong>Warning: </strong>Deleting a realm removes it from Hearth entirely. To confirm, type the name of your realm below: </p>
+				<div>
+					<p><strong>Warning: </strong>Deleting a realm removes it from Hearth entirely.</p>
+					<p> To confirm, type the name of your realm below: </p>
+				</div>
 				<label className="flex flex-col">Name:
 					<input
 						className="dark:bg-slate-600 bg-slate-200 px-1 rounded-sm hover:brightness-90"
