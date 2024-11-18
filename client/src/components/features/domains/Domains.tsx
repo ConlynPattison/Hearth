@@ -1,7 +1,7 @@
 import RealmContext from "@/context/RealmContext";
 import { Domain, Permissions, Room, RoomScope } from "@prisma/client";
 import axios from "axios";
-import { Dispatch, SetStateAction, useContext, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import useSWR from "swr";
 import CreateDomain from "./CreateDomain/CreateDomain";
@@ -100,7 +100,7 @@ const DomainItem = ({
 
 const Domains = () => {
 	const [activeRealm] = useContext(RealmContext);
-	const [activeRoom] = useContext(RoomContext);
+	const [activeRoom, setActiveRoom] = useContext(RoomContext);
 
 	const [visibleDomains, setVisibleDomains] = useState<{ [key: number]: boolean }>({})
 
@@ -110,6 +110,13 @@ const Domains = () => {
 		revalidateOnFocus: false,
 		dedupingInterval: 60000,
 	});
+
+	// todo: replace with a parsing function that will grab the first found child OR grabs a
+	// last-opened realm that's relative to the user's OnRealm entry (add prop)
+	useEffect(() => {
+		if (activeRoom !== null || data === undefined) return;
+		if (setActiveRoom !== undefined && data.rooms.length > 0) setActiveRoom(data.rooms[0]);
+	}, [activeRoom, data, setActiveRoom]);
 
 	if (error) return (<>Error: {error}</>);
 	if (isLoading) return (<>Loading domains..</>) // TODO: change to skeleton state

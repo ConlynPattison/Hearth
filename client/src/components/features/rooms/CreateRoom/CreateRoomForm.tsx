@@ -2,7 +2,7 @@ import RealmContext from "@/context/RealmContext";
 import { RoomTypeOptions } from "@/util/prisma";
 import { RoomScope, RoomType } from "@prisma/client";
 import axios from "axios";
-import React, { forwardRef, useEffect } from "react";
+import React, { FormEvent, forwardRef, useEffect } from "react";
 import { ChangeEvent, RefObject, useContext, useRef, useState } from "react";
 import { mutate } from "swr";
 
@@ -49,7 +49,9 @@ const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
 		return () => dialogRef.removeEventListener("close", resetForm);
 	}, [dialog, descriptionRef]);
 
-	const create = async () => {
+	const create = async (e: FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		
 		if (!activeRealm) {
 			alert("Failed to create room, no valid realm");
 			return;
