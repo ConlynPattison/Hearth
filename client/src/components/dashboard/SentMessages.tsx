@@ -19,23 +19,16 @@ const ProfilePicture = ({ avatarUrl, minWidth }: { avatarUrl: string, minWidth?:
 	);
 }
 
-const Message = ({ message }: { message: MessageForView }) => {
+const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageForView, viewingUserId: string }) => {
 	const sharedClasses = "whitespace-pre w-fit flex-wrap text-wrap rounded-xl px-3 py-2 mb-2 mt-1 break-all"
-	const { user, isLoading } = useUser();
-	const userId = user?.sub;
 
 	const localTime = message.time && new Date(message.time).toLocaleTimeString()
 
-	if (!user || isLoading) {
-		return (
-			<>Loading...</>
-		);
-	}
 	return (
 		<>
-			<p className={message.userId === userId ? "text-right" : ""}>{message.displayName}:</p>
+			<p className={message.userId === loggedInUserId ? "text-right" : ""}>{message.displayName}:</p>
 			{
-				message.userId === userId ?
+				message.userId === loggedInUserId ?
 					<div className="flex flex-row-reverse">
 						<div className="flex flex-row-reverse max-w-[85%]">
 							<ProfilePicture avatarUrl={message.avatarUrl} minWidth={50} />
@@ -61,6 +54,14 @@ const Message = ({ message }: { message: MessageForView }) => {
 }
 
 const SentMessages = ({ messages }: { messages: MessageForView[] }) => {
+	const { user, isLoading } = useUser();
+
+	if (!user || isLoading) {
+		return (
+			<>Loading...</>
+		);
+	}
+
 	return (
 		<div className="px-2">
 			{messages.map((message, index) => {
@@ -69,7 +70,7 @@ const SentMessages = ({ messages }: { messages: MessageForView[] }) => {
 						className="w-[100%]">
 						{message.type === "joinLeave"
 							? <p>{message.content}</p>
-							: <Message message={message} />
+							: <Message message={message} viewingUserId={user.sub ?? ""} />
 						}
 					</div >
 				);

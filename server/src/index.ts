@@ -3,7 +3,7 @@ import express from "express";
 import { createServer } from "http";
 import { configDotenv } from "dotenv";
 import { Message } from "@chat-app/types";
-import { saveMessageToDB, runMongo } from "./lib/mongo.js";
+import { saveMessageToDB, connectMongo } from "./lib/mongo.js";
 import { clientAuthenticated } from "./middleware/clientAuthenticated.js";
 import { runPrisma } from "./lib/postgres.js";
 import { leaveRoom } from "./lib/socket.js";
@@ -64,7 +64,7 @@ io.on("connection", (socket: Socket) => {
 		const messageToSave: Message = {
 			type: "text",
 			content: message,
-			room,
+			room: parseInt(room, 10),
 			userId,
 			time: Date.now()
 		}
@@ -87,7 +87,7 @@ io.on("connection", (socket: Socket) => {
 	});
 });
 
-runMongo().catch(console.dir);
+connectMongo().catch(console.dir);
 runPrisma().catch(console.dir);
 
 httpServer.listen(port);

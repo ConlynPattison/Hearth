@@ -18,21 +18,21 @@ const messagesClient = new MongoClient(uri, {
 	tls: true
 });
 
-const runMongo = async () => {
+const connectMongo = async () => {
 	try {
 		// Connect the client to the server	(optional starting in v4.7)
 		await messagesClient.connect();
 		// Send a ping to confirm a successful connection
 		await messagesClient.db("admin").command({ ping: 1 });
+
 		console.log("Pinged your deployment. You successfully connected to MongoDB!");
-	} finally {
+	} catch (error) {
 		// Ensures that the client will close when you finish/error
-		await messagesClient.close();
+		console.error(error);
 	}
 }
 
 const saveMessageToDB = async (message: Message) => {
-	await messagesClient.connect();
 	const messageDB = messagesClient.db("Cluster0");
 	const messageCollection = messageDB.collection("messages");
 
@@ -45,4 +45,4 @@ const saveMessageToDB = async (message: Message) => {
 	await messagesClient.close();
 }
 
-export { runMongo, saveMessageToDB };
+export { connectMongo, saveMessageToDB };

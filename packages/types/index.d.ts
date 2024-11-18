@@ -4,7 +4,7 @@ export type Message = {
 	type: MessageType,
 	userId: string,
 	content: string,
-	room: string,
+	room: number,
 	time?: number // created once the socket server emits to other clients
 };
 

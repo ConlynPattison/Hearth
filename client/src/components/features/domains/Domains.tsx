@@ -8,6 +8,8 @@ import CreateDomain from "./CreateDomain/CreateDomain";
 import DeleteDomain from "./DeleteDomain/DeleteDomain";
 import PatchDomain from "./PatchDomain/PatchDomain";
 import CreateRoom from "../rooms/CreateRoom/CreateRoom";
+import RoomItem from "../rooms/Room";
+import RoomContext from "@/context/RoomContext";
 
 type PermissionedDomain = Domain & {
 	DomainPermissions: Permissions[],
@@ -43,6 +45,8 @@ const DomainItem = ({
 	parentDomainName,
 	domains
 }: DomainItemProps) => {
+	const [activeRoom] = useContext(RoomContext);
+
 	const showContents = visibleDomains[domain.domainId] ?? true;
 
 	return (
@@ -77,9 +81,7 @@ const DomainItem = ({
 				showContents &&
 				<>
 					{domain.Room.map((room) => (
-						<div
-							key={room.roomId}
-							className="ml-4 py-1"># {room.roomName}</div>
+						<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} />
 					))}
 					{domain.children.map((childDomain) =>
 						<DomainItem
@@ -98,6 +100,8 @@ const DomainItem = ({
 
 const Domains = () => {
 	const [activeRealm] = useContext(RealmContext);
+	const [activeRoom] = useContext(RoomContext);
+
 	const [visibleDomains, setVisibleDomains] = useState<{ [key: number]: boolean }>({})
 
 	const url = activeRealm ? `/api/realms/${activeRealm.realmId.toString()}/domains` : null
@@ -111,7 +115,7 @@ const Domains = () => {
 	if (isLoading) return (<>Loading domains..</>) // TODO: change to skeleton state
 
 	return (
-		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px] m-2 w-[100%]">
+		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px] ml-2">
 			{activeRealm &&
 				<div className="pb-2">
 					<CreateDomain parentDomainName={null} parentDomainId={null}>
@@ -125,9 +129,7 @@ const Domains = () => {
 				</div>
 			}
 			{data?.rooms.map((room) => (
-				<div key={room.roomId}>
-					# {room.roomName}
-				</div>
+				<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} />
 			))}
 			{data?.domains.map((domain) => {
 				return (
