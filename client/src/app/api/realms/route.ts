@@ -8,7 +8,6 @@ import { z } from "zod";
 const GET = withApiAuthRequired(async (req: NextRequest) => {
 	try {
 		const authResult = await checkUserAuthentication(req);
-
 		if (!authResult.authenticated) {
 			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
@@ -48,7 +47,6 @@ const postSchema = z.object({
 const POST = withApiAuthRequired(async (req: NextRequest) => {
 	try {
 		const authResult = await checkUserAuthentication(req);
-
 		if (!authResult.authenticated) {
 			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
@@ -93,7 +91,6 @@ const patchSchema = z.object({
 const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 	try {
 		const authResult = await checkUserAuthentication(req);
-
 		if (!authResult.authenticated) {
 			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}

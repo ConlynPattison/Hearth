@@ -26,7 +26,6 @@ const postQuerySchema = z.object({
 const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
 		const authResult = await checkUserAuthentication(req);
-
 		if (!authResult.authenticated) {
 			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
@@ -121,7 +120,6 @@ const patchQuerySchema = z.object({
 const PATCH = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
 		const authResult = await checkUserAuthentication(req);
-
 		if (!authResult.authenticated) {
 			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}

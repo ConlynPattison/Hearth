@@ -14,7 +14,6 @@ const deleteSchema = getSchema;
 const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
 		const authResult = await checkUserAuthentication(req);
-
 		if (!authResult.authenticated) {
 			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
