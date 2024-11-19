@@ -72,7 +72,7 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 
 		const parsedParams = deleteSchema.safeParse(params);
 		if (!parsedParams.success) {
-			return NextResponse.json({ success: false, message: `Invalid arguments for get realm with error: ${parsedParams.error}` }, { status: 400 });
+			return NextResponse.json({ success: false, message: `Invalid arguments for delete realm with error: ${parsedParams.error}` }, { status: 400 });
 		}
 
 		const { realmId } = parsedParams.data;
@@ -90,7 +90,6 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			return NextResponse.json({ success: false, message: `Realm with realmId ${realmId} not found within admin realms of userId ${userAuth0Id}` }, { status: 404 });
 		}
 
-		// Fetch and send the realm data
 		const deletedRealm = await prisma.realm.delete({
 			where: {
 				realmId

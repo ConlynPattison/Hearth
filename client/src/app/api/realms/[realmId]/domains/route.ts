@@ -1,6 +1,6 @@
 import prisma from "@/util/postgres";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { UsersOnRealmsLevels } from "@prisma/client";
+import { RoomScope, UsersOnRealmsLevels } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -53,6 +53,7 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 						permissions: true
 					}
 				},
+				Room: true,
 				children: {
 					include: {
 						DomainPermissions: {
@@ -60,6 +61,7 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 								permissions: true
 							}
 						},
+						Room: true,
 						children: {
 							include: {
 								DomainPermissions: {
@@ -67,6 +69,7 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 										permissions: true
 									}
 								},
+								Room: true,
 								children: true
 							}
 						}
@@ -75,7 +78,15 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			}
 		});
 
-		return NextResponse.json({ success: true, domains }, { status: 200 });
+		const rooms = await prisma.room.findMany({
+			where: {
+				realmId,
+				domainId: null,
+				roomScope: RoomScope.REALM
+			}
+		})
+
+		return NextResponse.json({ success: true, domains, rooms }, { status: 200 });
 	}
 	catch (err) {
 		console.error(err);

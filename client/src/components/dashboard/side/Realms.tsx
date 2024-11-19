@@ -38,14 +38,14 @@ const Realms = () => {
 					// if the intended realm DOES exist:
 					if (realmWithUserData !== undefined) setActiveRealm(realmWithUserData);
 					else {
-						router.replace("/dashboard");
+						router.push("/dashboard");
 					}
 				} else {
 					setActiveRealm(realms[0] || null);
 				}
 			} else if (setActiveRealm !== undefined) {
 				setActiveRealm(null);
-				router.replace("/dashboard");
+				router.push("/dashboard");
 			}
 		}
 	}, [activeRealm, realms, setActiveRealm, realmId, router]);

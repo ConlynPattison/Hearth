@@ -42,7 +42,7 @@ const MessageInputForm = ({
 
 		if (!userId || !messageBox.current?.value.trim()) return;
 
-		socket?.emit("messageToRoom", roomSendingTo.roomName, messageBox.current.value, {
+		socket?.emit("messageToRoom", roomSendingTo.roomId, messageBox.current.value, {
 			userId,
 			displayName: user.name,
 			avatarUrl: user.picture

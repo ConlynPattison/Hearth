@@ -1,6 +1,6 @@
 import Realms from "./Realms";
 import Profile from "./Profile";
-import CreateRealm from "@/components/features/realms/CreateRealm";
+import CreateRealm from "@/components/features/realms/CreateRealm/CreateRealm";
 import Logout from "./Logout";
 
 const SideBar = () => {

@@ -42,7 +42,7 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 });
 
 const postSchema = z.object({
-	realmName: z.string(),
+	realmName: z.string().min(1).max(16),
 	isSearchable: z.boolean().optional(),
 });
 
@@ -118,6 +118,7 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 		const userOnRealm = await prisma.usersOnRealms.findFirst({
 			where: {
 				auth0Id: userAuth0Id,
+				realmId,
 				memberLevel: {
 					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
 				}
