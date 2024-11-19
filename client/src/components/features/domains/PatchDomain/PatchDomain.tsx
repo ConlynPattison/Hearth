@@ -1,7 +1,7 @@
 "use client"
 import { Modal, ModalButtonGroup, ModalContent, ModalFooter, ModalHeading, useModal } from "@/components/ui/Modal";
 import { FaGears } from "react-icons/fa6";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import PatchDomainForm from "./PatchDomainForm";
 import { Domain } from "@prisma/client";
 import { OptionallyParentalDomain } from "../Domains";
@@ -13,7 +13,7 @@ interface PatchDomainProps {
 	domains: OptionallyParentalDomain[];
 }
 
-const PatchDomain = ({ parentDomainName, domain, domains }: PatchDomainProps) => {
+const PatchDomain = memo(({ parentDomainName, domain, domains }: PatchDomainProps) => {
 	const { openModal, closeModal, dialog } = useModal();
 	const formRef = useRef<HTMLFormElement>(null);
 
@@ -46,6 +46,8 @@ const PatchDomain = ({ parentDomainName, domain, domains }: PatchDomainProps) =>
 			</Modal>
 		</>
 	);
-}
+});
+
+PatchDomain.displayName = "PatchDomain";
 
 export default PatchDomain;

@@ -1,8 +1,8 @@
 "use client"
 import { Modal, ModalButtonGroup, ModalContent, ModalFooter, ModalHeading, useModal } from "@/components/ui/Modal";
-import { FaTrash } from "react-icons/fa6";
+import { FaTrashCan } from "react-icons/fa6";
 import DeleteDomainForm from "./DeleteDomainForm";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 
 // Interface to allow for creating a domain on the root rather than from within a parent domain
 interface DeleteDomainProps {
@@ -10,7 +10,7 @@ interface DeleteDomainProps {
 	domainId: number;
 }
 
-const DeleteDomain = ({ domainName, domainId }: DeleteDomainProps) => {
+const DeleteDomain = memo(({ domainName, domainId }: DeleteDomainProps) => {
 	const { dialog, openModal, closeModal } = useModal();
 	const formRef = useRef<HTMLFormElement>(null);
 
@@ -19,7 +19,7 @@ const DeleteDomain = ({ domainName, domainId }: DeleteDomainProps) => {
 			<div className="hover:cursor-pointer hover:dark:brightness-90 flex"
 				title="Delete domain"
 				onClick={openModal}>
-				<div className="px-1 dark:text-red-700"><FaTrash /></div>
+				<div className="px-1 dark:text-red-700"><FaTrashCan /></div>
 			</div>
 			<Modal ref={dialog}>
 				<ModalHeading closeModal={closeModal}>
@@ -40,8 +40,8 @@ const DeleteDomain = ({ domainName, domainId }: DeleteDomainProps) => {
 			</Modal >
 		</>
 	);
-}
+});
 
-
+DeleteDomain.displayName = "DeleteDomain";
 
 export default DeleteDomain;

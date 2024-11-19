@@ -2,6 +2,7 @@ import RoomContext from "@/context/RoomContext";
 import { Room, RoomType } from "@prisma/client";
 import { useContext } from "react";
 import { FaComments, FaMicrophoneLines } from "react-icons/fa6";
+import DeleteRoom from "./DeleteRoom/DeleteRoom";
 
 interface RoomIconProps {
 	roomType: RoomType;
@@ -30,7 +31,7 @@ const RoomItem = ({ room, selected }: RoomProps) => {
 		: "hover:bg-slate-200 dark:hover:bg-slate-700 hover:bg-slate-200";
 
 	return (
-		<div className={`flex py-1 px-2 my-1 hover:cursor-pointer rounded-md ${bg}`}
+		<div className={`flex py-1 px-2 my-1 hover:cursor-pointer rounded-md ${bg} group`}
 			onClick={() => {
 				if (setActiveRoom === undefined) return;
 				if (activeRoom === null || activeRoom && activeRoom.roomId !== room.roomId) {
@@ -38,7 +39,10 @@ const RoomItem = ({ room, selected }: RoomProps) => {
 				}
 			}}>
 			<RoomIcon roomType={room.roomType} />
-			<div>{room.roomName}</div>
+			<div className="w-full overflow-hidden text-ellipsis text-nowrap">{room.roomName}</div>
+			<div className="hidden group-hover:flex ml-auto self-center">
+				<DeleteRoom roomId={room.roomId} roomName={room.roomName} />
+			</div>
 		</div>
 	);
 }

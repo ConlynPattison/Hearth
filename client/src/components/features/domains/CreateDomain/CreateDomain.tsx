@@ -1,7 +1,7 @@
 "use client"
 import { Modal, ModalButtonGroup, ModalContent, ModalFooter, ModalHeading, useModal } from "@/components/ui/Modal";
 import { FaPlus } from "react-icons/fa6";
-import { useRef, ReactNode } from "react";
+import { useRef, ReactNode, memo } from "react";
 import CreateDomainForm from "./CreateDomainForm";
 
 // Interface to allow for creating a domain on the root rather than from within a parent domain
@@ -11,7 +11,7 @@ interface CreateDomainProps {
 	children?: ReactNode
 }
 
-const CreateDomain = ({ parentDomainName, parentDomainId, children }: CreateDomainProps) => {
+const CreateDomain = memo(({ parentDomainName, parentDomainId, children }: CreateDomainProps) => {
 	const { closeModal, openModal, dialog } = useModal();
 	const formRef = useRef<HTMLFormElement>(null);
 
@@ -44,6 +44,8 @@ const CreateDomain = ({ parentDomainName, parentDomainId, children }: CreateDoma
 			</Modal>
 		</>
 	);
-}
+});
+
+CreateDomain.displayName = "CreateDomain";
 
 export default CreateDomain;

@@ -1,7 +1,7 @@
 import RealmContext from "@/context/RealmContext";
 import { Domain, Permissions, Room, RoomScope } from "@prisma/client";
 import axios from "axios";
-import { Dispatch, SetStateAction, useContext, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useState } from "react";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
 import useSWR from "swr";
 import CreateDomain from "./CreateDomain/CreateDomain";
@@ -37,7 +37,7 @@ interface DomainItemProps {
 	domains: OptionallyParentalDomain[];
 }
 
-const DomainItem = ({
+const DomainItem = (({
 	domain,
 	depth,
 	visibleDomains,
@@ -49,17 +49,19 @@ const DomainItem = ({
 
 	const showContents = visibleDomains[domain.domainId] ?? true;
 
+	const handleClick = useCallback(() => {
+		setVisibleDomains(curr => ({
+			...curr,
+			[domain.domainId]: !showContents,
+		}));
+	}, [domain.domainId, showContents, setVisibleDomains]);
+
 	return (
 		<div className={`${depth === 0 ? "mt-6" : "ml-8 mt-2"}`}>
-			<div className="flex w-[100%] group">
+			<div className="flex w-full group">
 				<div
-					className="hover:cursor-pointer hover:dark:brightness-90 flex max-w-[95%] overflow-hidden"
-					onClick={() => setVisibleDomains(curr => {
-						return {
-							...curr,
-							[domain.domainId]: !showContents
-						}
-					})}
+					className="hover:cursor-pointer hover:dark:brightness-90 w-full overflow-hidden flex"
+					onClick={handleClick}
 				>
 					<div className="pr-1">
 						{showContents ? <FaAngleDown /> : <FaAngleRight />}
@@ -68,7 +70,7 @@ const DomainItem = ({
 						{domain.domainName}
 					</span>
 				</div>
-				<div className="hidden group-hover:flex">
+				<div className="hidden group-hover:flex ml-auto">
 					{depth < 2 &&
 						<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
 					<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
@@ -96,7 +98,7 @@ const DomainItem = ({
 			}
 		</div >
 	);
-}
+});
 
 const Domains = () => {
 	const [activeRealm] = useContext(RealmContext);
