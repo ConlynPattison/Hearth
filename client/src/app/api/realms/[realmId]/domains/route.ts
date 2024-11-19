@@ -1,6 +1,7 @@
+import { ADMIN_LEVELS, checkUserAuthentication, checkUserRealmAuthorization, MEMBER_LEVELS } from "@/util/auth";
 import prisma from "@/util/postgres";
-import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { RoomScope, UsersOnRealmsLevels } from "@prisma/client";
+import { withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { RoomScope } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -12,14 +13,12 @@ const getSchema = z.object({
 
 const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
-		// Is the user authenticated?
-		const session = await getSession(req, new NextResponse());
+		const authResult = await checkUserAuthentication(req);
 
-		if (!session || !session.user || typeof session.user.sub !== "string") {
-			console.error("Failed to get user session data");
-			return NextResponse.json({ success: false, message: "Failed to get user session data" }, { status: 401 });
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
-		const userAuth0Id = session.user.sub;
+		const userAuth0Id = authResult.userAuth0Id;
 
 		const parsedParams = getSchema.safeParse(params);
 		if (!parsedParams.success) {
@@ -28,16 +27,9 @@ const GET = withApiAuthRequired(async (req: NextRequest, { params }) => {
 
 		const { realmId } = parsedParams.data;
 
-		// is user authorized to access this realm's domains?
-		const userOnRealm = await prisma.usersOnRealms.findFirst({
-			where: {
-				realmId,
-				auth0Id: userAuth0Id,
-			}
-		});
-
-		if (userOnRealm === null) {
-			return NextResponse.json({ success: false, message: `UserId ${userAuth0Id} not authorized to access realmId ${realmId}` }, { status: 403 })
+		const authorizationResult = await checkUserRealmAuthorization(userAuth0Id, realmId, MEMBER_LEVELS);
+		if (!authorizationResult.authorized) {
+			return NextResponse.json({ success: false, message: authorizationResult.message }, { status: authorizationResult.status })
 		}
 
 		// TODO: in query or with post-query logic, remove domains that the user cannot access
@@ -104,16 +96,20 @@ const postQuerySchema = z.object({
 	realmId: z.string().transform((id) => parseInt(id, 10))
 });
 
+type DepthTestDomain = {
+	domainId: number,
+	parentDomainId: number | null,
+	parentDomain: DepthTestDomain | null
+} | null
+
 const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
-		// Is the user authenticated?
-		const session = await getSession(req, new NextResponse());
+		const authResult = await checkUserAuthentication(req);
 
-		if (!session || !session.user || typeof session.user.sub !== "string") {
-			console.error("Failed to get user session data");
-			return NextResponse.json({ success: false, message: "Failed to get user session data" }, { status: 401 });
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
-		const userAuth0Id = session.user.sub;
+		const userAuth0Id = authResult.userAuth0Id;
 
 		const parsedParams = postQuerySchema.safeParse(params);
 		if (!parsedParams.success) {
@@ -130,26 +126,10 @@ const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 
 		const { domainName, parentDomainId, isPrivate } = parsedBody.data;
 
-		// is user authorized to access this realm's domains?
-		const userOnRealm = await prisma.usersOnRealms.findFirst({
-			where: {
-				realmId,
-				auth0Id: userAuth0Id,
-				memberLevel: {
-					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
-				}
-			}
-		});
-
-		if (userOnRealm === null) {
-			return NextResponse.json({ success: false, message: `UserId ${userAuth0Id} not authorized to create domains on realmId ${realmId}` }, { status: 403 })
+		const authorizationResult = await checkUserRealmAuthorization(userAuth0Id, realmId, ADMIN_LEVELS);
+		if (!authorizationResult.authorized) {
+			return NextResponse.json({ success: false, message: authorizationResult.message }, { status: authorizationResult.status });
 		}
-
-		type DepthTestDomain = {
-			domainId: number,
-			parentDomainId: number | null,
-			parentDomain: DepthTestDomain | null
-		} | null
 
 		// Is this depth a valid level to append a domain to?
 		if (parentDomainId) {
@@ -231,14 +211,12 @@ const patchQuerySchema = z.object({
  */
 const PATCH = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
-		// is user authenticated?
-		const session = await getSession(req, new NextResponse());
+		const authResult = await checkUserAuthentication(req);
 
-		if (!session || !session.user || typeof session.user.sub !== "string") {
-			console.error("Failed to get user session data");
-			return NextResponse.json({ sucess: false, message: "Failed to get user session data" }, { status: 401 });
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
-		const userAuth0Id = session.user.sub;
+		const userAuth0Id = authResult.userAuth0Id;
 
 		// are arguments valid?
 		const { body } = await req.json();
@@ -257,19 +235,9 @@ const PATCH = withApiAuthRequired(async (req: NextRequest, { params }) => {
 
 		const { realmId } = parsedQueryParams.data;
 
-		// is user authorized to make this patch? => (owner or admin of realm)
-		const userOnRealm = await prisma.usersOnRealms.findFirst({
-			where: {
-				auth0Id: userAuth0Id,
-				realmId,
-				memberLevel: {
-					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
-				}
-			}
-		});
-
-		if (userOnRealm === null) {
-			return NextResponse.json({ sucess: false, message: `UserId ${userAuth0Id} not authorized for update request on realmId ${realmId}` }, { status: 401 });
+		const authorizationResult = await checkUserRealmAuthorization(userAuth0Id, realmId, ADMIN_LEVELS);
+		if (!authorizationResult.authorized) {
+			return NextResponse.json({ success: false, message: authorizationResult.message }, { status: authorizationResult.status });
 		}
 
 		await prisma.$transaction(async (prisma) => {

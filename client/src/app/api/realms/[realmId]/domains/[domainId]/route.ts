@@ -1,6 +1,6 @@
+import { ADMIN_LEVELS, checkUserAuthentication, checkUserRealmAuthorization } from "@/util/auth";
 import prisma from "@/util/postgres";
-import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { UsersOnRealmsLevels } from "@prisma/client";
+import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -13,14 +13,12 @@ const deleteSchema = getSchema;
 
 const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	try {
-		// Is the user authenticated?
-		const session = await getSession(req, new NextResponse());
+		const authResult = await checkUserAuthentication(req);
 
-		if (!session || !session.user || typeof session.user.sub !== "string") {
-			console.error("Failed to get user session data");
-			return NextResponse.json({ success: false, message: "Failed to get user session data" }, { status: 401 });
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
-		const userAuth0Id = session.user.sub;
+		const userAuth0Id = authResult.userAuth0Id;
 
 		const parsedParams = deleteSchema.safeParse(params);
 		if (!parsedParams.success) {
@@ -29,19 +27,9 @@ const DELETE = withApiAuthRequired(async (req: NextRequest, { params }) => {
 
 		const { realmId, domainId } = parsedParams.data;
 
-		// check authorization (must be >= admin)
-		const authorization = await prisma.usersOnRealms.findFirst({
-			where: {
-				auth0Id: userAuth0Id,
-				realmId,
-				memberLevel: {
-					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
-				}
-			}
-		});
-
-		if (authorization === null) {
-			return NextResponse.json({ success: false, message: `Realm with realmId ${realmId} not found within admin realms of userId ${userAuth0Id}` }, { status: 404 });
+		const authorizationResult = await checkUserRealmAuthorization(userAuth0Id, realmId, ADMIN_LEVELS);
+		if (!authorizationResult.authorized) {
+			return NextResponse.json({ success: false, message: authorizationResult.message }, { status: authorizationResult.status });
 		}
 
 		const parentOfDeleting = await prisma.domain.findFirst({

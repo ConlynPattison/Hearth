@@ -1,19 +1,18 @@
+import { ADMIN_LEVELS, checkUserAuthentication, checkUserRealmAuthorization } from "@/util/auth";
 import prisma from "@/util/postgres";
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { UsersOnRealmsLevels } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const GET = withApiAuthRequired(async (req: NextRequest) => {
 	try {
-		// Is the user authenticated?
-		const session = await getSession(req, new NextResponse());
+		const authResult = await checkUserAuthentication(req);
 
-		if (!session || !session.user || typeof session.user.sub !== "string") {
-			console.error("Failed to get user session data");
-			return NextResponse.json({ success: false, message: "Failed to get user session data" }, { status: 401 });
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
-		const userAuth0Id = session.user.sub;
+		const userAuth0Id = authResult.userAuth0Id;
 
 		// Fetch and send the realm data []
 		const realms = await prisma.realm.findMany({
@@ -28,7 +27,7 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 				UsersOnRealms: {
 					where: {
 						auth0Id: userAuth0Id
-					}
+					},
 				}
 			}
 		});
@@ -48,14 +47,12 @@ const postSchema = z.object({
 
 const POST = withApiAuthRequired(async (req: NextRequest) => {
 	try {
-		// Is the user authenticated?
-		const session = await getSession(req, new NextResponse());
+		const authResult = await checkUserAuthentication(req);
 
-		if (!session || !session.user || typeof session.user.sub !== "string") {
-			console.error("Failed to get user session data");
-			return NextResponse.json({ sucess: false, message: "Failed to get user session data" }, { status: 401 });
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
-		const userAuth0Id = session.user.sub;
+		const userAuth0Id = authResult.userAuth0Id;
 
 		const { body } = await req.json();
 		const params = postSchema.safeParse(body);
@@ -95,14 +92,12 @@ const patchSchema = z.object({
 
 const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 	try {
-		// is user authenticated?
-		const session = await getSession(req, new NextResponse());
+		const authResult = await checkUserAuthentication(req);
 
-		if (!session || !session.user || typeof session.user.sub !== "string") {
-			console.error("Failed to get user session data");
-			return NextResponse.json({ sucess: false, message: "Failed to get user session data" }, { status: 401 });
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
 		}
-		const userAuth0Id = session.user.sub;
+		const userAuth0Id = authResult.userAuth0Id;
 
 		// are arguments valid?
 		const { body } = await req.json();
@@ -115,18 +110,10 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 		const { realmId, realmName, isSearchable } = params.data;
 
 		// is user authorized to make this patch? => (owner or admin of realm)
-		const userOnRealm = await prisma.usersOnRealms.findFirst({
-			where: {
-				auth0Id: userAuth0Id,
-				realmId,
-				memberLevel: {
-					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
-				}
-			}
-		});
+		const authorizationResult = await checkUserRealmAuthorization(userAuth0Id, realmId, ADMIN_LEVELS);
 
-		if (userOnRealm === null) {
-			return NextResponse.json({ sucess: false, message: `UserId ${userAuth0Id} not authorized for update request on realmId ${realmId}` }, { status: 401 });
+		if (!authorizationResult.authorized) {
+			return NextResponse.json({ sucess: false, message: authorizationResult.message }, { status: authorizationResult.status });
 		}
 
 		// perform the update TODO: consider the addition of a "updatedAt"
