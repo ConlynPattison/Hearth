@@ -36,7 +36,7 @@ const CreateDomainForm = forwardRef<HTMLFormElement, CreateDomainFormProps>((
 				isPrivate,
 			},
 		}).then(create => {
-			if (create.status === 200) {
+			if (create.status === 201) {
 				alert("Domain successfully created!");
 				mutate(`/api/realms/${activeRealm?.realmId}/domains`);
 			}

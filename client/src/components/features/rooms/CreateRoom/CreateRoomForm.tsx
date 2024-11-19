@@ -71,7 +71,7 @@ const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
 				isAgeRestricted
 			},
 		}).then(create => {
-			if (create.status === 200) {
+			if (create.status === 201) {
 				alert("Room successfully created!");
 				mutate(`/api/realms/${activeRealm?.realmId}/domains`);
 			}

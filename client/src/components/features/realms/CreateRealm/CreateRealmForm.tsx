@@ -31,7 +31,7 @@ const CreateRealmForm = forwardRef<HTMLFormElement, CreateRealmFormProps>((
 				realmName
 			},
 		}).then(create => {
-			if (create.status === 200) {
+			if (create.status === 201) {
 				alert("Realm successfully created!");
 				mutate("/api/realms");
 			}
