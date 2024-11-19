@@ -93,7 +93,7 @@ const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			}
 		})
 
-		return NextResponse.json({ success: true, message: `Successfully created room of roomId ${room.roomId}` }, { status: 200 });
+		return NextResponse.json({ success: true, message: `Successfully created room of roomId ${room.roomId}` }, { status: 201 });
 	}
 	catch (err) {
 		console.error(err);

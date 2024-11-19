@@ -60,21 +60,24 @@ const POST = withApiAuthRequired(async (req: NextRequest) => {
 
 		const { realmName, isSearchable } = params.data;
 
-		const realm = await prisma.realm.create({
-			data: {
-				realmName,
-				isSearchable: isSearchable === undefined ? true : isSearchable
-			}
-		})
-		await prisma.usersOnRealms.create({
-			data: {
-				auth0Id: userAuth0Id,
-				realmId: realm.realmId,
-				memberLevel: UsersOnRealmsLevels.OWNER
-			}
-		})
+		const realm = await prisma.$transaction(async (prisma) => {
+			const realm = await prisma.realm.create({
+				data: {
+					realmName,
+					isSearchable: isSearchable === undefined ? true : isSearchable
+				}
+			});
+			await prisma.usersOnRealms.create({
+				data: {
+					auth0Id: userAuth0Id,
+					realmId: realm.realmId,
+					memberLevel: UsersOnRealmsLevels.OWNER
+				}
+			});
+			return realm;
+		});
+		return NextResponse.json({ success: true, message: `Successfully created realm with realmId: ${realm.realmId}` }, { status: 201 });
 
-		return NextResponse.json({ success: true, message: `Successfully created realm with realmId: ${realm.realmId}` }, { status: 200 });
 	}
 	catch (err) {
 		console.error(err);

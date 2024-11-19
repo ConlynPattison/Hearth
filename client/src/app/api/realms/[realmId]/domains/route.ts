@@ -183,7 +183,7 @@ const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			}
 		});
 
-		return NextResponse.json({ success: true, message: `Successfully created domain of domainId ${domain.domainId}` }, { status: 200 });
+		return NextResponse.json({ success: true, message: `Successfully created domain of domainId ${domain.domainId}` }, { status: 201 });
 	}
 	catch (err) {
 		console.error(err);
