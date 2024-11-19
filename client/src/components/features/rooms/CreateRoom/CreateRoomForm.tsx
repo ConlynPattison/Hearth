@@ -51,7 +51,7 @@ const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
 
 	const create = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		
+
 		if (!activeRealm) {
 			alert("Failed to create room, no valid realm");
 			return;
@@ -135,7 +135,7 @@ const CreateRoomForm = forwardRef<HTMLFormElement, CreateRoomFormProps>((
 						ref={descriptionRef}
 						maxLength={256}
 						className="hover:brightness-90 dark:bg-slate-600 bg-slate-200 px-1 rounded-sm"
-						name="room_is_age_restricted"
+						name="room_is_description"
 						placeholder="Type a description..."
 					/>
 				</div>

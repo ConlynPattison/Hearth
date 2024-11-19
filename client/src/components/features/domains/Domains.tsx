@@ -73,8 +73,8 @@ const DomainItem = (({
 				<div className="hidden group-hover:flex ml-auto">
 					{depth < 2 &&
 						<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
-					<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
 					<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains} />
+					<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
 					<CreateRoom domainId={domain.domainId} domainName={domain.domainName} roomScope={RoomScope.REALM} />
 				</div>
 
@@ -83,7 +83,7 @@ const DomainItem = (({
 				showContents &&
 				<>
 					{domain.Room.map((room) => (
-						<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} />
+						<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} domains={domains} />
 					))}
 					{domain.children.map((childDomain) =>
 						<DomainItem
@@ -138,7 +138,7 @@ const Domains = () => {
 				</div>
 			}
 			{data?.rooms.map((room) => (
-				<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} />
+				<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} domains={data.domains} />
 			))}
 			{data?.domains.map((domain) => {
 				return (

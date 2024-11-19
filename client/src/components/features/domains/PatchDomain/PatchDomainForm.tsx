@@ -12,15 +12,16 @@ interface PatchRealmFormProps {
 	domains: OptionallyParentalDomain[];
 }
 
-interface DomainsOptionsProps {
+export interface DomainsOptionsProps {
 	domains: OptionallyParentalDomain[];
 	depth: number;
+	maxDepth: number;
 }
 
-const DomainsOptions = ({ domains, depth }: DomainsOptionsProps) => {
+const DomainsOptions = ({ domains, depth, maxDepth }: DomainsOptionsProps) => {
 	const padding = "--- ".repeat(depth);
 
-	if (depth >= 2) return;
+	if (depth >= maxDepth) return;
 
 	return (
 		<>
@@ -31,12 +32,12 @@ const DomainsOptions = ({ domains, depth }: DomainsOptionsProps) => {
 						value={domain.domainId}>
 						{padding}{domain.domainName}
 					</option >
-					{domain.children && <DomainsOptions key={domain.domainId} domains={domain.children} depth={1 + depth} />}
+					{domain.children && <DomainsOptions key={domain.domainId} domains={domain.children} depth={1 + depth} maxDepth={maxDepth} />}
 				</Fragment>
 			)
 			}
 		</>
-	)
+	);
 }
 
 const PatchDomainForm = forwardRef<HTMLFormElement, PatchRealmFormProps>(({ dialog, domain, domains }: PatchRealmFormProps, ref) => {
@@ -89,8 +90,9 @@ const PatchDomainForm = forwardRef<HTMLFormElement, PatchRealmFormProps>(({ dial
 						type="checkbox" /></label>
 				<label className="flex" >Parent domain:
 					<select
-						className="dark:bg-slate-600 bg-slate-200 ml-auto text-center px-1 rounded-sm"
-						value={parentDomainId || undefined}
+						className="dark:bg-slate-600 bg-slate-200 ml-auto px-1 rounded-sm"
+						value={parentDomainId ?? undefined}
+						name="domain_parent"
 						title="Domain parent"
 						onChange={(e) => setParentDomainId(parseInt(e.target.value, 10))}
 					>
@@ -98,7 +100,7 @@ const PatchDomainForm = forwardRef<HTMLFormElement, PatchRealmFormProps>(({ dial
 							value={undefined}
 							className="italic"
 						>- Root -</option>
-						<DomainsOptions key={domain.domainId} domains={domains} depth={0} />
+						<DomainsOptions key={domain.domainId} domains={domains} depth={0} maxDepth={2} />
 					</select>
 				</label>
 			</div>
@@ -109,3 +111,4 @@ const PatchDomainForm = forwardRef<HTMLFormElement, PatchRealmFormProps>(({ dial
 PatchDomainForm.displayName = "PatchDomainForm";
 
 export default PatchDomainForm;
+export { DomainsOptions };

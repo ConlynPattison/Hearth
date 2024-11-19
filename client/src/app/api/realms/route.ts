@@ -118,6 +118,7 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 		const userOnRealm = await prisma.usersOnRealms.findFirst({
 			where: {
 				auth0Id: userAuth0Id,
+				realmId,
 				memberLevel: {
 					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
 				}

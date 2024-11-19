@@ -3,6 +3,8 @@ import { Room, RoomType } from "@prisma/client";
 import { useContext } from "react";
 import { FaComments, FaMicrophoneLines } from "react-icons/fa6";
 import DeleteRoom from "./DeleteRoom/DeleteRoom";
+import PatchRoom from "./PatchRoom/PatchRoom";
+import { OptionallyParentalDomain } from "../domains/Domains";
 
 interface RoomIconProps {
 	roomType: RoomType;
@@ -21,9 +23,10 @@ const RoomIcon = ({ roomType }: RoomIconProps) => {
 interface RoomProps {
 	room: Room;
 	selected: boolean;
+	domains: OptionallyParentalDomain[];
 }
 
-const RoomItem = ({ room, selected }: RoomProps) => {
+const RoomItem = ({ room, selected, domains }: RoomProps) => {
 	const [activeRoom, setActiveRoom] = useContext(RoomContext);
 
 	const bg = selected ?
@@ -41,6 +44,7 @@ const RoomItem = ({ room, selected }: RoomProps) => {
 			<RoomIcon roomType={room.roomType} />
 			<div className="w-full overflow-hidden text-ellipsis text-nowrap">{room.roomName}</div>
 			<div className="hidden group-hover:flex ml-auto self-center">
+				<PatchRoom room={room} domains={domains} />
 				<DeleteRoom roomId={room.roomId} roomName={room.roomName} />
 			</div>
 		</div>

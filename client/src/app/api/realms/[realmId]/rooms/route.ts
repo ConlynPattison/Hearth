@@ -113,4 +113,96 @@ const POST = withApiAuthRequired(async (req: NextRequest, { params }) => {
 	}
 });
 
-export { POST };
+const patchBodySchema = z.object({
+	domainId: z.number().finite().positive().nullable(),
+	roomId: z.number().finite().positive(),
+	isPrivate: z.boolean(),
+	roomName: z.string(),
+	roomScope: z.nativeEnum(RoomScope),
+	roomType: z.nativeEnum(RoomType),
+	roomIconUrl: z.string().nullable(),
+	roomDescription: z.string(),
+	isAgeRestricted: z.boolean()
+});
+
+const patchQuerySchema = z.object({
+	realmId: z.string().transform((value) => parseInt(value, 10))
+})
+
+const PATCH = withApiAuthRequired(async (req: NextRequest, { params }) => {
+	try {
+		// is user authenticated?
+		const session = await getSession(req, new NextResponse());
+
+		if (!session || !session.user || typeof session.user.sub !== "string") {
+			console.error("Failed to get user session data");
+			return NextResponse.json({ sucess: false, message: "Failed to get user session data" }, { status: 401 });
+		}
+		const userAuth0Id = session.user.sub;
+
+		const parsedQueryParams = patchQuerySchema.safeParse(params);
+		if (!parsedQueryParams.success) {
+			return NextResponse.json({ success: false, message: `Invalid path argument for update room in realm with error: ${parsedQueryParams.error}` }, { status: 400 });
+		}
+
+		const { body } = await req.json();
+		const parsedBodyParams = patchBodySchema.safeParse(body);
+		if (!parsedBodyParams.success) {
+			return NextResponse.json({ success: false, message: `Invalid arguments for update room in realm with error: ${parsedBodyParams.error}` }, { status: 400 });
+		}
+
+		const { realmId } = parsedQueryParams.data;
+
+		const {
+			domainId,
+			roomId,
+			isPrivate,
+			roomName,
+			roomScope,
+			roomType,
+			roomIconUrl,
+			roomDescription,
+			isAgeRestricted
+		} = parsedBodyParams.data;
+
+		// is user authorized to make this patch? => (owner or admin of realm containing this room)
+		const userOnRealm = await prisma.usersOnRealms.findFirst({
+			where: {
+				auth0Id: userAuth0Id,
+				realmId,
+				memberLevel: {
+					in: [UsersOnRealmsLevels.ADMIN, UsersOnRealmsLevels.OWNER]
+				}
+			}
+		});
+
+		if (userOnRealm === null) {
+			return NextResponse.json({ sucess: false, message: `UserId ${userAuth0Id} not authorized for update request on realmId ${realmId}` }, { status: 401 });
+		}
+
+		// perform the update TODO: consider the addition of a "updatedAt"
+		const patchedRoom = await prisma.room.update({
+			where: {
+				roomId
+			},
+			data: {
+				domainId,
+				isPrivate,
+				roomName,
+				roomScope,
+				roomType,
+				roomIconUrl,
+				roomDescription,
+				isAgeRestricted
+			}
+		});
+
+		return NextResponse.json({ success: true, message: `Successfully updated room with roomId: ${patchedRoom.roomId}` }, { status: 200 });
+	}
+	catch (err) {
+		console.error(err);
+		return NextResponse.json({ success: false, message: `Server error: ${err}` }, { status: 500 })
+	}
+});
+
+export { POST, PATCH };
