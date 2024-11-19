@@ -14,20 +14,18 @@ const Profile = () => {
 	}
 
 	return (
-		<div className="flex flex-col py-3"
+		<div className="flex py-3 relative"
 			onClick={handleProfileClick}>
 			<Image
-				className="rounded-full min-w-[70px] self-center shadow-black shadow-md"
+				className="rounded-full min-w-[70px] mx-auto shadow-black shadow-md"
 				title={username ?? ""}
 				alt="Picture"
 				src={user?.picture || "/favicon\.ico"}
 				width={70}
 				height={70} />
-			{/* <p
-				className="self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap no-underline mt-1"
-				title={username ?? ""}>
-				{username ?? ""}
-			</p> */}
+			<div className="dark:bg-slate-900 bg-opacity-80 bg-slate-200 w-[22px] h-[22px] absolute rounded-full flex translate-x-[60px] translate-y-[50px]">
+				<div className="bg-green-700 w-[16px] h-[16px] rounded-full m-auto"></div>
+			</div>
 		</div>
 	);
 }

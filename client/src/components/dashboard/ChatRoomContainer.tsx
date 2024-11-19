@@ -128,8 +128,8 @@ const ChatRoomContainer = () => {
 					{/* Connection status */}
 					<div className="flex px-1">
 						{isConnected
-							? <><div className="pt-1 mr-1"><FaCheckCircle color="green" /></div><p>Connected</p></>
-							: <><div className="pt-1 mr-1"><FaMinusCircle color="red" /></div><p>Disconnected</p></>}
+							? <><div className="pt-1 mr-1"><FaCheckCircle className="text-green-700" /></div><p>Connected to {activeRoom?.roomName}</p></>
+							: <><div className="pt-1 mr-1"><FaMinusCircle className="text-red-700" /></div><p>Disconnected</p></>}
 					</div>
 					<h1 className="px-1 text-2xl font-bold mt-1">Messages: </h1>
 				</div>
