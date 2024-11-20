@@ -1,4 +1,5 @@
 "use client"
+import PersonalChatOpener from "@/components/features/dm/PersonalChatOpener";
 import RealmContext from "@/context/RealmContext";
 import { UsersOnRealms, Realm } from "@prisma/client";
 import axios from "axios";
@@ -7,7 +8,11 @@ import { useState, useEffect, useContext } from "react";
 import { FaFireFlameCurved } from "react-icons/fa6";
 import useSWR from "swr";
 
-const Realms = () => {
+interface RealmsProps {
+	selectedDMs: boolean;
+}
+
+const Realms = ({ selectedDMs }: RealmsProps) => {
 	const router = useRouter();
 	const { realmId } = useParams();
 
@@ -34,21 +39,22 @@ const Realms = () => {
 			if (setActiveRealm !== undefined && realms.length > 0) {
 				// If there is a param for the intended open realm
 				if (realmId && !Array.isArray(realmId) && realmId.length > 0) {
+					console.log(realmId)
 					const realmWithUserData = realms.find((realm) => realm.realmId === parseInt(realmId, 10));
 					// if the intended realm DOES exist:
 					if (realmWithUserData !== undefined) setActiveRealm(realmWithUserData);
 					else {
-						router.push("/dashboard");
+						router.push(`/dashboard/${realms[0].realmId}`);
 					}
-				} else {
-					setActiveRealm(realms[0] || null);
+				} else if (!selectedDMs) {
+					setActiveRealm(realms[0]);
 				}
 			} else if (setActiveRealm !== undefined) {
 				setActiveRealm(null);
-				router.push("/dashboard");
+				router.push("/dashboard/me");
 			}
 		}
-	}, [activeRealm, realms, setActiveRealm, realmId, router]);
+	}, [activeRealm, realms, setActiveRealm, realmId, router, selectedDMs]);
 
 	useEffect(() => {
 		if (!isLoading && data) {
@@ -71,6 +77,7 @@ const Realms = () => {
 					<stop stopColor="#ef4444" offset="80%" />
 				</linearGradient>
 			</svg>
+			<PersonalChatOpener selected={selectedDMs} />
 			{!isLoading && realms.map((realm) => (
 				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-100" : "hover:brightness-90 dark:bg-slate-900 bg-slate-200"}`}
 					key={realm.realmId}

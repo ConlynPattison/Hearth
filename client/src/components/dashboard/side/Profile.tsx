@@ -10,7 +10,7 @@ const Profile = () => {
 	const router = useRouter();
 
 	const handleProfileClick = () => {
-		router.replace("/dashboard");
+		router.push("/dashboard/me");
 	}
 
 	return (

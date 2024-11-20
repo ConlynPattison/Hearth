@@ -4,7 +4,7 @@ import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
 const DashboardPage = async () => {
 	return (
-		<Dashboard />
+		<Dashboard showDirectMessages={true} />
 	);
 }
 
