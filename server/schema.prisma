@@ -14,12 +14,10 @@ model Realm {
     isSearchable Boolean  @default(true)
     createdAt    DateTime @default(now())
 
-    UsersOnRealms               UsersOnRealms[]
-    Domain                      Domain[]
-    Room                        Room[]
-    FactionsOnUsersOnRealms     FactionsOnUsersOnRealms[]
-    Faction                     Faction[]
-    UsersOnRealmWithPermissions UsersOnRealmWithPermissions[]
+    UsersOnRealms UsersOnRealms[]
+    Domain        Domain[]
+    Room          Room[]
+    Faction       Faction[]
 }
 
 model User {
@@ -30,10 +28,8 @@ model User {
     createdAt   DateTime @default(now())
     isDeleted   Boolean  @default(false)
 
-    UsersOnRealms               UsersOnRealms[]
-    UsersOnRealmWithPermissions UsersOnRealmWithPermissions[]
-    FactionsOnUsersOnRealms     FactionsOnUsersOnRealms[]
-    UsersInRooms                UsersInRooms[]
+    UsersOnRealms UsersOnRealms[]
+    UsersInRooms  UsersInRooms[]
 }
 
 model Room {
@@ -68,16 +64,17 @@ enum RoomType {
 }
 
 model UsersInRooms {
-    userInRoomId Int @id @default(autoincrement())
+    userInRoomId Int     @unique @default(autoincrement())
+    isFavorited  Boolean @default(false)
+    hasLeft      Boolean @default(false)
 
-    auth0Id String // References the User in the room
+    auth0Id String
     user    User   @relation(fields: [auth0Id], references: [auth0Id])
 
-    roomId Int // References the Room the user is part of
+    roomId Int
     room   Room @relation(fields: [roomId], references: [roomId])
 
-    // Constraints
-    @@unique([auth0Id, roomId]) // Ensures a user is only in the room once
+    @@id([auth0Id, roomId])
 }
 
 model Faction {
@@ -161,24 +158,22 @@ model UsersOnRealms {
     realmId Int
     realm   Realm @relation(fields: [realmId], references: [realmId], onDelete: Cascade)
 
+    UsersOnRealmWithPermissions UsersOnRealmWithPermissions[]
+    FactionsOnUsersOnRealms     FactionsOnUsersOnRealms[]
+
     @@id([auth0Id, realmId])
 }
 
 model FactionsOnUsersOnRealms {
     factionsOnUsersOnRealmsId Int @unique @default(autoincrement())
 
-    // references user of a unique usersonrealms entry
-    auth0Id String
-    user    User   @relation(fields: [auth0Id], references: [auth0Id])
-
-    // references realm of a unique usersonrealms entry (same as the auth0Id entry)
-    realmId Int
-    realm   Realm @relation(fields: [realmId], references: [realmId])
+    userOnRealmId Int
+    userOnRealm   UsersOnRealms @relation(fields: [userOnRealmId], references: [userOnRealmId])
 
     factionId Int
     faction   Faction @relation(fields: [factionId], references: [factionId])
 
-    @@id([auth0Id, realmId, factionId])
+    @@id([userOnRealmId, factionId])
 }
 
 enum UsersOnRealmsLevels {
@@ -190,18 +185,13 @@ enum UsersOnRealmsLevels {
 model UsersOnRealmWithPermissions {
     userWithPermissionsId Int @unique @default(autoincrement())
 
-    // references user of a unique usersonrealms entry
-    auth0Id String
-    user    User   @relation(fields: [auth0Id], references: [auth0Id])
-
-    // references realm of a unique usersonrealms entry (same as the auth0Id entry)
-    realmId Int
-    realm   Realm @relation(fields: [realmId], references: [realmId])
+    userOnRealmId Int
+    userOnRealm   UsersOnRealms @relation(fields: [userOnRealmId], references: [userOnRealmId])
 
     permissionsId Int
     permissions   Permissions @relation(fields: [permissionsId], references: [permissionsId])
 
-    @@id([auth0Id, realmId, permissionsId])
+    @@id([userOnRealmId, permissionsId])
 }
 
 model FactionsWithPermissions {
