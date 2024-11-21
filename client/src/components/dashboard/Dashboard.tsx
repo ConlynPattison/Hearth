@@ -1,6 +1,7 @@
 "use client"
 import ChatRoomContainer from "./ChatRoomContainer";
 import InboxesContainer from "./InboxesContainer";
+import PersonalContainer from "./me/PersonalContainer";
 import SideBar from "./side/SideBar";
 import { RealmProvider } from "@/context/RealmContext";
 import { RoomProvider } from "@/context/RoomContext";
@@ -23,7 +24,11 @@ const Dashboard = ({ showDirectMessages }: DashboardProps) => {
 
 							{/* Left middle inbox & rooms */}
 							<div className="bg-slate-100 dark:bg-slate-800 sm:w-[240px] sm:h-[100%]">
-								<InboxesContainer />
+								{showDirectMessages ?
+									<PersonalContainer />
+									:
+									<InboxesContainer />
+								}
 							</div>
 
 							{/* Right middle messages */}

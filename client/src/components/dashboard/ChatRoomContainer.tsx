@@ -135,7 +135,7 @@ const ChatRoomContainer = () => {
 				</div>
 
 				{scrolledToTop || <div className="absolute top-[60px] left-0 right-0 h-20 bg-gradient-to-b from-background dark:from-slate-800 from-0% to-transparent to-100% pointer-events-none z-10"></div>}
-				<div className="flex-grow overflow-auto"
+				<div className="flex-grow overflow-auto flex"
 					onScroll={(e) => {
 						const atTop = e.currentTarget.scrollTop === 0;
 						if (atTop !== scrolledToTop) setScrolledToTop(atTop)

@@ -63,7 +63,7 @@ const SentMessages = ({ messages }: { messages: MessageForView[] }) => {
 	}
 
 	return (
-		<div className="px-2">
+		<div className="px-2 mt-auto w-full">
 			{messages.map((message, index) => {
 				return (
 					<div key={index}
