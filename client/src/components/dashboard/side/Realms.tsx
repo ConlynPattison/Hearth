@@ -91,9 +91,9 @@ const Realms = ({ selectedDMs }: RealmsProps) => {
 			</svg>
 			<PersonalChatOpener selected={selectedDMs} />
 			{!isLoading && realms.map((realm) => (
-				<Link href={`/dashboard/${realm.realmId}`}>
+				<Link href={`/dashboard/${realm.realmId}`}
+					key={realm.realmId}>
 					<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-100" : "hover:brightness-90 dark:bg-slate-900 bg-slate-200"}`}
-						key={realm.realmId}
 						title={realm.realmName}>
 						<div className="self-center">
 							<FaFireFlameCurved

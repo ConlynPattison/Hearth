@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FaUsers } from "react-icons/fa6";
 
 interface PersonalChatOpenerProps {
