@@ -1,8 +1,61 @@
+import { UserDetailedDirectRoom, UserDetailedDirectRoomResponse } from "@/app/api/rooms/route";
+import RoomContext from "@/context/RoomContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import { RoomScope, RoomType } from "@prisma/client";
+import axios from "axios";
 import Image from "next/image";
-import { ReactNode, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { ReactNode, useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
 import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
+import useSWR from "swr";
+
+const defaultRoom: UserDetailedDirectRoom = {
+	roomDescription: "",
+	roomId: 90,
+	roomScope: RoomScope.DIRECT_MESSAGE,
+	roomName: null,
+	roomIconUrl: null,
+	roomType: RoomType.TEXT,
+	realmId: null,
+	domainId: null,
+	isAgeRestricted: false,
+	isPrivate: false,
+	requestingUserInRoom: {
+		isFavorited: false,
+		hasLeft: false
+	},
+	UsersInRooms: [{
+		userInRoomId: 11,
+		user: {
+			avatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocIpicKG-k7jqA9YpyX-k00vlQPjxs78zo-5_bLwZXlIKfwQi8M=s96-c",
+			displayName: "Gabi",
+		},
+		hasLeft: false,
+		isFavorited: false,
+		auth0Id: "testId"
+	},
+	{
+		userInRoomId: 10,
+		user: {
+			avatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocLjApw0lcnvv6pWMTOtt8sHi0j8GYeKXQcYeLXO8gxkV9z7eSl9=s96-c",
+			displayName: "Conlyn",
+		},
+		hasLeft: false,
+		isFavorited: false,
+		auth0Id: "google-oauth2|106606994258667919669"
+	},
+	{
+		userInRoomId: 9,
+		user: {
+			avatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocK77Mli5Ay_LuFle__bK4LQ4jWohw5NcZ0RBDxAn9WxFUGS3g=s96-c",
+			displayName: "Conner",
+		},
+		hasLeft: false,
+		isFavorited: false,
+		auth0Id: "google-oauth2|105827500117644136266"
+	},],
+}
 
 const CollapsableHeading = ({ heading, children }: { heading: string, children?: ReactNode }) => {
 	const [showing, setShowing] = useState(true);
@@ -25,8 +78,69 @@ const CollapsableHeading = ({ heading, children }: { heading: string, children?:
 	);
 }
 
-const TemplateConversation = ({ selected }: { selected: boolean }) => {
-	const messagingUsername = "Username";
+interface GroupChatImageProps {
+	roomIconUrl: string | null;
+	usersInRoom: ({
+		auth0Id: string;
+		hasLeft: boolean;
+		userInRoomId: number;
+		isFavorited: boolean;
+	} & {
+		user: {
+			avatarUrl: string;
+			displayName: string;
+		};
+	})[];
+};
+
+const GroupChatImage = ({ roomIconUrl, usersInRoom }: GroupChatImageProps) => {
+	const { user } = useUser();
+
+	const useRoomIconUrl = roomIconUrl !== null && roomIconUrl.length > 0;
+	const hasEnoughUsers = usersInRoom.length > 2;
+
+	if (useRoomIconUrl || !hasEnoughUsers)
+		return (
+			<Image
+				className="rounded-full max-h-[40px] my-auto"
+				alt="Picture"
+				src={roomIconUrl || "/favicon\.ico"}
+				width={40}
+				height={40} />
+		);
+
+	const exclusiveUsers = usersInRoom.filter((userInRoom) => userInRoom.auth0Id !== user?.sub);
+
+	return (
+		<>
+			{<>
+				<Image
+					className="rounded-full max-h-[30px] absolute translate-x-[12px] translate-y-[10px] z-10"
+					alt="Picture"
+					src={exclusiveUsers[0].user.avatarUrl}
+					width={30}
+					height={30} />
+				<Image
+					className="rounded-full max-h-[30px] absolute"
+					alt="Picture"
+					src={exclusiveUsers[1].user.avatarUrl}
+					width={30}
+					height={30} />
+			</>}
+		</>
+
+	);
+}
+
+const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selected: boolean }) => {
+	const { user } = useUser();
+	const router = useRouter();
+
+	const userBeingMessaged = room.UsersInRooms.find((userInRoom) => userInRoom.auth0Id !== user?.sub)
+	const messagingUsername = userBeingMessaged?.user.displayName ?? "Unknown User";
+
+	const lastSentMessageUser = room.lastSentMessage ? room.lastSentMessage.displayName + ": " : "";
+	const messagePreview = room.lastSentMessage ? room.lastSentMessage.content : "Nothing to show yet. Start the conversation!";
 
 	const bg = selected ?
 		"bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200"
@@ -34,11 +148,14 @@ const TemplateConversation = ({ selected }: { selected: boolean }) => {
 
 	return (
 		<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md p-1 flex h-[65px] my-1`}
-			title={messagingUsername}>
+			title={messagingUsername}
+			onClick={() => {
+				router.push(`/dashboard/me/${room.roomId}`);
+			}}>
 			<Image
 				className="rounded-full max-h-[40px] my-auto"
 				alt="Picture"
-				src={"/favicon\.ico"}
+				src={userBeingMessaged?.user.avatarUrl || "/favicon\.ico"}
 				width={40}
 				height={40} />
 			<div className="flex flex-col mx-1 overflow-hidden">
@@ -46,17 +163,25 @@ const TemplateConversation = ({ selected }: { selected: boolean }) => {
 					{messagingUsername}
 				</div>
 				<div className={`text-xs overflow-hidden text-ellipsis line-clamp-2 text-slate-500 ${selected ? "dark:text-slate-300" : "dark:text-slate-400"}`}>
-					<span className="font-bold">Me: </span>This is text that will be cut. short when it overflows here is an example ho
+					<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
 				</div>
 			</div>
 		</div>
 	);
 }
 
-const TemplateGroupChat = ({ selected }: { selected: boolean }) => {
-	const user = useUser();
-	const url = user.user?.picture ?? "";
-	const chatName = "TheBigCarl, Bad-Dragon Azmoda";
+const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected: boolean }) => {
+	const { user } = useUser();
+	const router = useRouter();
+
+	const chatName = room.roomName ? room.roomName :
+		room.UsersInRooms
+			.filter((userInRoom) => userInRoom.auth0Id !== user?.sub)
+			.map((userInRoom) => userInRoom.user.displayName)
+			.join(", ");
+
+	const lastSentMessageUser = room.lastSentMessage ? room.lastSentMessage.displayName + ": " : "";
+	const messagePreview = room.lastSentMessage ? room.lastSentMessage.content : "Nothing to show yet. Start the conversation!";
 
 	const bg = selected ?
 		"bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200"
@@ -64,27 +189,19 @@ const TemplateGroupChat = ({ selected }: { selected: boolean }) => {
 
 	return (
 		<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer  rounded-md p-1 flex h-[65px] my-1`}
-			title={chatName}>
+			title={chatName}
+			onClick={() => {
+				router.push(`/dashboard/me/${room.roomId}`);
+			}}>
 			<div className="w-[40px] flex-shrink-0 relative mt-2">
-				<Image
-					className="rounded-full max-h-[30px] absolute translate-x-[12px] translate-y-[10px] z-10"
-					alt="Picture"
-					src={"/favicon\.ico"}
-					width={30}
-					height={30} />
-				<Image
-					className="rounded-full max-h-[30px] absolute"
-					alt="Picture"
-					src={url ?? ""}
-					width={30}
-					height={30} />
+				<GroupChatImage roomIconUrl={room.roomIconUrl} usersInRoom={room.UsersInRooms} />
 			</div>
 			<div className="flex flex-col mx-1 overflow-hidden">
 				<div className="font-bold overflow-x-hidden whitespace-nowrap text-ellipsis">
 					{chatName}
 				</div>
 				<div className={`text-xs overflow-hidden text-ellipsis line-clamp-2 text-slate-500 ${selected ? "dark:text-slate-300" : "dark:text-slate-400"}`}>
-					<span className="font-bold">Me: </span>This is text that will be cut. short when it overflows here is an example ho
+					<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
 				</div>
 			</div>
 		</div>
@@ -92,13 +209,37 @@ const TemplateGroupChat = ({ selected }: { selected: boolean }) => {
 }
 
 const PersonalContainer = () => {
-	// todo: fetch all of the rooms that are direct messages or group chats for this user using UsersOnRooms
-	// 		 where the user's hasLeft === false
+	const [activeRoom, setActiveRoom] = useContext(RoomContext);
+	const { roomId } = useParams();
+	const router = useRouter();
 
-	// todo: map the rooms based on the roomType (.DIRECT_MESSAGE | .GROUP_CHAT) and whether the user has
-	// 		 favorited the room 
- 
-	// todo: using the url "domain/dashboard/me/[roomId]" map to the room with the respective room if the chat w/the id exists
+	const parsedRoomId = (typeof roomId === "string") ? parseInt(roomId as string, 10) : null;
+
+	const url = `/api/rooms`;
+	const fetcher = (url: string) => axios.get(url).then(res => res.data);
+	const { data, error, isLoading } = useSWR<UserDetailedDirectRoomResponse | undefined>(url, fetcher, {
+		revalidateOnFocus: false,
+		dedupingInterval: 60000,
+	});
+
+	useEffect(() => {
+		if (data === undefined || isLoading || !data.success) return;
+		if (parsedRoomId === null || activeRoom !== null || setActiveRoom === undefined) return;
+
+		const requestedRoom = data.rooms.find((room) => room.roomId === parsedRoomId);
+		if (requestedRoom === undefined) {
+			router.push("/dashboard/me");
+		}
+		else {
+			setActiveRoom(requestedRoom);
+		}
+
+	}, [activeRoom, data, isLoading, setActiveRoom, parsedRoomId, router]);
+
+	if (error) return (<>Error: {error}</>);
+	if (isLoading || !data) return (<>Loading directMessages..</>); // TODO: change to skeleton state
+
+	if (data?.success === false) return (<>{data.message}</>);
 
 	return (
 		<div className="flex flex-col h-[100%] sm:w-[240px] px-2 select-none">
@@ -107,20 +248,37 @@ const PersonalContainer = () => {
 				<div className="px-4"><FaUserFriends className="self-center" size="1.5em" /> </div>Friends
 			</div>
 			<CollapsableHeading heading="Starred Conversations">
-				<TemplateGroupChat selected={false} />
-				<TemplateConversation selected={false} />
-				<TemplateGroupChat selected={true} />
+				{data?.rooms
+					.filter((room) => room.requestingUserInRoom?.isFavorited)
+					.map((room) =>
+						room.roomScope === RoomScope.DIRECT_MESSAGE ?
+							<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} /> :
+							<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
+					)}
+				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
 			</CollapsableHeading>
 			<CollapsableHeading heading="Direct Messages">
-				<TemplateConversation selected={false} />
-				<TemplateConversation selected={false} />
-				<TemplateConversation selected={false} />
-				<TemplateConversation selected={false} />
+				{data?.rooms
+					.filter((room) => room.requestingUserInRoom?.isFavorited === false && room.roomScope === RoomScope.DIRECT_MESSAGE)
+					.map((room) =>
+						<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
+					)}
+				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
 			</CollapsableHeading>
 			<CollapsableHeading heading="Group Chats">
-				<TemplateGroupChat selected={false} />
-				<TemplateGroupChat selected={false} />
-				<TemplateGroupChat selected={false} />
+				{data?.rooms
+					.filter((room) => room.requestingUserInRoom?.isFavorited === false && room.roomScope === RoomScope.GROUP_CHAT)
+					.map((room) =>
+						<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
+					)}
+				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
 			</CollapsableHeading>
 		</div>
 	);

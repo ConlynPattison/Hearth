@@ -3,7 +3,7 @@ import PersonalChatOpener from "@/components/features/dm/PersonalChatOpener";
 import RealmContext from "@/context/RealmContext";
 import { UsersOnRealms, Realm } from "@prisma/client";
 import axios from "axios";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useContext } from "react";
 import { FaFireFlameCurved } from "react-icons/fa6";
 import useSWR from "swr";
@@ -15,6 +15,9 @@ interface RealmsProps {
 const Realms = ({ selectedDMs }: RealmsProps) => {
 	const router = useRouter();
 	const { realmId } = useParams();
+	const pathname = usePathname();
+
+	const isPersonalPage = /^\/dashboard\/me/.test(pathname);
 
 	const fetcher = (url: string) => axios.get(url).then(res => res.data);
 	const { data, error, isLoading } = useSWR('/api/realms', fetcher, {
@@ -33,28 +36,36 @@ const Realms = ({ selectedDMs }: RealmsProps) => {
 	const [activeRealm, setActiveRealm] = useContext(RealmContext);
 
 	useEffect(() => {
+		// If not meant to hold realm, loading, or data.realms and realms have not been synched yet
+		if (isPersonalPage || isLoading || (data.realms.length > 0 && realms.length === 0)) return;
+
 		// If realm has not been initialized yet
 		if (activeRealm === null || !realms.some((realm) => realm.realmId === activeRealm.realmId)) {
+
 			// If there are realms to set to
 			if (setActiveRealm !== undefined && realms.length > 0) {
+
 				// If there is a param for the intended open realm
 				if (realmId && !Array.isArray(realmId) && realmId.length > 0) {
-					console.log(realmId)
+
 					const realmWithUserData = realms.find((realm) => realm.realmId === parseInt(realmId, 10));
+
 					// if the intended realm DOES exist:
 					if (realmWithUserData !== undefined) setActiveRealm(realmWithUserData);
 					else {
 						router.push(`/dashboard/${realms[0].realmId}`);
 					}
+
 				} else if (!selectedDMs) {
 					setActiveRealm(realms[0]);
 				}
+
 			} else if (setActiveRealm !== undefined) {
 				setActiveRealm(null);
 				router.push("/dashboard/me");
 			}
 		}
-	}, [activeRealm, realms, setActiveRealm, realmId, router, selectedDMs]);
+	}, [activeRealm, realms, setActiveRealm, realmId, router, selectedDMs, isLoading, data, isPersonalPage]);
 
 	useEffect(() => {
 		if (!isLoading && data) {
@@ -64,7 +75,7 @@ const Realms = ({ selectedDMs }: RealmsProps) => {
 		if (error) {
 			console.error(error);
 		}
-	}, [data, error, isLoading, activeRealm]);
+	}, [data, error, isLoading]);
 
 	if (isLoading) return <>Loading...</>
 	if (error) return <>Error: {error.message}</>

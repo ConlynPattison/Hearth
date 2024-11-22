@@ -15,7 +15,8 @@ const messagesClient = new MongoClient(uri, {
 		strict: true,
 		deprecationErrors: true,
 	},
-	tls: true
+	tls: true,
+	maxIdleTimeMS: 60000
 });
 
 const connectMongo = async () => {
@@ -41,8 +42,6 @@ const saveMessageToDB = async (message: Message) => {
 	}).catch((reason) => {
 		console.error(reason);
 	});
-
-	await messagesClient.close();
 }
 
 export { connectMongo, saveMessageToDB };
