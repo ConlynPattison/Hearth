@@ -1,10 +1,11 @@
-import { checkUserAuthentication } from "@/util/auth";
+import { checkUserAuthentication, checkUserRoomAuthorization } from "@/util/auth";
 import getMongoClient from "@/util/mongodb";
 import prisma from "@/util/postgres";
 import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { Message, MessageType } from "@chat-app/types";
 import { Prisma, Room, RoomScope } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 type UserInRoomSelect = Prisma.UsersInRoomsGetPayload<{
 	select: {
@@ -167,4 +168,50 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 	}
 });
 
-export { GET };
+const patchBodySchema = z.object({
+	roomId: z.number().finite().positive(),
+	isFavorited: z.boolean()
+});
+
+const PATCH = withApiAuthRequired(async (req: NextRequest) => {
+	try {
+		const authResult = await checkUserAuthentication(req);
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
+		}
+		const userAuth0Id = authResult.userAuth0Id;
+
+		const { body } = await req.json();
+
+		console.log(body)
+
+		const parsedBodyParams = patchBodySchema.safeParse(body);
+		if (!parsedBodyParams.success) {
+			return NextResponse.json({ success: false, message: `Invalid arguments for updating room`, error: parsedBodyParams.error.issues }, { status: 400 });
+		}
+
+		const { roomId, isFavorited } = parsedBodyParams.data;
+
+		const authorizationResult = await checkUserRoomAuthorization(userAuth0Id, roomId);
+		if (!authorizationResult.authorized) {
+			return NextResponse.json({ success: false, message: authorizationResult.message }, { status: authorizationResult.status });
+		}
+
+		const patchedUserInRoom = await prisma.usersInRooms.update({
+			where: {
+				userInRoomId: authorizationResult.userInRoom.userInRoomId
+			},
+			data: {
+				isFavorited
+			}
+		})
+
+		return NextResponse.json(({ success: true, message: `Successfully patched userInRoom with id ${patchedUserInRoom.userInRoomId}` }), { status: 200 });
+	}
+	catch (err) {
+		console.error(err);
+		return NextResponse.json({ success: false, message: `Server error: ${err}` }, { status: 500 })
+	}
+})
+
+export { GET, PATCH };

@@ -8,8 +8,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
-import { FaAngleDown, FaAngleRight } from "react-icons/fa6";
-import useSWR from "swr";
+import { FaAngleDown, FaAngleRight, FaRegStar, FaStar } from "react-icons/fa6";
+import useSWR, { mutate } from "swr";
 
 const defaultRoom: UserDetailedDirectRoom = {
 	roomDescription: "",
@@ -130,6 +130,61 @@ const GroupChatImage = ({ roomIconUrl, usersInRoom }: GroupChatImageProps) => {
 	);
 }
 
+interface StarProps {
+	room: UserDetailedDirectRoom
+}
+
+const Star = ({ room }: StarProps) => {
+
+	const handleStarClicked = async () => {
+		if (!room.requestingUserInRoom) return;
+
+		const nowFavorited = !room.requestingUserInRoom.isFavorited;
+
+		mutate("/api/rooms",
+			((currData: UserDetailedDirectRoomResponse | undefined) => {
+				if (!currData?.success || !currData?.rooms) return currData;
+				const updatedRooms = currData.rooms.map((currRoom) => {
+					if (currRoom.roomId !== room.roomId) return currRoom;
+					return {
+						...currRoom,
+						requestingUserInRoom: {
+							isFavorited: nowFavorited,
+							hasLeft: currRoom.requestingUserInRoom?.hasLeft ?? false
+						}
+					}
+				})
+				return {
+					...currData,
+					rooms: updatedRooms
+				};
+			}), false);
+
+		// make axios call to update the favorited status
+		axios.patch("/api/rooms", {
+			body: {
+				roomId: room.roomId,
+				isFavorited: nowFavorited
+			}
+		}).then((res) => {
+			if (res.status !== 200)
+				throw new Error("Failed to update favorited property");
+		}).catch(err => {
+			mutate("/api/rooms");
+			console.error(err)
+		});
+	}
+
+	return (
+		<div className="z-20 absolute translate-y-1 translate-x-1 hidden group-hover:inline-block"
+			onClick={handleStarClicked}>
+			{room.requestingUserInRoom?.isFavorited ?
+				<FaStar className="text-yellow-600" title="Unstar" /> :
+				<FaRegStar className="text-slate-400" title="Star" />}
+		</div>
+	);
+}
+
 const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selected: boolean }) => {
 	const { user } = useUser();
 
@@ -144,9 +199,10 @@ const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selec
 		: "hover:bg-slate-200 dark:hover:bg-slate-700 hover:bg-slate-200";
 
 	return (
-		<Link href={`/dashboard/me/${room.roomId}`}>
-			<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md p-1 flex h-[65px] my-1`}
-				title={messagingUsername}>
+		<div className={`relative group ${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md`}
+			title={messagingUsername}>
+			<Star room={room} />
+			<Link className="z-10 p-1 flex h-[65px] my-1" href={`/dashboard/me/${room.roomId}`}>
 				<Image
 					className="rounded-full max-h-[40px] my-auto"
 					alt="Picture"
@@ -161,8 +217,8 @@ const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selec
 						<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
 					</div>
 				</div>
-			</div>
-		</Link>
+			</Link>
+		</div>
 	);
 }
 
@@ -183,9 +239,10 @@ const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected:
 		: "hover:bg-slate-200 dark:hover:bg-slate-700 hover:bg-slate-200";
 
 	return (
-		<Link href={`/dashboard/me/${room.roomId}`}>
-			<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer  rounded-md p-1 flex h-[65px] my-1`}
-				title={chatName}>
+		<div className={`relative group ${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md`}
+			title={chatName}>
+			<Star room={room} />
+			<Link className="p-1 flex h-[65px] my-1" href={`/dashboard/me/${room.roomId}`}>
 				<div className="w-[40px] flex-shrink-0 relative mt-2">
 					<GroupChatImage roomIconUrl={room.roomIconUrl} usersInRoom={room.UsersInRooms} />
 				</div>
@@ -197,8 +254,8 @@ const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected:
 						<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
 					</div>
 				</div>
-			</div>
-		</Link>
+			</Link >
+		</div>
 	);
 }
 
