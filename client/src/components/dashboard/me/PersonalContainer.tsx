@@ -4,6 +4,7 @@ import { useUser } from "@auth0/nextjs-auth0/client";
 import { RoomScope, RoomType } from "@prisma/client";
 import axios from "axios";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
@@ -113,28 +114,24 @@ const GroupChatImage = ({ roomIconUrl, usersInRoom }: GroupChatImageProps) => {
 
 	return (
 		<>
-			{<>
-				<Image
-					className="rounded-full max-h-[30px] absolute translate-x-[12px] translate-y-[10px] z-10"
-					alt="Picture"
-					src={exclusiveUsers[0].user.avatarUrl}
-					width={30}
-					height={30} />
-				<Image
-					className="rounded-full max-h-[30px] absolute"
-					alt="Picture"
-					src={exclusiveUsers[1].user.avatarUrl}
-					width={30}
-					height={30} />
-			</>}
+			<Image
+				className="rounded-full max-h-[30px] absolute translate-x-[12px] translate-y-[10px] z-10"
+				alt="Picture"
+				src={exclusiveUsers[0].user.avatarUrl}
+				width={30}
+				height={30} />
+			<Image
+				className="rounded-full max-h-[30px] absolute"
+				alt="Picture"
+				src={exclusiveUsers[1].user.avatarUrl}
+				width={30}
+				height={30} />
 		</>
-
 	);
 }
 
 const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selected: boolean }) => {
 	const { user } = useUser();
-	const router = useRouter();
 
 	const userBeingMessaged = room.UsersInRooms.find((userInRoom) => userInRoom.auth0Id !== user?.sub)
 	const messagingUsername = userBeingMessaged?.user.displayName ?? "Unknown User";
@@ -147,32 +144,30 @@ const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selec
 		: "hover:bg-slate-200 dark:hover:bg-slate-700 hover:bg-slate-200";
 
 	return (
-		<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md p-1 flex h-[65px] my-1`}
-			title={messagingUsername}
-			onClick={() => {
-				router.push(`/dashboard/me/${room.roomId}`);
-			}}>
-			<Image
-				className="rounded-full max-h-[40px] my-auto"
-				alt="Picture"
-				src={userBeingMessaged?.user.avatarUrl || "/favicon\.ico"}
-				width={40}
-				height={40} />
-			<div className="flex flex-col mx-1 overflow-hidden">
-				<div className="font-bold overflow-x-hidden whitespace-nowrap text-ellipsis">
-					{messagingUsername}
-				</div>
-				<div className={`text-xs overflow-hidden text-ellipsis line-clamp-2 text-slate-500 ${selected ? "dark:text-slate-300" : "dark:text-slate-400"}`}>
-					<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
+		<Link href={`/dashboard/me/${room.roomId}`}>
+			<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md p-1 flex h-[65px] my-1`}
+				title={messagingUsername}>
+				<Image
+					className="rounded-full max-h-[40px] my-auto"
+					alt="Picture"
+					src={userBeingMessaged?.user.avatarUrl || "/favicon\.ico"}
+					width={40}
+					height={40} />
+				<div className="flex flex-col mx-1 overflow-hidden">
+					<div className="font-bold overflow-x-hidden whitespace-nowrap text-ellipsis">
+						{messagingUsername}
+					</div>
+					<div className={`text-xs overflow-hidden text-ellipsis line-clamp-2 text-slate-500 ${selected ? "dark:text-slate-300" : "dark:text-slate-400"}`}>
+						<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
+					</div>
 				</div>
 			</div>
-		</div>
+		</Link>
 	);
 }
 
 const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected: boolean }) => {
 	const { user } = useUser();
-	const router = useRouter();
 
 	const chatName = room.roomName ? room.roomName :
 		room.UsersInRooms
@@ -188,23 +183,22 @@ const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected:
 		: "hover:bg-slate-200 dark:hover:bg-slate-700 hover:bg-slate-200";
 
 	return (
-		<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer  rounded-md p-1 flex h-[65px] my-1`}
-			title={chatName}
-			onClick={() => {
-				router.push(`/dashboard/me/${room.roomId}`);
-			}}>
-			<div className="w-[40px] flex-shrink-0 relative mt-2">
-				<GroupChatImage roomIconUrl={room.roomIconUrl} usersInRoom={room.UsersInRooms} />
-			</div>
-			<div className="flex flex-col mx-1 overflow-hidden">
-				<div className="font-bold overflow-x-hidden whitespace-nowrap text-ellipsis">
-					{chatName}
+		<Link href={`/dashboard/me/${room.roomId}`}>
+			<div className={`${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer  rounded-md p-1 flex h-[65px] my-1`}
+				title={chatName}>
+				<div className="w-[40px] flex-shrink-0 relative mt-2">
+					<GroupChatImage roomIconUrl={room.roomIconUrl} usersInRoom={room.UsersInRooms} />
 				</div>
-				<div className={`text-xs overflow-hidden text-ellipsis line-clamp-2 text-slate-500 ${selected ? "dark:text-slate-300" : "dark:text-slate-400"}`}>
-					<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
+				<div className="flex flex-col mx-1 overflow-hidden">
+					<div className="font-bold overflow-x-hidden whitespace-nowrap text-ellipsis">
+						{chatName}
+					</div>
+					<div className={`text-xs overflow-hidden text-ellipsis line-clamp-2 text-slate-500 ${selected ? "dark:text-slate-300" : "dark:text-slate-400"}`}>
+						<span className="font-bold">{lastSentMessageUser}</span> {messagePreview}
+					</div>
 				</div>
 			</div>
-		</div>
+		</Link>
 	);
 }
 
@@ -242,7 +236,7 @@ const PersonalContainer = () => {
 	if (data?.success === false) return (<>{data.message}</>);
 
 	return (
-		<div className="flex flex-col h-[100%] sm:w-[240px] px-2 select-none">
+		<div className="flex flex-col h-[100%] sm:w-[240px] px-2 select-none pb-4">
 			<div className="flex hover:dark:bg-slate-700 hover:bg-slate-300 dark:bg-slate-800 bg-slate-200 py-2 rounded-md mt-3 hover:cursor-pointer"
 				title="Open Friends Panel">
 				<div className="px-4"><FaUserFriends className="self-center" size="1.5em" /> </div>Friends
@@ -256,8 +250,8 @@ const PersonalContainer = () => {
 							<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
 					)}
 				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+				{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 			</CollapsableHeading>
 			<CollapsableHeading heading="Direct Messages">
 				{data?.rooms
@@ -265,10 +259,10 @@ const PersonalContainer = () => {
 					.map((room) =>
 						<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
 					)}
+				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 			</CollapsableHeading>
 			<CollapsableHeading heading="Group Chats">
 				{data?.rooms
@@ -276,9 +270,9 @@ const PersonalContainer = () => {
 					.map((room) =>
 						<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
 					)}
+				{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+				{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 			</CollapsableHeading>
 		</div>
 	);

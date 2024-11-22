@@ -3,6 +3,7 @@ import PersonalChatOpener from "@/components/features/dm/PersonalChatOpener";
 import RealmContext from "@/context/RealmContext";
 import { UsersOnRealms, Realm } from "@prisma/client";
 import axios from "axios";
+import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useContext } from "react";
 import { FaFireFlameCurved } from "react-icons/fa6";
@@ -90,21 +91,22 @@ const Realms = ({ selectedDMs }: RealmsProps) => {
 			</svg>
 			<PersonalChatOpener selected={selectedDMs} />
 			{!isLoading && realms.map((realm) => (
-				<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-100" : "hover:brightness-90 dark:bg-slate-900 bg-slate-200"}`}
-					key={realm.realmId}
-					title={realm.realmName}
-					onClick={() => { router.replace(`/dashboard/${realm.realmId}`) }}>
-					<div className="self-center">
-						<FaFireFlameCurved
-							className="dark:text-slate-500 text-slate-700"
-							size="3em"
-							style={{ fill: `${activeRealm?.realmId === realm.realmId && "url(#icon-gradient)"}` }}
-						/>
+				<Link href={`/dashboard/${realm.realmId}`}>
+					<div className={`flex flex-col py-3 hover:cursor-pointer ${activeRealm?.realmId === realm.realmId ? "dark:bg-slate-800 bg-slate-100" : "hover:brightness-90 dark:bg-slate-900 bg-slate-200"}`}
+						key={realm.realmId}
+						title={realm.realmName}>
+						<div className="self-center">
+							<FaFireFlameCurved
+								className="dark:text-slate-500 text-slate-700"
+								size="3em"
+								style={{ fill: `${activeRealm?.realmId === realm.realmId && "url(#icon-gradient)"}` }}
+							/>
+						</div>
+						<span className="text-center self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap">
+							{realm.realmName}
+						</span>
 					</div>
-					<span className="text-center self-center text-sm max-w-[85%] overflow-hidden text-ellipsis whitespace-nowrap">
-						{realm.realmName}
-					</span>
-				</div>
+				</Link>
 			))}
 		</>
 	);
