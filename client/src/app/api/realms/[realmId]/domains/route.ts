@@ -230,6 +230,10 @@ const PATCH = withApiAuthRequired(async (req: NextRequest, { params }) => {
 			return NextResponse.json({ success: false, message: `Invalid arguments for update realm with error: ${parsedQueryParams.error}` }, { status: 400 });
 		}
 
+		if (domainId === parentDomainId) {
+			return NextResponse.json({ success: false, message: `Domain's parentdomainId cannot be set to the it's own domainId, found on domainId ${domainId}` }, { status: 403 });
+		}
+
 		const { realmId } = parsedQueryParams.data;
 
 		const authorizationResult = await checkUserRealmAuthorization(userAuth0Id, realmId, ADMIN_LEVELS);

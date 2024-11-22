@@ -7,7 +7,22 @@ const uri = `mongodb+srv://${dbUsername}:${dbPassword}@${dbPath}`;
 
 let mongoClient: MongoClient | null = null;
 
+
 const getMongoClient = async () => {
+	if (process.env.NODE_ENV === "development") {
+		if (!global._mongoClient) {
+			global._mongoClient = new MongoClient(uri, {
+				serverApi: {
+					version: ServerApiVersion.v1,
+					strict: true,
+					deprecationErrors: true,
+				},
+				tls: true,
+			});
+			await global._mongoClient.connect();
+		}
+		return global._mongoClient;
+	}
 	if (!mongoClient) {
 		mongoClient = new MongoClient(uri, {
 			serverApi: {
