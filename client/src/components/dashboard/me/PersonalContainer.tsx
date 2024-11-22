@@ -135,8 +135,7 @@ interface StarProps {
 }
 
 const Star = ({ room }: StarProps) => {
-
-	const handleStarClicked = async () => {
+	const handleStarClicked = () => {
 		if (!room.requestingUserInRoom) return;
 
 		const nowFavorited = !room.requestingUserInRoom.isFavorited;
@@ -171,7 +170,7 @@ const Star = ({ room }: StarProps) => {
 				throw new Error("Failed to update favorited property");
 		}).catch(err => {
 			mutate("/api/rooms");
-			console.error(err)
+			console.error(err);
 		});
 	}
 
@@ -179,8 +178,8 @@ const Star = ({ room }: StarProps) => {
 		<div className="z-20 absolute translate-y-1 translate-x-1 hidden group-hover:inline-block"
 			onClick={handleStarClicked}>
 			{room.requestingUserInRoom?.isFavorited ?
-				<FaStar className="text-yellow-600" title="Unstar" /> :
-				<FaRegStar className="text-slate-400" title="Star" />}
+				<FaStar className="dark:text-amber-400 text-amber-500" title="Unstar" /> :
+				<FaRegStar className="dark:text-slate-300 text-slate-800" title="Star" />}
 		</div>
 	);
 }
@@ -298,39 +297,41 @@ const PersonalContainer = () => {
 				title="Open Friends Panel">
 				<div className="px-4"><FaUserFriends className="self-center" size="1.5em" /> </div>Friends
 			</div>
-			<CollapsableHeading heading="Starred Conversations">
-				{data?.rooms
-					.filter((room) => room.requestingUserInRoom?.isFavorited)
-					.map((room) =>
-						room.roomScope === RoomScope.DIRECT_MESSAGE ?
-							<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} /> :
+			<div className="overflow-y-auto">
+				<CollapsableHeading heading="Starred Conversations">
+					{data?.rooms
+						.filter((room) => room.requestingUserInRoom?.isFavorited)
+						.map((room) =>
+							room.roomScope === RoomScope.DIRECT_MESSAGE ?
+								<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} /> :
+								<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
+						)}
+					<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+					{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+				</CollapsableHeading>
+				<CollapsableHeading heading="Direct Messages">
+					{data?.rooms
+						.filter((room) => room.requestingUserInRoom?.isFavorited === false && room.roomScope === RoomScope.DIRECT_MESSAGE)
+						.map((room) =>
+							<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
+						)}
+					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+					<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+				</CollapsableHeading>
+				<CollapsableHeading heading="Group Chats">
+					{data?.rooms
+						.filter((room) => room.requestingUserInRoom?.isFavorited === false && room.roomScope === RoomScope.GROUP_CHAT)
+						.map((room) =>
 							<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
-					)}
-				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-				{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-			</CollapsableHeading>
-			<CollapsableHeading heading="Direct Messages">
-				{data?.rooms
-					.filter((room) => room.requestingUserInRoom?.isFavorited === false && room.roomScope === RoomScope.DIRECT_MESSAGE)
-					.map((room) =>
-						<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
-					)}
-				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-				<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-				{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-			</CollapsableHeading>
-			<CollapsableHeading heading="Group Chats">
-				{data?.rooms
-					.filter((room) => room.requestingUserInRoom?.isFavorited === false && room.roomScope === RoomScope.GROUP_CHAT)
-					.map((room) =>
-						<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
-					)}
-				{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-				<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-				{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-			</CollapsableHeading>
+						)}
+					{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+					<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
+					{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
+				</CollapsableHeading>
+			</div>
 		</div>
 	);
 }
