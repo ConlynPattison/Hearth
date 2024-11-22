@@ -13,7 +13,7 @@ interface PatchRealmFormProps {
 }
 
 export interface DomainsOptionsProps {
-	beingPatchedDomainId: number;
+	beingPatchedDomainId?: number;
 	domains: OptionallyParentalDomain[];
 	depth: number;
 	maxDepth: number;
