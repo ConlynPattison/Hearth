@@ -183,8 +183,6 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 
 		const { body } = await req.json();
 
-		console.log(body)
-
 		const parsedBodyParams = patchBodySchema.safeParse(body);
 		if (!parsedBodyParams.success) {
 			return NextResponse.json({ success: false, message: `Invalid arguments for updating room`, error: parsedBodyParams.error.issues }, { status: 400 });

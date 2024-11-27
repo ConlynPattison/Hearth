@@ -1,4 +1,5 @@
 import { UserDetailedDirectRoom, UserDetailedDirectRoomResponse } from "@/app/api/rooms/route";
+import { Dropdown, DropdownListCategory, DropdownListItem } from "@/components/ui/Dropdown";
 import RoomContext from "@/context/RoomContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { RoomScope, RoomType } from "@prisma/client";
@@ -8,7 +9,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
-import { FaAngleDown, FaAngleRight, FaRegStar, FaStar } from "react-icons/fa6";
+import { FaAngleDown, FaAngleRight, FaMessage, FaRegStar, FaStar } from "react-icons/fa6";
 import useSWR, { mutate } from "swr";
 
 const defaultRoom: UserDetailedDirectRoom = {
@@ -184,6 +185,24 @@ const Star = ({ room }: StarProps) => {
 	);
 }
 
+const ChatMenu = () => {
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+	return (
+		<div className={`${isDropdownOpen ? "inline" : "hidden group-hover:inline"} ml-auto flex-shrink-0`}>
+			<Dropdown
+				useBars
+				onOpen={() => setIsDropdownOpen(true)}
+				onClose={() => setIsDropdownOpen(false)}
+			>
+				<DropdownListCategory>
+					<DropdownListItem icon={<FaMessage />}>Direct Message</DropdownListItem>
+				</DropdownListCategory>
+			</Dropdown>
+		</div>
+	)
+}
+
 const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selected: boolean }) => {
 	const { user } = useUser();
 
@@ -198,12 +217,16 @@ const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selec
 		: "hover:bg-slate-200 dark:hover:bg-slate-700 hover:bg-slate-200";
 
 	return (
-		<div className={`relative group ${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md`}
+		<div className={`group ${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md flex`}
 			title={messagingUsername}>
-			<Star room={room} />
-			<Link className="z-10 p-1 flex h-[65px] my-1" href={`/dashboard/me/${room.roomId}`}>
+			<div className="relative flex-shrink-0">
+				<Star room={room} />
+			</div>
+			<Link className="z-10 p-1 flex h-[65px] my-1 flex-shrink flex-grow min-w-0 w-full"
+				href={`/dashboard/me/${room.roomId}`}
+			>
 				<Image
-					className="rounded-full max-h-[40px] my-auto"
+					className="rounded-full max-h-[40px] min-w-[40px] my-auto"
 					alt="Picture"
 					src={userBeingMessaged?.user.avatarUrl || "/favicon\.ico"}
 					width={40}
@@ -217,6 +240,7 @@ const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selec
 					</div>
 				</div>
 			</Link>
+			<ChatMenu />
 		</div>
 	);
 }
@@ -238,14 +262,18 @@ const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected:
 		: "hover:bg-slate-200 dark:hover:bg-slate-700 hover:bg-slate-200";
 
 	return (
-		<div className={`relative group ${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md`}
+		<div className={`group ${bg} hover:dark:bg-slate-700 hover:bg-slate-200 hover:cursor-pointer rounded-md flex`}
 			title={chatName}>
-			<Star room={room} />
-			<Link className="p-1 flex h-[65px] my-1" href={`/dashboard/me/${room.roomId}`}>
+			<div className="relative flex-shrink-0">
+				<Star room={room} />
+			</div>
+			<Link className="z-10 p-1 flex h-[65px] my-1 flex-shrink flex-grow min-w-0 w-full"
+				href={`/dashboard/me/${room.roomId}`}
+			>
 				<div className="w-[40px] flex-shrink-0 relative mt-2">
 					<GroupChatImage roomIconUrl={room.roomIconUrl} usersInRoom={room.UsersInRooms} />
 				</div>
-				<div className="flex flex-col mx-1 overflow-hidden">
+				<div className="flex flex-col mx-1 overflow-hidden w-full">
 					<div className="font-bold overflow-x-hidden whitespace-nowrap text-ellipsis">
 						{chatName}
 					</div>
@@ -254,6 +282,7 @@ const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected:
 					</div>
 				</div>
 			</Link >
+			<ChatMenu />
 		</div>
 	);
 }
