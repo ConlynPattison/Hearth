@@ -3,7 +3,7 @@ import getMongoClient from "@/util/mongodb";
 import prisma from "@/util/postgres";
 import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { Message, MessageType } from "@chat-app/types";
-import { Prisma, Room, RoomScope } from "@prisma/client";
+import { Prisma, Room, RoomScope, RoomType, UsersInRooms } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -168,6 +168,242 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 	}
 });
 
+const postBodySchema = z.object({
+	// Room Information
+	roomName: z.string().optional(),
+	roomScope: z.nativeEnum(RoomScope),
+	roomIconUrl: z.string().optional(),
+	roomDescription: z.string().optional(),
+	isAgeRestricted: z.boolean(),
+
+	// User(s) information
+	userIds: z.array(z.string()).or(z.string())
+});
+
+type CreateNewPrivateChatResult = {
+	success: true,
+	roomId: number,
+	message: string
+} | {
+	success: false,
+	message: string
+}
+
+const createNewDirectMessage = async (
+	userId: string,
+	requestingUserId: string,
+): Promise<CreateNewPrivateChatResult> => {
+	// check if there exists a DM between these two users already, if so, cancel the create
+	const roomTransactionResult: {
+		success: false;
+		message: string;
+	} | {
+		success: true;
+		roomId: number;
+	} | undefined
+		= await prisma.$transaction(async (prisma) => {
+			const existingRoom = await prisma.room.findFirst({
+				where: {
+					// Search for a DM room
+					roomScope: RoomScope.DIRECT_MESSAGE,
+					// Which holds both users (logged-in/requesting and invited user)
+					AND: [
+						{
+							UsersInRooms: {
+								some: {
+									auth0Id: requestingUserId
+								},
+							}
+						},
+						{
+							UsersInRooms: {
+								some: {
+									auth0Id: userId
+								},
+							}
+						}
+					]
+				},
+			});
+
+			if (existingRoom) {
+				return {
+					success: false,
+					message: `Failed to create DM room, room already exists between users ${requestingUserId} and ${userId}`
+				}
+			}
+
+			// else, create the room, and both UsersInRooms entities
+			const newDM = await prisma.room.create({
+				data: {
+					roomScope: RoomScope.DIRECT_MESSAGE,
+					roomType: RoomType.TEXT,
+					isPrivate: true,
+					isAgeRestricted: false,
+				}
+			});
+
+			const usersInDM = await prisma.usersInRooms.createMany({
+				data: [
+					{
+						roomId: newDM.roomId,
+						auth0Id: requestingUserId,
+						hasLeft: false,
+						isFavorited: false
+					},
+					{
+						roomId: newDM.roomId,
+						auth0Id: userId,
+						hasLeft: false,
+						isFavorited: false
+					}
+				]
+			});
+
+			if (usersInDM.count === 2) {
+				return {
+					success: true,
+					roomId: newDM.roomId,
+				}
+			}
+		});
+
+	if (!roomTransactionResult || !roomTransactionResult.success) {
+		return {
+			success: false,
+			message: roomTransactionResult ? roomTransactionResult.message : "Failure to create DM",
+		}
+	}
+
+	return {
+		success: true,
+		message: `Successfully created new DM room of id ${roomTransactionResult.roomId} between users ${requestingUserId} and ${userId}`,
+		roomId: roomTransactionResult.roomId
+	}
+}
+
+const createNewGroupMessage = async (
+	roomDescription: string | undefined,
+	userIds: string[],
+	requestingUserId: string,
+	roomIconUrl: string | undefined,
+	roomName: string | undefined,
+	isAgeRestricted: boolean
+): Promise<CreateNewPrivateChatResult> => {
+	// check if there exists a DM between these two users already, if so, cancel the create
+	const roomTransactionResult: {
+		success: false;
+		message: string;
+	} | {
+		success: true;
+		roomId: number;
+	} | undefined
+		= await prisma.$transaction(async (prisma) => {
+			const newGroupChat = await prisma.room.create({
+				data: {
+					roomScope: RoomScope.GROUP_CHAT,
+					roomType: RoomType.TEXT,
+					isPrivate: true,
+					isAgeRestricted,
+					roomName,
+					roomDescription,
+					roomIconUrl
+				}
+			});
+
+			const usersInGroupChat = await prisma.usersInRooms.createMany({
+				data: [...userIds.map((userId) => {
+					return {
+						roomId: newGroupChat.roomId,
+						auth0Id: userId,
+						hasLeft: false,
+						isFavorited: false
+					} as UsersInRooms
+				}),
+				{
+					roomId: newGroupChat.roomId,
+					auth0Id: requestingUserId,
+					hasLeft: false,
+					isFavorited: false
+				}]
+			});
+
+			if (usersInGroupChat.count === userIds.length + 1) {
+				return {
+					success: true,
+					roomId: newGroupChat.roomId,
+				}
+			}
+
+			else throw new Error(`Closing create Group Chat transaction, invalid count of users found, expected ${userIds.length + 1} found ${usersInGroupChat.count}`);
+		});
+
+	if (!roomTransactionResult || !roomTransactionResult.success) {
+		return {
+			success: false,
+			message: roomTransactionResult ?? "Failure to create Group Chat",
+		}
+	}
+
+	return {
+		success: true,
+		message: `Successfully created new Group Chat room of id ${roomTransactionResult.roomId} between `,
+		roomId: roomTransactionResult.roomId
+	}
+}
+
+const POST = withApiAuthRequired(async (req: NextRequest) => {
+	try {
+		const authResult = await checkUserAuthentication(req);
+		if (!authResult.authenticated) {
+			return NextResponse.json({ success: false, message: authResult.message }, { status: authResult.status });
+		}
+		const userAuth0Id = authResult.userAuth0Id;
+
+		const { body } = await req.json();
+
+		const parsedBodyParams = postBodySchema.safeParse(body);
+		if (!parsedBodyParams.success) {
+			return NextResponse.json({ success: false, message: `Invalid arguments for creating room`, error: parsedBodyParams.error.issues }, { status: 400 });
+		}
+
+		const {
+			roomName,
+			roomScope,
+			roomIconUrl,
+			roomDescription,
+			isAgeRestricted,
+			userIds
+		} = parsedBodyParams.data;
+
+		if (roomScope === RoomScope.DIRECT_MESSAGE && !Array.isArray(userIds)) {
+			const createDMresponse = await createNewDirectMessage(userIds, userAuth0Id);
+
+			if (!createDMresponse.success) {
+				return NextResponse.json({ success: false, message: createDMresponse.message }, { status: 400 })
+			}
+
+			return NextResponse.json({ success: true, message: createDMresponse.message, roomId: createDMresponse.roomId }, { status: 201 });
+		}
+
+		if (roomScope === RoomScope.GROUP_CHAT && Array.isArray(userIds)) {
+			const createGroupChatResponse = await createNewGroupMessage(roomDescription, userIds, userAuth0Id, roomIconUrl, roomName, isAgeRestricted);
+
+			if (!createGroupChatResponse.success) {
+				return NextResponse.json({ success: false, message: createGroupChatResponse.message }, { status: 400 });
+			}
+
+			return NextResponse.json({ success: true, message: createGroupChatResponse.message, roomId: createGroupChatResponse.roomId }, { status: 201 })
+		}
+
+		return NextResponse.json({ success: false, message: `Invalid argument values provided for creation of Direct Message or Group Chat` }, { status: 400 });
+	}
+	catch (err) {
+		console.error(err);
+		return NextResponse.json({ success: false, message: `Server error: ${err}` }, { status: 500 })
+	}
+});
+
 const patchBodySchema = z.object({
 	roomId: z.number().finite().positive(),
 	isFavorited: z.boolean()
@@ -202,7 +438,7 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 			data: {
 				isFavorited
 			}
-		})
+		});
 
 		return NextResponse.json(({ success: true, message: `Successfully patched userInRoom with id ${patchedUserInRoom.userInRoomId}` }), { status: 200 });
 	}
@@ -210,6 +446,6 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 		console.error(err);
 		return NextResponse.json({ success: false, message: `Server error: ${err}` }, { status: 500 })
 	}
-})
+});
 
-export { GET, PATCH };
+export { GET, PATCH, POST };
