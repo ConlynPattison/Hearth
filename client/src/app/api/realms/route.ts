@@ -24,9 +24,15 @@ const GET = withApiAuthRequired(async (req: NextRequest) => {
 			},
 			include: {
 				UsersOnRealms: {
-					where: {
-						auth0Id: userAuth0Id
-					},
+					include: {
+						user: {
+							select: {
+								avatarUrl: true,
+								displayName: true,
+							}
+						},
+						FactionsOnUsersOnRealms: true
+					}
 				}
 			}
 		});

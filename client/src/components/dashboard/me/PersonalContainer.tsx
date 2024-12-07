@@ -1,4 +1,5 @@
 import { UserDetailedDirectRoom, UserDetailedDirectRoomResponse } from "@/app/api/rooms/route";
+import CollapsableHeading from "@/components/ui/CollapsableHeading";
 import { Dropdown, DropdownCategoryDivider, DropdownListCategory, DropdownListItem } from "@/components/ui/Dropdown";
 import RoomContext from "@/context/RoomContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
@@ -7,31 +8,10 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
-import { FaAngleDown, FaAngleRight, FaArrowLeft, FaClipboard, FaRegStar, FaStar } from "react-icons/fa6";
+import { FaArrowLeft, FaClipboard, FaRegStar, FaStar } from "react-icons/fa6";
 import useSWR, { mutate } from "swr";
-
-const CollapsableHeading = ({ heading, children }: { heading: string, children?: ReactNode }) => {
-	const [showing, setShowing] = useState(true);
-
-	return (
-		<>
-			<div
-				className="hover:cursor-pointer hover:dark:brightness-90 w-full overflow-hidden flex mt-8"
-				onClick={() => { setShowing(curr => !curr) }}
-			>
-				<div className="pr-1">
-					{showing ? <FaAngleDown /> : <FaAngleRight />}
-				</div>
-				<div className="font-bold text-xs dark:text-slate-400 text-slate-500 overflow-hidden text-ellipsis whitespace-nowrap">
-					{heading}
-				</div>
-			</div>
-			{showing && children}
-		</>
-	);
-}
 
 interface GroupChatImageProps {
 	roomIconUrl: string | null;

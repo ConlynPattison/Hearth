@@ -57,9 +57,9 @@ export const checkUserAuthentication = async (req: NextRequest): Promise<Authent
 	return { authenticated: true, userAuth0Id: userAuth0Id }
 }
 
-export const OWNER_LEVELS = [UsersOnRealmsLevels.OWNER];
-export const ADMIN_LEVELS = [...OWNER_LEVELS, UsersOnRealmsLevels.ADMIN];
-export const MEMBER_LEVELS = [...ADMIN_LEVELS, UsersOnRealmsLevels.MEMBER];
+export const OWNER_LEVELS: UsersOnRealmsLevels[] = [UsersOnRealmsLevels.OWNER];
+export const ADMIN_LEVELS: UsersOnRealmsLevels[] = [...OWNER_LEVELS, UsersOnRealmsLevels.ADMIN];
+export const MEMBER_LEVELS: UsersOnRealmsLevels[] = [...ADMIN_LEVELS, UsersOnRealmsLevels.MEMBER];
 
 interface RealmAuthorizationError {
 	authorized: false;
