@@ -1,5 +1,5 @@
 import { UserDetailedDirectRoom, UserDetailedDirectRoomResponse } from "@/app/api/rooms/route";
-import { Dropdown, DropdownListCategory, DropdownListItem } from "@/components/ui/Dropdown";
+import { Dropdown, DropdownCategoryDivider, DropdownListCategory, DropdownListItem } from "@/components/ui/Dropdown";
 import RoomContext from "@/context/RoomContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
 import { RoomScope, RoomType } from "@prisma/client";
@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ReactNode, useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
-import { FaAngleDown, FaAngleRight, FaMessage, FaRegStar, FaStar } from "react-icons/fa6";
+import { FaAngleDown, FaAngleRight, FaArrowLeft, FaClipboard, FaRegStar, FaStar } from "react-icons/fa6";
 import useSWR, { mutate } from "swr";
 
 const defaultRoom: UserDetailedDirectRoom = {
@@ -196,7 +196,21 @@ const ChatMenu = () => {
 				onClose={() => setIsDropdownOpen(false)}
 			>
 				<DropdownListCategory>
-					<DropdownListItem icon={<FaMessage />}>Direct Message</DropdownListItem>
+					<DropdownListItem
+						icon={<FaArrowLeft />}
+						intrinsicProps={{
+							title: "Coming Soon!"
+						}}
+					>Leave Chat</DropdownListItem>
+				</DropdownListCategory>
+				<DropdownCategoryDivider />
+				<DropdownListCategory>
+					<DropdownListItem
+						icon={<FaClipboard />}
+						intrinsicProps={{
+							title: "Coming Soon!"
+						}}
+					>Copy Chat ID</DropdownListItem>
 				</DropdownListCategory>
 			</Dropdown>
 		</div>

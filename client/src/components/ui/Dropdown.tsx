@@ -1,13 +1,15 @@
-import { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CSSProperties, DetailedHTMLProps, LiHTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FaBars, FaX } from "react-icons/fa6";
 
 interface DropdownListItemProps {
 	icon: ReactNode,
-	children?: ReactNode
+	children?: ReactNode,
+	intrinsicProps?: DetailedHTMLProps<LiHTMLAttributes<HTMLLIElement>, HTMLLIElement>
 }
-const DropdownListItem = ({ icon, children }: DropdownListItemProps) => {
+const DropdownListItem = ({ icon, children, intrinsicProps }: DropdownListItemProps) => {
 	return (
 		<li className="bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-md hover:cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700 flex"
+			{...intrinsicProps}
 		>
 			<div className="self-center pr-2">
 				{icon}

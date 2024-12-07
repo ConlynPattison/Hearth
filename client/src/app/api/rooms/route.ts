@@ -3,7 +3,7 @@ import getMongoClient from "@/util/mongodb";
 import prisma from "@/util/postgres";
 import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { Message, MessageType } from "@chat-app/types";
-import { Prisma, Room, RoomScope, RoomType, UsersInRooms } from "@prisma/client";
+import { Prisma, Room, RoomScope, RoomType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -183,15 +183,17 @@ const postBodySchema = z.object({
 type CreateNewPrivateChatResult = {
 	success: true,
 	roomId: number,
-	message: string
+	message: string,
+	detailedRoom: UserDetailedDirectRoom
 } | {
 	success: false,
 	message: string
 }
 
-const createNewDirectMessage = async (
+export const createNewDirectMessage = async (
 	userId: string,
 	requestingUserId: string,
+	safe = true
 ): Promise<CreateNewPrivateChatResult> => {
 	// check if there exists a DM between these two users already, if so, cancel the create
 	const roomTransactionResult: {
@@ -200,39 +202,41 @@ const createNewDirectMessage = async (
 	} | {
 		success: true;
 		roomId: number;
+		detailedRoom: UserDetailedDirectRoom;
 	} | undefined
 		= await prisma.$transaction(async (prisma) => {
-			const existingRoom = await prisma.room.findFirst({
-				where: {
-					// Search for a DM room
-					roomScope: RoomScope.DIRECT_MESSAGE,
-					// Which holds both users (logged-in/requesting and invited user)
-					AND: [
-						{
-							UsersInRooms: {
-								some: {
-									auth0Id: requestingUserId
-								},
+			if (safe) {
+				const existingRoom = await prisma.room.findFirst({
+					where: {
+						// Search for a DM room
+						roomScope: RoomScope.DIRECT_MESSAGE,
+						// Which holds both users (logged-in/requesting and invited user)
+						AND: [
+							{
+								UsersInRooms: {
+									some: {
+										auth0Id: requestingUserId
+									},
+								}
+							},
+							{
+								UsersInRooms: {
+									some: {
+										auth0Id: userId
+									},
+								}
 							}
-						},
-						{
-							UsersInRooms: {
-								some: {
-									auth0Id: userId
-								},
-							}
-						}
-					]
-				},
-			});
+						]
+					},
+				});
 
-			if (existingRoom) {
-				return {
-					success: false,
-					message: `Failed to create DM room, room already exists between users ${requestingUserId} and ${userId}`
+				if (existingRoom) {
+					return {
+						success: false,
+						message: `Failed to create DM room, room already exists between users ${requestingUserId} and ${userId}`
+					}
 				}
 			}
-
 			// else, create the room, and both UsersInRooms entities
 			const newDM = await prisma.room.create({
 				data: {
@@ -243,27 +247,53 @@ const createNewDirectMessage = async (
 				}
 			});
 
-			const usersInDM = await prisma.usersInRooms.createMany({
-				data: [
-					{
-						roomId: newDM.roomId,
-						auth0Id: requestingUserId,
-						hasLeft: false,
-						isFavorited: false
-					},
-					{
-						roomId: newDM.roomId,
-						auth0Id: userId,
-						hasLeft: false,
-						isFavorited: false
-					}
-				]
-			});
+			const usersInDMdata = [
+				{
+					roomId: newDM.roomId,
+					auth0Id: requestingUserId,
+					hasLeft: false,
+					isFavorited: false
+				},
+				{
+					roomId: newDM.roomId,
+					auth0Id: userId,
+					hasLeft: false,
+					isFavorited: false
+				}
+			];
 
-			if (usersInDM.count === 2) {
+			const usersInDM = await Promise.all(usersInDMdata.map(
+				(userInDMinstance) => prisma.usersInRooms.create({
+					data: userInDMinstance,
+					select: {
+						user: {
+							select: {
+								avatarUrl: true,
+								displayName: true
+							}
+						},
+						isFavorited: true,
+						hasLeft: true,
+						auth0Id: true,
+						userInRoomId: true
+					},
+				})
+			));
+
+			if (usersInDM.length === 2) {
+				const detailedRoom: UserDetailedDirectRoom = {
+					...newDM,
+					UsersInRooms: usersInDM,
+					requestingUserInRoom: {
+						isFavorited: false,
+						hasLeft: false
+					}
+				}
+
 				return {
 					success: true,
 					roomId: newDM.roomId,
+					detailedRoom
 				}
 			}
 		});
@@ -278,7 +308,8 @@ const createNewDirectMessage = async (
 	return {
 		success: true,
 		message: `Successfully created new DM room of id ${roomTransactionResult.roomId} between users ${requestingUserId} and ${userId}`,
-		roomId: roomTransactionResult.roomId
+		roomId: roomTransactionResult.roomId,
+		detailedRoom: roomTransactionResult.detailedRoom
 	}
 }
 
@@ -297,6 +328,7 @@ const createNewGroupMessage = async (
 	} | {
 		success: true;
 		roomId: number;
+		detailedRoom: UserDetailedDirectRoom;
 	} | undefined
 		= await prisma.$transaction(async (prisma) => {
 			const newGroupChat = await prisma.room.create({
@@ -311,31 +343,47 @@ const createNewGroupMessage = async (
 				}
 			});
 
-			const usersInGroupChat = await prisma.usersInRooms.createMany({
-				data: [...userIds.map((userId) => {
-					return {
+			const usersInGroupChat = await Promise.all([...userIds, requestingUserId].map(
+				(userId) => prisma.usersInRooms.create({
+					data: {
 						roomId: newGroupChat.roomId,
 						auth0Id: userId,
 						hasLeft: false,
-						isFavorited: false
-					} as UsersInRooms
-				}),
-				{
-					roomId: newGroupChat.roomId,
-					auth0Id: requestingUserId,
-					hasLeft: false,
-					isFavorited: false
-				}]
-			});
+						isFavorited: false,
+					},
+					select: {
+						user: {
+							select: {
+								avatarUrl: true,
+								displayName: true
+							}
+						},
+						isFavorited: true,
+						hasLeft: true,
+						auth0Id: true,
+						userInRoomId: true
+					},
+				})
+			));
 
-			if (usersInGroupChat.count === userIds.length + 1) {
+			if (usersInGroupChat.length === userIds.length + 1) {
+				const detailedRoom: UserDetailedDirectRoom = {
+					...newGroupChat,
+					UsersInRooms: usersInGroupChat,
+					requestingUserInRoom: {
+						isFavorited: false,
+						hasLeft: false
+					}
+				}
+
 				return {
 					success: true,
 					roomId: newGroupChat.roomId,
+					detailedRoom
 				}
 			}
 
-			else throw new Error(`Closing create Group Chat transaction, invalid count of users found, expected ${userIds.length + 1} found ${usersInGroupChat.count}`);
+			else throw new Error(`Closing create Group Chat transaction, invalid count of users found, expected ${userIds.length + 1} found ${usersInGroupChat.length}`);
 		});
 
 	if (!roomTransactionResult || !roomTransactionResult.success) {
@@ -348,7 +396,8 @@ const createNewGroupMessage = async (
 	return {
 		success: true,
 		message: `Successfully created new Group Chat room of id ${roomTransactionResult.roomId} between `,
-		roomId: roomTransactionResult.roomId
+		roomId: roomTransactionResult.roomId,
+		detailedRoom: roomTransactionResult.detailedRoom
 	}
 }
 
