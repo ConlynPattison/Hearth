@@ -50,8 +50,8 @@ export const RealmDropdownContent = ({ displayName, userId }: RealmDropDownConte
 				await mutate("/api/rooms",
 					(currData: UserDetailedDirectRoomResponse | undefined) => {
 						if (!currData?.success || !currData?.rooms) return currData;
-						const updatedRooms: UserDetailedDirectRoom[] = [detailedRoom, ...currData.rooms];
-						console.log(updatedRooms);
+						const updatedRooms: UserDetailedDirectRoom[] = [detailedRoom, ...currData.rooms
+							.filter((room) => room.roomId !== detailedRoom.roomId)];
 						return {
 							...currData,
 							rooms: updatedRooms
