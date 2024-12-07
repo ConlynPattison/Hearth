@@ -10,6 +10,8 @@ import PatchDomain from "./PatchDomain/PatchDomain";
 import CreateRoom from "../rooms/CreateRoom/CreateRoom";
 import RoomItem from "../rooms/Room";
 import RoomContext from "@/context/RoomContext";
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { ADMIN_LEVELS } from "@/util/auth";
 
 type PermissionedDomain = Domain & {
 	DomainPermissions: Permissions[],
@@ -29,6 +31,7 @@ type GetDomainsData = {
 interface DomainItemProps {
 	domain: OptionallyParentalDomain;
 	depth: number;
+	showAdmin: boolean;
 	visibleDomains: { [key: number]: boolean };
 	setVisibleDomains: Dispatch<SetStateAction<{
 		[key: number]: boolean;
@@ -40,6 +43,7 @@ interface DomainItemProps {
 const DomainItem = (({
 	domain,
 	depth,
+	showAdmin,
 	visibleDomains,
 	setVisibleDomains,
 	parentDomainName,
@@ -70,20 +74,21 @@ const DomainItem = (({
 						{domain.domainName}
 					</span>
 				</div>
-				<div className="hidden group-hover:flex ml-auto">
-					{depth < 2 &&
-						<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
-					<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains} />
-					<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
-					<CreateRoom domainId={domain.domainId} domainName={domain.domainName} roomScope={RoomScope.REALM} />
-				</div>
 
+				{showAdmin &&
+					<div className="hidden group-hover:flex ml-auto">
+						{depth < 2 &&
+							<CreateDomain parentDomainName={domain.domainName} parentDomainId={domain.domainId} />}
+						<PatchDomain parentDomainName={parentDomainName} domain={domain} domains={domains} />
+						<DeleteDomain domainId={domain.domainId} domainName={domain.domainName} />
+						<CreateRoom domainId={domain.domainId} domainName={domain.domainName} roomScope={RoomScope.REALM} />
+					</div>}
 			</div>
 			{
 				showContents &&
 				<>
 					{domain.Room.map((room) => (
-						<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} domains={domains} />
+						<RoomItem key={room.roomId} showAdmin={showAdmin} room={room} selected={room.roomId === activeRoom?.roomId} domains={domains} />
 					))}
 					{domain.children.map((childDomain) =>
 						<DomainItem
@@ -93,7 +98,9 @@ const DomainItem = (({
 							domain={childDomain}
 							parentDomainName={domain.domainName}
 							depth={depth + 1}
-							domains={domains} />)}
+							domains={domains}
+							showAdmin={showAdmin} />
+					)}
 				</>
 			}
 		</div >
@@ -103,8 +110,10 @@ const DomainItem = (({
 const Domains = () => {
 	const [activeRealm] = useContext(RealmContext);
 	const [activeRoom, setActiveRoom] = useContext(RoomContext);
+	const { user } = useUser();
 
-	const [visibleDomains, setVisibleDomains] = useState<{ [key: number]: boolean }>({})
+	const [visibleDomains, setVisibleDomains] = useState<{ [key: number]: boolean }>({});
+	const [showAdmin, setShowAdmin] = useState(false);
 
 	const url = activeRealm ? `/api/realms/${activeRealm.realmId.toString()}/domains` : null
 	const fetcher = (url: string) => axios.get(url).then(res => res.data);
@@ -112,6 +121,14 @@ const Domains = () => {
 		revalidateOnFocus: false,
 		dedupingInterval: 60000,
 	});
+
+	useEffect(() => {
+		if (activeRealm && user) {
+			const requestingUserOnRealm = activeRealm.UsersOnRealms
+				.find(userOnRealm => userOnRealm.auth0Id === user.sub)?.memberLevel;
+			setShowAdmin(requestingUserOnRealm !== undefined && ADMIN_LEVELS.includes(requestingUserOnRealm));
+		}
+	}, [activeRealm, user]);
 
 	// todo: replace with a parsing function that will grab the first found child OR grabs a
 	// last-opened realm that's relative to the user's OnRealm entry (add prop)
@@ -121,12 +138,12 @@ const Domains = () => {
 	}, [activeRoom, data, setActiveRoom]);
 
 	if (error) return (<>Error: {error}</>);
-	if (isLoading) return (<>Loading domains..</>) // TODO: change to skeleton state
+	if (isLoading || !user) return (<>Loading domains..</>) // TODO: change to skeleton state
 
 	return (
 		<div className="select-none overflow-y-scroll sm:h-[100%] h-[300px] ml-2">
-			{activeRealm &&
-				<div className="pb-2">
+			{showAdmin &&
+				< div className="pb-2">
 					<CreateDomain parentDomainName={null} parentDomainId={null}>
 						<span className="font-bold text-xs dark:text-slate-400 text-slate-500"
 						>Create new domain</span>
@@ -137,22 +154,27 @@ const Domains = () => {
 					</CreateRoom>
 				</div>
 			}
-			{data?.rooms.map((room) => (
-				<RoomItem key={room.roomId} room={room} selected={room.roomId === activeRoom?.roomId} domains={data.domains} />
-			))}
-			{data?.domains.map((domain) => {
-				return (
-					<DomainItem
-						key={domain.domainId}
-						domain={domain}
-						visibleDomains={visibleDomains}
-						setVisibleDomains={setVisibleDomains}
-						domains={data?.domains}
-						depth={0}
-						parentDomainName={null} />
-				);
-			})}
-		</div>
+			{
+				data?.rooms.map((room) => (
+					<RoomItem key={room.roomId} showAdmin={showAdmin} room={room} selected={room.roomId === activeRoom?.roomId} domains={data.domains} />
+				))
+			}
+			{
+				data?.domains.map((domain) => {
+					return (
+						<DomainItem
+							key={domain.domainId}
+							showAdmin={showAdmin}
+							domain={domain}
+							visibleDomains={visibleDomains}
+							setVisibleDomains={setVisibleDomains}
+							domains={data?.domains}
+							depth={0}
+							parentDomainName={null} />
+					);
+				})
+			}
+		</div >
 	);
 }
 
