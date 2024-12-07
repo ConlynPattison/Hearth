@@ -24,9 +24,10 @@ interface RoomProps {
 	room: Room;
 	selected: boolean;
 	domains: OptionallyParentalDomain[];
+	showAdmin: boolean;
 }
 
-const RoomItem = ({ room, selected, domains }: RoomProps) => {
+const RoomItem = ({ room, selected, domains, showAdmin }: RoomProps) => {
 	const [activeRoom, setActiveRoom] = useContext(RoomContext);
 
 	const bg = selected ?
@@ -43,10 +44,11 @@ const RoomItem = ({ room, selected, domains }: RoomProps) => {
 			}}>
 			<RoomIcon roomType={room.roomType} />
 			<div className="w-full overflow-hidden text-ellipsis text-nowrap">{room.roomName}</div>
-			<div className="hidden group-hover:flex ml-auto self-center">
-				<PatchRoom room={room} domains={domains} />
-				<DeleteRoom roomId={room.roomId} roomName={room.roomName} />
-			</div>
+			{showAdmin &&
+				<div className="hidden group-hover:flex ml-auto self-center">
+					<PatchRoom room={room} domains={domains} />
+					<DeleteRoom roomId={room.roomId} roomName={room.roomName} />
+				</div>}
 		</div>
 	);
 }

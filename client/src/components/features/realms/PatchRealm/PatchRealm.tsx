@@ -5,16 +5,27 @@ import PatchRealmForm from "./PatchRealmForm";
 import { useRef, useContext, useState, useEffect } from "react";
 import RealmContext from "@/context/RealmContext";
 import DeleteRealmForm from "../DeleteRealm/DeleteRealmForm";
-import { UsersOnRealmsLevels } from "@prisma/client";
+import { useUser } from "@auth0/nextjs-auth0/client";
+import { ADMIN_LEVELS } from "@/util/auth";
 
 const PatchRealm = () => {
 	const [activeRealm] = useContext(RealmContext);
 	const [tryingDelete, setTryingDelete] = useState(false);
-	const userCanDeleteRealm = activeRealm?.UsersOnRealms[0].memberLevel === UsersOnRealmsLevels.OWNER;
+	const { user } = useUser();
+
+	const [showAdmin, setShowAdmin] = useState(false);
 
 	const { dialog, closeModal, openModal } = useModal();
 	const deleteFormRef = useRef<HTMLFormElement>(null);
 	const updateFormRef = useRef<HTMLFormElement>(null);
+
+	useEffect(() => {
+		if (activeRealm && user) {
+			const requestingUserOnRealm = activeRealm.UsersOnRealms
+				.find(userOnRealm => userOnRealm.auth0Id === user.sub)?.memberLevel;
+			setShowAdmin(requestingUserOnRealm !== undefined && ADMIN_LEVELS.includes(requestingUserOnRealm));
+		}
+	}, [activeRealm, user])
 
 	useEffect(() => {
 		if (!dialog.current) return;
@@ -29,9 +40,11 @@ const PatchRealm = () => {
 		return () => dialogRef.removeEventListener("close", resetForm);
 	}, [dialog]);
 
+	if (!showAdmin) return (<></>);
+
 	return (
 		<>
-			<div className="hover:brightness-90 dark:bg-slate-900 bg-slate-200 flex flex-col py-2 text-center rounded-md mt-3 mx-2 hover:cursor-pointer"
+			<div className="hover:brightness-90 dark:bg-slate-900 bg-slate-200 flex flex-col py-2 text-center rounded-md mx-2 hover:cursor-pointer"
 				onClick={openModal}
 				title="Update realm properties">
 				<FaGear size="2em" className="self-center dark:text-slate-500 text-slate-700" />
@@ -74,7 +87,6 @@ const PatchRealm = () => {
 									className="hover:brightness-90 dark:bg-red-900 dark:color-by-mode text-red-800 bg-slate-200 rounded-md w-fit px-2 py-1 disabled:dark:bg-red-950 disabled:bg-slate-300"
 									type="button"
 									onClick={() => setTryingDelete(true)}
-									disabled={!userCanDeleteRealm}
 								>Delete Realm</button>
 								<button
 									className="hover:brightness-90 dark:bg-green-900 dark:color-by-mode text-green-800 bg-slate-200 rounded-md w-fit px-2 py-1"

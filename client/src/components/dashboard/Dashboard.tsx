@@ -1,6 +1,7 @@
 "use client"
 import ChatRoomContainer from "./ChatRoomContainer";
 import InboxesContainer from "./InboxesContainer";
+import MembersList from "./MembersList";
 import PersonalContainer from "./me/PersonalContainer";
 import SideBar from "./side/SideBar";
 import { RealmProvider } from "@/context/RealmContext";
@@ -37,7 +38,8 @@ const Dashboard = ({ showDirectMessages }: DashboardProps) => {
 							</div>
 
 							{/* Right edge profile info */}
-							<div className="bg-slate-200 dark:bg-slate-900 sm:w-[300px] sm:h-[100%]">
+							<div className="bg-slate-200 dark:bg-slate-900 sm:w-[200px] sm:inline hidden sm:h-[100%]">
+								<MembersList />
 							</div>
 						</div>
 					</RoomProvider>

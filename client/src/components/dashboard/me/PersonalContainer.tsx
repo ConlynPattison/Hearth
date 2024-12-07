@@ -1,4 +1,5 @@
 import { UserDetailedDirectRoom, UserDetailedDirectRoomResponse } from "@/app/api/rooms/route";
+import CollapsableHeading from "@/components/ui/CollapsableHeading";
 import { Dropdown, DropdownCategoryDivider, DropdownListCategory, DropdownListItem } from "@/components/ui/Dropdown";
 import RoomContext from "@/context/RoomContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
@@ -7,31 +8,10 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
-import { FaAngleDown, FaAngleRight, FaArrowLeft, FaClipboard, FaRegStar, FaStar } from "react-icons/fa6";
+import { FaArrowLeft, FaClipboard, FaRegStar, FaStar } from "react-icons/fa6";
 import useSWR, { mutate } from "swr";
-
-const CollapsableHeading = ({ heading, children }: { heading: string, children?: ReactNode }) => {
-	const [showing, setShowing] = useState(true);
-
-	return (
-		<>
-			<div
-				className="hover:cursor-pointer hover:dark:brightness-90 w-full overflow-hidden flex mt-8"
-				onClick={() => { setShowing(curr => !curr) }}
-			>
-				<div className="pr-1">
-					{showing ? <FaAngleDown /> : <FaAngleRight />}
-				</div>
-				<div className="font-bold text-xs dark:text-slate-400 text-slate-500 overflow-hidden text-ellipsis whitespace-nowrap">
-					{heading}
-				</div>
-			</div>
-			{showing && children}
-		</>
-	);
-}
 
 interface GroupChatImageProps {
 	roomIconUrl: string | null;
@@ -113,7 +93,6 @@ const Star = ({ room }: StarProps) => {
 				};
 			}), false);
 
-		// make axios call to update the favorited status
 		axios.patch("/api/rooms", {
 			body: {
 				roomId: room.roomId,
@@ -129,7 +108,7 @@ const Star = ({ room }: StarProps) => {
 	}
 
 	return (
-		<div className="z-20 absolute translate-y-1 translate-x-1 hidden group-hover:inline-block"
+		<div className="z-20 absolute translate-y-2 hidden group-hover:inline-block p-1"
 			onClick={handleStarClicked}>
 			{room.requestingUserInRoom?.isFavorited ?
 				<FaStar className="dark:text-amber-400 text-amber-500" title="Unstar" /> :
@@ -138,8 +117,38 @@ const Star = ({ room }: StarProps) => {
 	);
 }
 
-const ChatMenu = () => {
+interface ChatMenuProps {
+	roomId: number;
+}
+
+const ChatMenu = ({ roomId }: ChatMenuProps) => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+	const leaveRoom = async () => {
+		mutate("/api/rooms", (currData: UserDetailedDirectRoomResponse | undefined) => {
+			if (currData === undefined || !currData.success) return currData;
+			const updatedRooms = currData.rooms
+				.filter(currRoom => currRoom.roomId !== roomId);
+
+			return {
+				...currData,
+				rooms: updatedRooms
+			};
+		}, false);
+
+		axios.patch("/api/rooms", {
+			body: {
+				roomId,
+				hasLeft: true,
+			}
+		}).then((res) => {
+			if (res.status !== 200)
+				throw new Error("Failed to update hasLeft property");
+		}).catch(err => {
+			mutate("/api/rooms");
+			console.error(err);
+		});
+	}
 
 	return (
 		<div className={`${isDropdownOpen ? "inline" : "hidden group-hover:inline"} ml-auto flex-shrink-0`}>
@@ -152,7 +161,8 @@ const ChatMenu = () => {
 					<DropdownListItem
 						icon={<FaArrowLeft />}
 						intrinsicProps={{
-							title: "Coming Soon!"
+							title: "Leave Chat Room",
+							onClick: leaveRoom
 						}}
 					>Leave Chat</DropdownListItem>
 				</DropdownListCategory>
@@ -207,7 +217,7 @@ const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selec
 					</div>
 				</div>
 			</Link>
-			<ChatMenu />
+			<ChatMenu roomId={room.roomId} />
 		</div>
 	);
 }
@@ -249,7 +259,7 @@ const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected:
 					</div>
 				</div>
 			</Link >
-			<ChatMenu />
+			<ChatMenu roomId={room.roomId} />
 		</div>
 	);
 }

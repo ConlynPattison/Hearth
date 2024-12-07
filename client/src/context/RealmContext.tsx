@@ -1,12 +1,18 @@
 "use client"
-import { Realm, UsersOnRealms } from "@prisma/client";
+import { FactionsOnUsersOnRealms, Realm, UsersOnRealms } from "@prisma/client";
 import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 
-type RealmWithAuth = {
-	UsersOnRealms: UsersOnRealms[];
+type DetailedUsersOnRealms = UsersOnRealms & {
+	user: {
+		avatarUrl: string,
+		displayName: string,
+	}
+} & FactionsOnUsersOnRealms;
+
+export type RealmWithAuth = {
+	UsersOnRealms: DetailedUsersOnRealms[];
 } & Realm
 
-// Sends the Id of the active realm if one is chosen otherwise undefined
 const RealmContext = createContext<[
 	RealmWithAuth | null,
 	Dispatch<SetStateAction<RealmWithAuth | null>> | undefined]>([null, undefined]);
