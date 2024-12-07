@@ -13,7 +13,6 @@ export type RealmWithAuth = {
 	UsersOnRealms: DetailedUsersOnRealms[];
 } & Realm
 
-// Sends the Id of the active realm if one is chosen otherwise undefined
 const RealmContext = createContext<[
 	RealmWithAuth | null,
 	Dispatch<SetStateAction<RealmWithAuth | null>> | undefined]>([null, undefined]);

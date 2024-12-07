@@ -89,7 +89,6 @@ const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageF
 
 	return (
 		<>
-			<p className={message.userId === loggedInUserId ? "text-right" : ""}>{message.displayName}:</p>
 			{
 				message.userId === loggedInUserId ?
 					<div className="flex flex-row-reverse">
@@ -97,7 +96,7 @@ const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageF
 							<ProfilePicture avatarUrl={message.avatarUrl} minWidth={50} />
 							<div>
 								<p className={`${sharedClasses} bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200 rounded-tr-none mr-2`}>{message.content}</p>
-								<p className={`text-xs text-slate-400`}>{localTime}</p>
+								<p className={`text-xs text-slate-400 text-right`}>{localTime}</p>
 							</div>
 						</div>
 					</div>
@@ -114,8 +113,10 @@ const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageF
 									<PrivateChatDropdownContent />}
 							</Dropdown>
 							<div>
-								<p className={`${sharedClasses} bg-gradient-to-tl dark:from-red-600 dark:to-yellow-500 from-red-300 to-yellow-200 rounded-tl-none ml-2`}>{message.content}</p>
-								<p className={`text-xs text-slate-400 flex flex-row-reverse`}>{localTime}</p>
+								<p className={`${sharedClasses} bg-gradient-to-tl dark:from-red-600 dark:to-yellow-500 from-red-300 to-yellow-200 rounded-tl-none ml-2`}>
+									<div className="font-bold text-left text-slate-500 dark:text-slate-50">{message.displayName}</div>{message.content}
+								</p>
+								<p className={`text-xs text-slate-400 flex ml-2`}>{localTime}</p>
 							</div>
 						</div>
 					</div>
@@ -134,7 +135,7 @@ const SentMessages = ({ messages }: { messages: MessageForView[] }) => {
 	}
 
 	return (
-		<div className="px-2 mt-auto w-full">
+		<div className="px-2 mt-auto w-full flex flex-col gap-2">
 			{messages.map((message, index) => {
 				return (
 					<div key={index}
