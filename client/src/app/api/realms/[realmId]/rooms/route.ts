@@ -109,7 +109,7 @@ const patchBodySchema = z.object({
 	roomScope: z.nativeEnum(RoomScope),
 	roomType: z.nativeEnum(RoomType),
 	roomIconUrl: z.string().nullable(),
-	roomDescription: z.string(),
+	roomDescription: z.string().nullable(),
 	isAgeRestricted: z.boolean()
 });
 
