@@ -2,7 +2,7 @@ import { UserDetailedDirectRoom, UserDetailedDirectRoomResponse } from "@/app/ap
 import { Dropdown, DropdownCategoryDivider, DropdownListCategory, DropdownListItem } from "@/components/ui/Dropdown";
 import RoomContext from "@/context/RoomContext";
 import { useUser } from "@auth0/nextjs-auth0/client";
-import { RoomScope, RoomType } from "@prisma/client";
+import { RoomScope } from "@prisma/client";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,53 +11,6 @@ import { ReactNode, useContext, useEffect, useState } from "react";
 import { FaUserFriends } from "react-icons/fa";
 import { FaAngleDown, FaAngleRight, FaArrowLeft, FaClipboard, FaRegStar, FaStar } from "react-icons/fa6";
 import useSWR, { mutate } from "swr";
-
-const defaultRoom: UserDetailedDirectRoom = {
-	roomDescription: "",
-	roomId: 90,
-	roomScope: RoomScope.DIRECT_MESSAGE,
-	roomName: null,
-	roomIconUrl: null,
-	roomType: RoomType.TEXT,
-	realmId: null,
-	domainId: null,
-	isAgeRestricted: false,
-	isPrivate: false,
-	requestingUserInRoom: {
-		isFavorited: false,
-		hasLeft: false
-	},
-	UsersInRooms: [{
-		userInRoomId: 11,
-		user: {
-			avatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocIpicKG-k7jqA9YpyX-k00vlQPjxs78zo-5_bLwZXlIKfwQi8M=s96-c",
-			displayName: "Gabi",
-		},
-		hasLeft: false,
-		isFavorited: false,
-		auth0Id: "testId"
-	},
-	{
-		userInRoomId: 10,
-		user: {
-			avatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocLjApw0lcnvv6pWMTOtt8sHi0j8GYeKXQcYeLXO8gxkV9z7eSl9=s96-c",
-			displayName: "Conlyn",
-		},
-		hasLeft: false,
-		isFavorited: false,
-		auth0Id: "google-oauth2|106606994258667919669"
-	},
-	{
-		userInRoomId: 9,
-		user: {
-			avatarUrl: "https://lh3.googleusercontent.com/a/ACg8ocK77Mli5Ay_LuFle__bK4LQ4jWohw5NcZ0RBDxAn9WxFUGS3g=s96-c",
-			displayName: "Conner",
-		},
-		hasLeft: false,
-		isFavorited: false,
-		auth0Id: "google-oauth2|105827500117644136266"
-	},],
-}
 
 const CollapsableHeading = ({ heading, children }: { heading: string, children?: ReactNode }) => {
 	const [showing, setShowing] = useState(true);
@@ -349,9 +302,6 @@ const PersonalContainer = () => {
 								<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} /> :
 								<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
 						)}
-					<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-					{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 				</CollapsableHeading>
 				<CollapsableHeading heading="Direct Messages">
 					{data?.rooms
@@ -359,10 +309,6 @@ const PersonalContainer = () => {
 						.map((room) =>
 							<DirectMessage key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
 						)}
-					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-					<DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-					{/* <DirectMessage selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 				</CollapsableHeading>
 				<CollapsableHeading heading="Group Chats">
 					{data?.rooms
@@ -370,9 +316,6 @@ const PersonalContainer = () => {
 						.map((room) =>
 							<GroupChat key={room.roomId} selected={activeRoom?.roomId === room.roomId} room={room} />
 						)}
-					{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
-					<GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} />
-					{/* <GroupChat selected={activeRoom?.roomId === defaultRoom.roomId} room={defaultRoom} /> */}
 				</CollapsableHeading>
 			</div>
 		</div>
