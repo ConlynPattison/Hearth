@@ -481,7 +481,7 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 			return NextResponse.json({ success: false, message: authorizationResult.message }, { status: authorizationResult.status });
 		}
 
-		if (![isFavorited, hasLeft].find(param => param !== undefined)) {
+		if ([isFavorited, hasLeft].every(param => param === undefined)) {
 			return NextResponse.json({ success: false, message: "No argument values provided for patch" }, { status: 400 });
 		}
 
