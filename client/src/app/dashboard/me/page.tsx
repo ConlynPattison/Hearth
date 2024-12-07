@@ -2,14 +2,14 @@
 import Dashboard from "@/components/dashboard/Dashboard";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
-const DashboardRealmPage = async () => {
+const DashboardDirectMessagesPage = async () => {
 	return (
-		<Dashboard showDirectMessages={false} />
+		<Dashboard showDirectMessages={true} />
 	);
 }
 
 export default withPageAuthRequired(
-	DashboardRealmPage,
+	DashboardDirectMessagesPage,
 	{
 		returnTo: "/dashboard"
 	}

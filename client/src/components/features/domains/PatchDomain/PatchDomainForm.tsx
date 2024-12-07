@@ -13,12 +13,13 @@ interface PatchRealmFormProps {
 }
 
 export interface DomainsOptionsProps {
+	beingPatchedDomainId?: number;
 	domains: OptionallyParentalDomain[];
 	depth: number;
 	maxDepth: number;
 }
 
-const DomainsOptions = ({ domains, depth, maxDepth }: DomainsOptionsProps) => {
+const DomainsOptions = ({ domains, depth, maxDepth, beingPatchedDomainId }: DomainsOptionsProps) => {
 	const padding = "--- ".repeat(depth);
 
 	if (depth >= maxDepth) return;
@@ -27,12 +28,12 @@ const DomainsOptions = ({ domains, depth, maxDepth }: DomainsOptionsProps) => {
 		<>
 			{domains.map((domain) =>
 				<Fragment key={domain.domainId}>
-					<option
+					{beingPatchedDomainId !== domain.domainId && <option
 						key={`option_${domain.domainId}`}
 						value={domain.domainId}>
 						{padding}{domain.domainName}
-					</option >
-					{domain.children && <DomainsOptions key={domain.domainId} domains={domain.children} depth={1 + depth} maxDepth={maxDepth} />}
+					</option >}
+					{domain.children && <DomainsOptions key={domain.domainId} beingPatchedDomainId={beingPatchedDomainId} domains={domain.children} depth={1 + depth} maxDepth={maxDepth} />}
 				</Fragment>
 			)
 			}
@@ -100,7 +101,7 @@ const PatchDomainForm = forwardRef<HTMLFormElement, PatchRealmFormProps>(({ dial
 							value={undefined}
 							className="italic"
 						>- Root -</option>
-						<DomainsOptions key={domain.domainId} domains={domains} depth={0} maxDepth={2} />
+						<DomainsOptions key={domain.domainId} beingPatchedDomainId={domain.domainId} domains={domains} depth={0} maxDepth={2} />
 					</select>
 				</label>
 			</div>

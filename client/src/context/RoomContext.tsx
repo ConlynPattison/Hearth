@@ -1,5 +1,5 @@
 "use client"
-import { Room } from "@prisma/client";
+import { Room, RoomScope } from "@prisma/client";
 import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useEffect, useState } from "react";
 import RealmContext from "./RealmContext";
 
@@ -14,6 +14,10 @@ export const RoomProvider = ({ children }: Readonly<{ children: ReactNode }>) =>
 	useEffect(() => {
 		if (activeRoom !== null && activeRealm !== null) {
 			document.title = `Hearth | ${activeRoom.roomName} | ${activeRealm?.realmName}`;
+			return;
+		}
+		if (activeRoom !== null) {
+			document.title = `Hearth | ${activeRoom.roomScope === RoomScope.DIRECT_MESSAGE ? "Direct Message" : "Group Chat"}`
 		}
 	}, [activeRoom, activeRealm])
 

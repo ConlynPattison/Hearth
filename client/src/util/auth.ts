@@ -2,7 +2,7 @@ import { getSession } from "@auth0/nextjs-auth0";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "./postgres";
-import { UsersOnRealms, UsersOnRealmsLevels } from "@prisma/client";
+import { UsersInRooms, UsersOnRealms, UsersOnRealmsLevels } from "@prisma/client";
 
 type PostAuthPayload = {
 	access_token: string,
@@ -90,4 +90,33 @@ export const checkUserRealmAuthorization = async (userAuth0Id: string, realmId: 
 	}
 
 	return { authorized: true, userOnRealm }
+}
+
+interface RoomAuthorizationError {
+	authorized: false;
+	message: string;
+	status: number;
+}
+
+interface RoomAuthorizationSuccess {
+	authorized: true;
+	userInRoom: UsersInRooms;
+}
+
+type RoomAuthorizationResponse = RoomAuthorizationError | RoomAuthorizationSuccess;
+
+export const checkUserRoomAuthorization = async (userAuth0Id: string, roomId: number): Promise<RoomAuthorizationResponse> => {
+	const userInRoom = await prisma.usersInRooms.findFirst({
+		where: {
+			auth0Id: userAuth0Id,
+			roomId,
+			hasLeft: false
+		}
+	});
+
+	if (userInRoom === null) {
+		return { authorized: false, message: `UserId ${userAuth0Id} not authorized for request on roomId ${roomId}`, status: 401 };
+	}
+
+	return { authorized: true, userInRoom }
 }
