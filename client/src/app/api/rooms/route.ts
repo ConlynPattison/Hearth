@@ -455,7 +455,8 @@ const POST = withApiAuthRequired(async (req: NextRequest) => {
 
 const patchBodySchema = z.object({
 	roomId: z.number().finite().positive(),
-	isFavorited: z.boolean()
+	isFavorited: z.boolean().optional(),
+	hasLeft: z.boolean().optional()
 });
 
 const PATCH = withApiAuthRequired(async (req: NextRequest) => {
@@ -473,11 +474,15 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 			return NextResponse.json({ success: false, message: `Invalid arguments for updating room`, error: parsedBodyParams.error.issues }, { status: 400 });
 		}
 
-		const { roomId, isFavorited } = parsedBodyParams.data;
+		const { roomId, isFavorited, hasLeft } = parsedBodyParams.data;
 
 		const authorizationResult = await checkUserRoomAuthorization(userAuth0Id, roomId);
 		if (!authorizationResult.authorized) {
 			return NextResponse.json({ success: false, message: authorizationResult.message }, { status: authorizationResult.status });
+		}
+
+		if (![isFavorited, hasLeft].find(param => param !== undefined)) {
+			return NextResponse.json({ success: false, message: "No argument values provided for patch" }, { status: 400 });
 		}
 
 		const patchedUserInRoom = await prisma.usersInRooms.update({
@@ -485,7 +490,8 @@ const PATCH = withApiAuthRequired(async (req: NextRequest) => {
 				userInRoomId: authorizationResult.userInRoom.userInRoomId
 			},
 			data: {
-				isFavorited
+				...(isFavorited !== undefined ? { isFavorited } : {}),
+				...(hasLeft !== undefined ? { hasLeft } : {}),
 			}
 		});
 

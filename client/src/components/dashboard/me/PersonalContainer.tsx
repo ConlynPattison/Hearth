@@ -93,7 +93,6 @@ const Star = ({ room }: StarProps) => {
 				};
 			}), false);
 
-		// make axios call to update the favorited status
 		axios.patch("/api/rooms", {
 			body: {
 				roomId: room.roomId,
@@ -118,8 +117,38 @@ const Star = ({ room }: StarProps) => {
 	);
 }
 
-const ChatMenu = () => {
+interface ChatMenuProps {
+	roomId: number;
+}
+
+const ChatMenu = ({ roomId }: ChatMenuProps) => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+	const leaveRoom = async () => {
+		mutate("/api/rooms", (currData: UserDetailedDirectRoomResponse | undefined) => {
+			if (currData === undefined || !currData.success) return currData;
+			const updatedRooms = currData.rooms
+				.filter(currRoom => currRoom.roomId !== roomId);
+
+			return {
+				...currData,
+				rooms: updatedRooms
+			};
+		}, false);
+
+		axios.patch("/api/rooms", {
+			body: {
+				roomId,
+				hasLeft: true,
+			}
+		}).then((res) => {
+			if (res.status !== 200)
+				throw new Error("Failed to update hasLeft property");
+		}).catch(err => {
+			mutate("/api/rooms");
+			console.error(err);
+		});
+	}
 
 	return (
 		<div className={`${isDropdownOpen ? "inline" : "hidden group-hover:inline"} ml-auto flex-shrink-0`}>
@@ -132,7 +161,8 @@ const ChatMenu = () => {
 					<DropdownListItem
 						icon={<FaArrowLeft />}
 						intrinsicProps={{
-							title: "Coming Soon!"
+							title: "Leave Chat Room",
+							onClick: leaveRoom
 						}}
 					>Leave Chat</DropdownListItem>
 				</DropdownListCategory>
@@ -187,7 +217,7 @@ const DirectMessage = ({ room, selected }: { room: UserDetailedDirectRoom, selec
 					</div>
 				</div>
 			</Link>
-			<ChatMenu />
+			<ChatMenu roomId={room.roomId} />
 		</div>
 	);
 }
@@ -229,7 +259,7 @@ const GroupChat = ({ room, selected }: { room: UserDetailedDirectRoom, selected:
 					</div>
 				</div>
 			</Link >
-			<ChatMenu />
+			<ChatMenu roomId={room.roomId} />
 		</div>
 	);
 }

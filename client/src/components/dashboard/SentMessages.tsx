@@ -33,7 +33,7 @@ const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageF
 
 	const localTime = message.time && new Date(message.time).toLocaleTimeString();
 
-	const [activeRoom] = useContext(RoomContext);
+	const [activeRoom, setActiveRoom] = useContext(RoomContext);
 
 	if (activeRoom === null) return <></>;
 
@@ -48,19 +48,21 @@ const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageF
 		const router = useRouter();
 
 		const handleOpenDirectMessage = () => {
+			if (setActiveRoom === undefined) return;
 			axios.put(`/api/dm/${encodeURIComponent(message.userId)}`)
-				.then((res) => {
+				.then(async (res) => {
 					const { roomId, detailedRoom } = res.data;
-					mutate("/api/rooms",
-						((currData: UserDetailedDirectRoomResponse | undefined) => {
+					await mutate("/api/rooms",
+						(currData: UserDetailedDirectRoomResponse | undefined) => {
 							if (!currData?.success || !currData?.rooms) return currData;
 							const updatedRooms: UserDetailedDirectRoom[] = [detailedRoom, ...currData.rooms];
-
+							console.log(updatedRooms);
 							return {
 								...currData,
 								rooms: updatedRooms
 							};
-						}), false);
+						}, false);
+					// setActiveRoom(detailedRoom.roomId);
 					router.push(`/dashboard/me/${roomId}`);
 				})
 				.catch((e) => console.error(e));
@@ -95,7 +97,7 @@ const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageF
 						<div className="flex flex-row-reverse max-w-[85%]">
 							<ProfilePicture avatarUrl={message.avatarUrl} minWidth={50} />
 							<div>
-								<p className={`${sharedClasses} bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200 rounded-tr-none mr-2`}>{message.content}</p>
+								<div className={`${sharedClasses} bg-gradient-to-tl dark:from-purple-700 dark:to-red-500 from-purple-400 to-red-200 rounded-tr-none mr-2`}>{message.content}</div>
 								<p className={`text-xs text-slate-400 text-right`}>{localTime}</p>
 							</div>
 						</div>
@@ -113,9 +115,9 @@ const Message = ({ message, viewingUserId: loggedInUserId }: { message: MessageF
 									<PrivateChatDropdownContent />}
 							</Dropdown>
 							<div>
-								<p className={`${sharedClasses} bg-gradient-to-tl dark:from-red-600 dark:to-yellow-500 from-red-300 to-yellow-200 rounded-tl-none ml-2`}>
+								<div className={`${sharedClasses} bg-gradient-to-tl dark:from-red-600 dark:to-yellow-500 from-red-300 to-yellow-200 rounded-tl-none ml-2`}>
 									<div className="font-bold text-left text-slate-500 dark:text-slate-50">{message.displayName}</div>{message.content}
-								</p>
+								</div>
 								<p className={`text-xs text-slate-400 flex ml-2`}>{localTime}</p>
 							</div>
 						</div>

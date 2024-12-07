@@ -75,7 +75,7 @@ const PUT = withApiAuthRequired(async (req: NextRequest, { params }) => {
 
 		// yes? => respond with that DM room's id
 		if (dmRoom !== null) {
-			const rejoinedRoom = await prisma.usersInRooms.update({
+			const rejoinedRoom: { room: UserDetailedDirectRoom } = await prisma.usersInRooms.update({
 				where: {
 					auth0Id_roomId: {
 						auth0Id: userAuth0Id,
@@ -84,9 +84,56 @@ const PUT = withApiAuthRequired(async (req: NextRequest, { params }) => {
 				},
 				data: {
 					hasLeft: false
+				},
+				include: {
+					room: {
+						select: {
+							roomId: true,
+							roomName: true,
+							roomScope: true,
+							roomType: true,
+							roomIconUrl: true,
+							roomDescription: true,
+							isAgeRestricted: true,
+							isPrivate: true,
+							realmId: true,
+							domainId: true,
+							UsersInRooms: {
+								select: {
+									user: {
+										select: {
+											avatarUrl: true,
+											displayName: true
+										}
+									},
+									isFavorited: true,
+									hasLeft: true,
+									auth0Id: true,
+									userInRoomId: true
+								},
+							},
+						}
+					}
 				}
-			})
-			return NextResponse.json({ roomId: dmRoom.roomId, detailedRoom: rejoinedRoom, message: `Found existing DM room of id ${dmRoom.roomId} with user ${userId}` }, { status: 200 });
+			});
+
+			const requestingUserDetails = rejoinedRoom.room.UsersInRooms
+				.find((userInRoom) =>
+					userInRoom.auth0Id === userAuth0Id
+				);
+
+			if (!requestingUserDetails) {
+				return NextResponse.json({ message: `User id ${userAuth0Id} not found on DM room ${rejoinedRoom.room.roomId}` }, { status: 400 });
+			}
+
+			const detailedRoom: UserDetailedDirectRoom = {
+				...rejoinedRoom.room,
+				requestingUserInRoom: {
+					isFavorited: requestingUserDetails.isFavorited,
+					hasLeft: requestingUserDetails.hasLeft
+				}
+			}
+			return NextResponse.json({ roomId: dmRoom.roomId, detailedRoom, message: `Found existing DM room of id ${dmRoom.roomId} with user ${userId}` }, { status: 200 });
 		}
 
 		// no? => create that DM room and subsequent entities, respond with that DM room's id
