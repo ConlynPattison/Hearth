@@ -129,7 +129,7 @@ const Star = ({ room }: StarProps) => {
 	}
 
 	return (
-		<div className="z-20 absolute translate-y-1 translate-x-1 hidden group-hover:inline-block"
+		<div className="z-20 absolute translate-y-2 hidden group-hover:inline-block p-1"
 			onClick={handleStarClicked}>
 			{room.requestingUserInRoom?.isFavorited ?
 				<FaStar className="dark:text-amber-400 text-amber-500" title="Unstar" /> :
