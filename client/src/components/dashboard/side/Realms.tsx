@@ -1,7 +1,6 @@
 "use client"
 import PersonalChatOpener from "@/components/features/dm/PersonalChatOpener";
-import RealmContext from "@/context/RealmContext";
-import { UsersOnRealms, Realm } from "@prisma/client";
+import RealmContext, { RealmWithAuth } from "@/context/RealmContext";
 import axios from "axios";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -26,13 +25,9 @@ const Realms = ({ selectedDMs }: RealmsProps) => {
 		dedupingInterval: 60000,
 	});
 
-	const defaultRealms = data ? data.realms as ({
-		UsersOnRealms: UsersOnRealms[];
-	} & Realm)[] : []
+	const defaultRealms = data ? data.realms as RealmWithAuth[] : []
 
-	const [realms, setRealms] = useState<({
-		UsersOnRealms: UsersOnRealms[];
-	} & Realm)[]>(defaultRealms);
+	const [realms, setRealms] = useState<RealmWithAuth[]>(defaultRealms);
 
 	const [activeRealm, setActiveRealm] = useContext(RealmContext);
 

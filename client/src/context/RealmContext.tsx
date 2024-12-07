@@ -9,7 +9,7 @@ type DetailedUsersOnRealms = UsersOnRealms & {
 	}
 } & FactionsOnUsersOnRealms;
 
-type RealmWithAuth = {
+export type RealmWithAuth = {
 	UsersOnRealms: DetailedUsersOnRealms[];
 } & Realm
 
