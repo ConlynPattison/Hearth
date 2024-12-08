@@ -69,7 +69,7 @@ const MembersList = () => {
 	if (activeRealm === null) return (<></>);
 
 	return (
-		<div className="px-2 w-[200px] mt-3">
+		<div className="pl-2 w-[200px] h-full pt-3 overflow-y-scroll">
 			<CollapsableHeading heading="Admins">
 				{activeRealm.UsersOnRealms
 					.filter((userOnRealm) => (

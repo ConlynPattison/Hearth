@@ -123,6 +123,7 @@ interface ChatMenuProps {
 
 const ChatMenu = ({ roomId }: ChatMenuProps) => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const [activeRoom, setActiveRoom] = useContext(RoomContext);
 
 	const leaveRoom = async () => {
 		mutate("/api/rooms", (currData: UserDetailedDirectRoomResponse | undefined) => {
@@ -135,6 +136,10 @@ const ChatMenu = ({ roomId }: ChatMenuProps) => {
 				rooms: updatedRooms
 			};
 		}, false);
+
+		if (activeRoom && setActiveRoom) {
+			if (activeRoom.roomId === roomId) setActiveRoom(null);
+		}
 
 		axios.patch("/api/rooms", {
 			body: {
