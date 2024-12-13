@@ -30,6 +30,8 @@ model User {
 
     UsersOnRealms UsersOnRealms[]
     UsersInRooms  UsersInRooms[]
+    FriendsAsGt   Friends[]       @relation("lex_lt_user")
+    FriendsAsLt   Friends[]       @relation("lex_gt_user")
 }
 
 model Room {
@@ -75,6 +77,33 @@ model UsersInRooms {
     room   Room @relation(fields: [roomId], references: [roomId])
 
     @@id([auth0Id, roomId])
+}
+
+model Friends {
+    friendsId   Int           @unique @default(autoincrement())
+    status      FriendsStatus
+    updatedAt   DateTime
+    requestedAt DateTime?
+    acceptedAt  DateTime?
+    blockedAt   DateTime?
+
+    ltAuth0Id String
+    ltUser    User   @relation("lex_lt_user", fields: [ltAuth0Id], references: [auth0Id])
+
+    gtAuth0Id String
+    gtUser    User   @relation("lex_gt_user", fields: [gtAuth0Id], references: [auth0Id])
+
+    @@id([ltAuth0Id, gtAuth0Id])
+}
+
+enum FriendsStatus {
+    LT_REQUEST
+    LT_ACCEPT
+    LT_BLOCK
+    GT_REQUEST
+    GT_ACCEPT
+    GT_BLOCK
+    BLOCK
 }
 
 model Faction {
