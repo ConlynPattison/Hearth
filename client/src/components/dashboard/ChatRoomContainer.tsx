@@ -22,7 +22,7 @@ const ChatRoomContainer = () => {
 	const { user } = useUser();
 	const socket = useSocket();
 
-	const room = activeRoom;
+	const openedRoom = activeRoom;
 
 	useEffect(() => {
 		if (!scrollBox.current) return;
@@ -34,10 +34,10 @@ const ChatRoomContainer = () => {
 	}, [activeRoom]);
 
 	useEffect(() => {
-		if (!socket || !user || !room) return;
+		if (!socket || !user || !openedRoom) return;
 
 		const fetchRoomMessages = async () => {
-			const response = await fetch(`/api/messages/${room.roomId}`);
+			const response = await fetch(`/api/messages/${openedRoom.roomId}`);
 			const messages: MessageForView[] = await response.json().catch(() => []);
 			return messages;
 		}
@@ -62,13 +62,13 @@ const ChatRoomContainer = () => {
 						type: "text",
 						content: msg,
 						userId,
-						room: room.roomId,
+						room: openedRoom.roomId,
 						displayName,
 						avatarUrl,
 						time: Date.now()
 					}];
 				});
-				if (room.roomScope !== RoomScope.REALM) {
+				if (openedRoom.roomScope !== RoomScope.REALM) {
 					mutate(
 						"/api/rooms",
 						(currentData: (UserDetailedDirectRoomResponse | undefined)) => {
@@ -77,7 +77,7 @@ const ChatRoomContainer = () => {
 							const name = userId === user.sub ? "Me" : displayName as string;
 
 							const updatedRooms = currentData.rooms.map((room) => {
-								if (room.roomId === room.roomId) {
+								if (room.roomId === openedRoom.roomId) {
 									return {
 										...room,
 										lastSentMessage: {
@@ -107,7 +107,7 @@ const ChatRoomContainer = () => {
 						type: "joinLeave",
 						content: msg,
 						userId,
-						room: room.roomId,
+						room: openedRoom.roomId,
 						displayName,
 						avatarUrl,
 					}];
@@ -116,7 +116,7 @@ const ChatRoomContainer = () => {
 
 			socket.connect();
 			setIsConnected(socket.connected);
-			socket.emit("joinRoom", room.roomId, {
+			socket.emit("joinRoom", openedRoom.roomId, {
 				userId: user.sub,
 				displayName: user.name,
 				avatarUrl: user.picture
@@ -150,10 +150,10 @@ const ChatRoomContainer = () => {
 			window.removeEventListener("beforeunload", handleBeforeUnload);
 		};
 
-	}, [user, socket, room]);
+	}, [user, socket, openedRoom]);
 
 	return (
-		<> {room &&
+		<> {openedRoom &&
 			<div className="flex flex-col h-dvh relative dark:bg-slate-750">
 				{/* Heading */}
 				<div className="flex-shrink-0 h-[60px] border-b-2 dark:border-slate-800 border-slate-200 overflow-hidden">
@@ -177,7 +177,7 @@ const ChatRoomContainer = () => {
 					<SentMessages messages={messages} />
 				</div>
 				<div className="mt-auto">
-					<MessageInputForm socket={socket} roomSendingTo={room} isConnected={isConnected} />
+					<MessageInputForm socket={socket} roomSendingTo={openedRoom} isConnected={isConnected} />
 				</div>
 			</div>}
 		</>
